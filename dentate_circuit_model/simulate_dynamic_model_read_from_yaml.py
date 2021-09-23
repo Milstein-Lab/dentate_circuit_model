@@ -1116,9 +1116,24 @@ def import_dynamic_model_data(data_file_path, description=None):
            network_activity_dynamics_history_dict, t_history_dict
 
 
-#############################################################################
+def loss_function(features_dict,objectives_dict):
+    '''
+    :param features_dict: dict of model activity quantifications to optimize
+    :param objectives_dict: dict of target values
+    :return: list of parameter losses to minimize
+    '''
+    summed_activity_loss = (objectives_dict['Output']['summed_activity'] - features_dict['Output']['final_summed_activity'])**2
+    similarity_loss = (objectives_dict['Output']['similarity'] - features_dict['Output']['final_similarity'])**2
 
-# now for our main() function that will do the work:
+    return summed_activity_loss, similarity_loss
+
+
+
+#############################################################################
+# Example command to run from terminal:
+# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/example_config_file_optimization.yaml
+
+
 @click.command()
 @click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
 #Time paramters
@@ -1129,7 +1144,7 @@ def import_dynamic_model_data(data_file_path, description=None):
 @click.option("--seed", type=int, default=None)
 @click.option("--description", type=str, default=None)
 @click.option("--export_file_name", type=str, default=None)
-@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='data')
+@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='../data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
 
@@ -1148,6 +1163,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param plot: bool; whether to generate plots
     :param export: bool; whether to export data to hdf5
     """
+
     parameter_dict = read_from_yaml(config_file_path)
     num_units_dict = parameter_dict['num_units_dict']
 
@@ -1187,7 +1203,12 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
 
-    # TODO: generate dictionaries for "features" and "objectives"
+    # Calculate loss to optimize network for sparsity and similarity
+    features_dict = {'Output':
+                         {'final_summed_activity': median_summed_network_activity_dynamics_dict['Output'][-1],
+                          'final_similarity': median_similarity_dynamics_dict['Output'][-1]}}
+    objectives_dict = parameter_dict['objectives_dict']
+    summed_activity_loss, similarity_loss = loss_function(features_dict,objectives_dict)
 
     if export:
         if export_file_name is None:
@@ -1215,7 +1236,6 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
     plt.show()
-
 
 if __name__ == '__main__':
     # this extra flag stops the click module from forcing system exit when python is in interactive mode
