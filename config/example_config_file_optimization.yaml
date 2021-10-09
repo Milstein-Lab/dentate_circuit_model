@@ -1,28 +1,72 @@
-num_units_dict:
-    Input: 7
-    Output: 128
+optimization_title: dentate_model_optimization
 
-activation_function_name_dict:
-    Output: piecewise_linear_activation
-    FF_Inh: identity_activation
+param_names:
+    - output_input_weight_magnitude
+    - output_FFI_weight_magnitude
+    - FFI_input_weight_magnitude
+    -
 
-weight_config_dict:
-    Output:
-        Input:
-            dist_type: log-normal
-            mean_magnitude: 0.5
-            connection_type: exc
+    # params to optimize for every projection:
+#        mean weight
+#        variance weight
+#        cell activation threshold
+#        cell input max
 
-cell_tau_dict:
-    Output: 0.05
+bounds:
+    output_input_weight_magnitude: !!python tuple
+        - 0.1
+        - 1
+    output_FFI_weight_magnitude: !!python tuple
+        - 0.1
+        - 1
+    FFI_input_weight_magnitude: !!python tuple
+        - 0.1
+        - 1
 
-synapse_tau_dict:
-    Output:
-        Input:
-            rise: 0.001
-            decay: 0.01
+objective_names:
+    - sparsity
+    - discriminability
 
-objectives_dict:
-    Output:
-        summed_activity: 1
-        similarity: 0
+
+
+x0: #initial parameters
+    input_weight_magnitude: 0.5
+
+get_objectives:
+
+
+
+param_gen: PopulationAnnealing
+
+kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
+    description: only FF-I
+    seed: 123
+
+    num_units_dict:
+        Input: 7
+        Output: 128
+
+    activation_function_name_dict:
+        Output: piecewise_linear_activation
+        FF_Inh: identity_activation
+
+    weight_config_dict:
+        Output:
+            Input:
+                dist_type: log-normal
+                mean_magnitude: 0.5
+                connection_type: exc
+
+    cell_tau_dict:
+        Output: 0.05
+
+    synapse_tau_dict:
+        Output:
+            Input:
+                rise: 0.001
+                decay: 0.01
+
+    objectives_dict:
+        Output:
+            summed_activity: 1
+            similarity: 0

@@ -1203,13 +1203,6 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
 
-    # Calculate loss to optimize network for sparsity and similarity
-    features_dict = {'Output':
-                         {'final_summed_activity': median_summed_network_activity_dynamics_dict['Output'][-1],
-                          'final_similarity': median_similarity_dynamics_dict['Output'][-1]}}
-    objectives_dict = parameter_dict['objectives_dict']
-    summed_activity_loss, similarity_loss = loss_function(features_dict,objectives_dict)
-
     if export:
         if export_file_name is None:
             export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
