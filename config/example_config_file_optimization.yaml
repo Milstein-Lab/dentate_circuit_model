@@ -1,16 +1,9 @@
 optimization_title: dentate_model_optimization
 
-param_names:
+param_names: # params to optimize
     - output_input_weight_magnitude
     - output_FFI_weight_magnitude
     - FFI_input_weight_magnitude
-    -
-
-    # params to optimize for every projection:
-#        mean weight
-#        variance weight
-#        cell activation threshold
-#        cell input max
 
 bounds:
     output_input_weight_magnitude: !!python tuple
@@ -23,28 +16,50 @@ bounds:
         - 0.1
         - 1
 
-objective_names:
-    - sparsity
-    - discriminability
+feature_names:
+    - final_summed_activity
+    - final_similarity
+    - final_selectivity
 
+get_feature_stages:
+    - source: simulate_dynamic_model_optimize
+      compute_features: compute_features
 
-
-x0: #initial parameters
-    input_weight_magnitude: 0.5
+objective_names: #loss/error values to minimize
+    - sparsity_loss
+    - discriminability_loss
+    - selectivity_loss
 
 get_objectives:
+    simulate_dynamic_model_optimize: get_objectives
 
+target_val:
+    summed_activity: 1. #quantifies sparsity of output population
+    similarity: 0. #quantifies discriminability between different patterns
+    selectivity: 1. #
 
+target_range:
+    summed_activity: 0.1
+    similarity: 0.1
+    selectivity: 0.1
+
+x0: #initial parameters
+    output_input_weight_magnitude: 0.5
+    output_FFI_weight_magnitude: 0.5
+    FFI_input_weight_magnitude: 0.5
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: only FF-I
+    description: only_FFI
     seed: 123
+    duration: 0.2 #sec
+    dt: 0.001 #sec
 
     num_units_dict:
         Input: 7
         Output: 128
+        FF_Inh: 7
 
     activation_function_name_dict:
         Output: piecewise_linear_activation
@@ -65,8 +80,3 @@ kwargs: #All these will become will become dictionaries in Context() once nested
             Input:
                 rise: 0.001
                 decay: 0.01
-
-    objectives_dict:
-        Output:
-            summed_activity: 1
-            similarity: 0

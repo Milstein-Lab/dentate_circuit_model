@@ -160,17 +160,21 @@ def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, cell_scalar
     d_cell_voltage_dt_array = (-cell_voltage + cell_scalar * net_current) / cell_tau
     return d_cell_voltage_dt_array
 
+
 def get_d_syn_weights_dt_array(learn_scalar, pre_activity, post_activity, weights):
     d_syn_weights_dt_array = (learn_scalar * pre_activity[:, None] * post_activity[:, None]) - (weights * post_activity[:, None])
     return d_syn_weights_dt_array
+
 
 def get_d_conductance_dt_array(channel_conductance, pre_activity, rise_tau, decay_tau):
     d_conductance_dt_array = -channel_conductance / decay_tau + np.maximum(0., pre_activity[:, None] - channel_conductance) / rise_tau
     return d_conductance_dt_array
 
+
 def get_net_current(weights, channel_conductances, cell_voltage, reversal_potential=60):
     net_current_array = ((weights * channel_conductances) * (reversal_potential - cell_voltage))
     return net_current_array
+
 
 def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, channel_conductance_dict,
                                          cell_voltage_dict, network_activity_dict):
@@ -597,6 +601,13 @@ def analyze_sparsity_and_similarity(network_activity_dict):
 
     return summed_network_activity_dict, similarity_matrix_dict
 
+def gini_coefficient(x):
+    # The rest of the code requires numpy arrays.
+    x = np.asarray(x) + 0.0001
+    sorted_x = np.sort(x)
+    n = len(x)
+    cumx = np.cumsum(sorted_x, dtype=float)
+    return (n + 1 - 2 * np.sum(cumx) / cumx[-1]) / n
 
 def analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict):
     """
@@ -620,6 +631,7 @@ def analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict):
     median_summed_network_activity_dynamics_dict = {}
     median_similarity_dynamics_dict = {}
     fraction_nonzero_response_dynamics_dict = {}
+    median_selectivity_dynamics_dict = {}
 
     first_activity_dynamics_matrix = next(iter(network_activity_dynamics_dict.values()))
     num_patterns = first_activity_dynamics_matrix.shape[0]
@@ -629,18 +641,28 @@ def analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict):
         median_summed_network_activity_dynamics_dict[population] = np.empty(len_t)
         median_similarity_dynamics_dict[population] = np.empty(len_t)
         fraction_nonzero_response_dynamics_dict[population] = np.empty(len_t)
+        median_selectivity_dynamics_dict[population] = np.empty(len_t)
+
         for i in range(len_t):
             summed_network_activity = np.sum(network_activity_dynamics_dict[population][:, :, i], axis=1)
             median_summed_network_activity_dynamics_dict[population][i] = np.median(summed_network_activity)
+
             invalid_indexes = np.where(summed_network_activity == 0.)[0]
             fraction_nonzero_response_dynamics_dict[population][i] = 1. - len(invalid_indexes) / num_patterns
+
             similarity_matrix = cosine_similarity(network_activity_dynamics_dict[population][:, :, i])
             similarity_matrix[invalid_indexes, :] = np.nan
             similarity_matrix[:, invalid_indexes] = np.nan
             median_similarity_dynamics_dict[population][i] = np.nanmedian(similarity_matrix)
 
+            selectivity = []
+            for unit in range(network_activity_dynamics_dict[population].shape[1]):
+                unit_activity = network_activity_dynamics_dict[population][:, unit, i]
+                selectivity.append(gini_coefficient(unit_activity))
+            median_selectivity_dynamics_dict[population][i] = np.median(selectivity)
+
     return median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
-           fraction_nonzero_response_dynamics_dict
+           fraction_nonzero_response_dynamics_dict, median_selectivity_dynamics_dict
 
 
 def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description=None):
@@ -1115,18 +1137,6 @@ def import_dynamic_model_data(data_file_path, description=None):
            network_activity_dynamics_history_dict, t_history_dict
 
 
-def loss_function(features_dict,objectives_dict):
-    '''
-    :param features_dict: dict of model activity quantifications to optimize
-    :param objectives_dict: dict of target values
-    :return: list of parameter losses to minimize
-    '''
-    summed_activity_loss = (objectives_dict['Output']['summed_activity'] - features_dict['Output']['final_summed_activity'])**2
-    similarity_loss = (objectives_dict['Output']['similarity'] - features_dict['Output']['final_similarity'])**2
-
-    return summed_activity_loss, similarity_loss
-
-
 #############################################################################
 # Example command to run from terminal:
 # python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/example_config_file_optimization.yaml
@@ -1149,7 +1159,9 @@ def loss_function(features_dict,objectives_dict):
 #############################################################################
 # Example command to run from terminal:
 # python -i -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
+# python -m nested.optimize --config_file_path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
 
+# python -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml --disp --framework=serial
 
 # Configure model for nested optimization
 
@@ -1159,65 +1171,130 @@ context = nt.Context()
 
 def config_worker():
 
+    #Extract dicts from context (everything in the yaml kwargs is already in context)
     num_units_dict = context.num_units_dict
-    num_input_units = num_units_dict['Input']
+    weight_config_dict = context.weight_config_dict
+    cell_tau_dict = context.cell_tau_dict
+    synapse_tau_dict = context.synapse_tau_dict
 
     # generate all possible binary input patterns with specified number units in the input layer
+    num_input_units = num_units_dict['Input']
     sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True, plot=plot)
-
-    num_units_dict['Output'] = len(sorted_input_patterns)
+    #num_units_dict['Output'] = len(sorted_input_patterns)
 
     activation_function_name_dict = context.activation_function_name_dict
     activation_function_dict = {}
     for population in activation_function_name_dict:
         activation_function_dict[population] = get_callable_from_str(activation_function_name_dict[population])
 
-    weight_config_dict = context.weight_config_dict
-    cell_tau_dict = context.cell_tau_dict
-    synapse_tau_dict = context.synapse_tau_dict
-
     weight_dict = get_weight_dict(num_units_dict, weight_config_dict, context.seed, context.description, plot=plot)
 
-    t = np.arange(0., duration + dt / 2., dt)
-
-
-
-
-
-    # everything in the yaml kwargs is already in context
-    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict,
-                                  context.seed, context.description, plot=plot)
-
-    t = np.arange(0., duration + dt / 2., dt)
-
-    #build other dicts (e.g. activation funct)
-
-
-
+    t = np.arange(0., context.duration + context.dt / 2., context.dt)
 
     context.update(locals())
 
+def modify_network(param_dict):
 
+    context.weight_config_dict['Output']['Input']['mean_magnitude'] = param_dict['output_input_weight_magnitude']
+    context.weight_config_dict['Output']['FF_Inh']['mean_magnitude'] = param_dict['output_FFI_weight_magnitude']
+    context.weight_config_dict['FF_Inh']['Input']['mean_magnitude'] = param_dict['FFI_input_weight_magnitude']
 
-def compute_features(params, *args):
+    # # TODO: not working
+    # example_param_dict = {'mean_weight;Input;Output': val,
+    #                       'mean_weight;Input;FF_Inh': val}
+    #
+    # for param_name, param_val in param_dict.items():
+    #     if 'mean_weight' in param_name:
+    #
+    #         context.weight_config_dict[post_pop][pre_pop]['mean_magnitude'] = param_val
+    #
 
+def compute_features(param_array, model_id=None, export=False, plot=False):
+    '''
+    :param params_array: array of float containing params being optimized
+    :param model_id: int
+    :param export: bool
+    :param plot: bool
+    :return: dict
+    '''
+
+    start_time = time.time()
+
+    param_dict = nt.param_array_to_dict(param_array, context.param_names)
+
+    modify_network(param_dict) #update the weight config dict
+
+    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
+                                  description=context.description, plot=plot)
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
         network_activity_dynamics_dict = get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict,
                                                                 cell_tau_dict, weight_dict, activation_function_dict)
 
+    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
+                                                                 time_point=time_point)
 
-    #get network dynamics(...)
+    summed_network_activity_dict, similarity_matrix_dict = analyze_sparsity_and_similarity(network_activity_dict)
 
-    # features_dict = {'Output':
-    #                      {'final_summed_activity': median_summed_network_activity_dynamics_dict['Output'][-1],
-    #                       'final_similarity': median_similarity_dynamics_dict['Output'][-1]}}
+    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict, median_selectivity_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
+
+    # Calculate loss to optimize network for sparsity and similarity
+    features_dict = {'Output':
+                         {'final_summed_activity': median_summed_network_activity_dynamics_dict['Output'][-1],
+                          'final_similarity': median_similarity_dynamics_dict['Output'][-1],
+                          'final_selectivity': median_selectivity_dynamics_dict['Output'][-1]}}
+
+    print('Simulation took %.1f s' % (time.time() - start_time))
+
+    if plot:
+        plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description)
+        plot_sparsity_and_similarity_dynamics(t, median_summed_network_activity_dynamics_dict,
+                                              median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
+                                              description)
+    plt.show() #this forces all plots generated with fig.show() to wait for the user to close them before exiting python
+
+    if export:
+        if export_file_name is None:
+            export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
+        export_file_path = '%s/%s' % (data_dir, export_file_name)
+
+        model_config_dict = {'description': description,
+                             'seed': seed,
+                             'duration': duration,
+                             'dt': dt,
+                             'num_FF_inh_units': num_FF_inh_units,
+                             'num_FB_inh_units': num_FB_inh_units,
+                             }
+
+        export_dynamic_model_data(export_file_path, description, model_config_dict, num_units_dict,
+                                  activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
+                                  synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
+                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+
 
     return features_dict
 
-def compute_loss(features_dict, *args): #get objectives
 
-    return features_dict, loss_function_dict
+def get_objectives(features_dict, model_id=None, export=False, plot=False): #compute loss function
+    """
+    :param features_dict: dict
+    :param model_id: int
+    :param export: bool
+    :param plot: bool
+    :return: tuple of dict
+    """
+
+    # print(context.target_val)
+    # print(context.target_range)
+
+    objectives_dict = {'sparsity_loss': (context.target_val['summed_activity'] - features_dict['Output']['final_summed_activity'])**2,
+                       'discriminability_loss': (context.target_val['similarity'] - features_dict['Output']['final_similarity'])**2,
+                       'selectivity_loss': (context.target_val['selectivity'] - features_dict['Output']['final_selectivity'])**2}
+
+    return features_dict, objectives_dict
+
+
 #############################################################################
 
 
@@ -1237,7 +1314,36 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param export: bool; whether to export data to hdf5
     """
 
+    parameter_dict = read_from_yaml(config_file_path)
+    num_units_dict = parameter_dict['num_units_dict']
 
+    num_input_units = num_units_dict['Input']
+
+    # generate all possible binary input patterns with specified number units in the input layer
+    sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True, plot=plot)
+
+    num_units_dict['Output'] = len(sorted_input_patterns)
+
+    # Let's be explicit about whether we will apply a nonlinear activation function to each population:
+    activation_function_name_dict = parameter_dict['activation_function_name_dict']
+
+    activation_function_dict = {}
+    for population in activation_function_name_dict:
+        activation_function_dict[population] = get_callable_from_str(activation_function_name_dict[population])
+
+    weight_config_dict = parameter_dict['weight_config_dict']
+
+    cell_tau_dict = parameter_dict['cell_tau_dict']
+
+    synapse_tau_dict = parameter_dict['synapse_tau_dict']
+
+    weight_dict = get_weight_dict(num_units_dict, weight_config_dict, seed, description=description, plot=plot)
+
+    t = np.arange(0., duration + dt / 2., dt)
+
+    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
+        get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                                   weight_dict, activation_function_dict)
 
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
                                                                  time_point=time_point)
@@ -1246,13 +1352,6 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
-
-    # # Calculate loss to optimize network for sparsity and similarity
-    # features_dict = {'Output':
-    #                      {'final_summed_activity': median_summed_network_activity_dynamics_dict['Output'][-1],
-    #                       'final_similarity': median_similarity_dynamics_dict['Output'][-1]}}
-    # objectives_dict = parameter_dict['objectives_dict']
-    # summed_activity_loss, similarity_loss = loss_function(features_dict,objectives_dict)
 
     if export:
         if export_file_name is None:
@@ -1280,6 +1379,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
     plt.show()
+
 
 if __name__ == '__main__':
     # this extra flag stops the click module from forcing system exit when python is in interactive mode
