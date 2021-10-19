@@ -21,8 +21,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections.abc import Iterable
 from copy import deepcopy
 from scipy.integrate import solve_ivp
-import nested.utils as nt
+from nested.utils import Context, read_from_yaml, param_array_to_dict
 import time
+
+context = Context()
+
+
 
 # we'll need some functions that we have been storing in our Jupyter notebook:
 def recursive_append_binary_input_patterns(n, index=None, input_pattern_list=None):
@@ -1156,7 +1160,6 @@ def import_dynamic_model_data(data_file_path, description=None):
 
 # python -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml
 
-context = nt.Context()
 
 def config_worker():
 
@@ -1209,7 +1212,7 @@ def compute_features(param_array, model_id=None, export=False, plot=False, *args
     '''
 
     start_time = time.time()
-    param_dict = nt.param_array_to_dict(param_array, context.param_names)
+    param_dict = param_array_to_dict(param_array, context.param_names)
     modify_network(param_dict) #update the weight config dict
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
                                   description=context.description, plot=plot)
@@ -1315,7 +1318,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param export: bool; whether to export data to hdf5
     """
 
-    parameter_dict = nt.read_from_yaml(config_file_path)
+    parameter_dict = read_from_yaml(config_file_path)
     num_units_dict = parameter_dict['num_units_dict']
 
     num_input_units = num_units_dict['Input']
