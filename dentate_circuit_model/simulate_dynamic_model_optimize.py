@@ -21,7 +21,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections.abc import Iterable
 from copy import deepcopy
 from scipy.integrate import solve_ivp
-
+import nested.utils as nt
+import time
 
 # we'll need some functions that we have been storing in our Jupyter notebook:
 def recursive_append_binary_input_patterns(n, index=None, input_pattern_list=None):
@@ -439,9 +440,9 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
         }
     :return: tuple of nested dict
     """
-    # Initialize nested dictionaries to contain network intermediates for one time step in response to one input
-    # pattern
-    #syn_current_dict = {}
+
+
+    # Initialize nested dictionaries to contain network intermediates for one time step in response to one input pattern
     cell_voltage_dict = {}
     network_activity_dict = {}
     channel_conductance_dict = {}
@@ -449,11 +450,8 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
     network_activity_dict['Input'] = np.copy(input_pattern)
 
     for post_population in weight_dict:
-        #syn_current_dict[post_population] = {}
         channel_conductance_dict[post_population] = {}
         for pre_population in weight_dict[post_population]:
-            # syn_current_dict[post_population][pre_population] = np.zeros(
-            #     (num_units_dict[pre_population], num_units_dict[post_population]))
             channel_conductance_dict[post_population][pre_population] = np.zeros(
                 (num_units_dict[pre_population], num_units_dict[post_population]))
 
@@ -465,6 +463,8 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
                     args=(legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
                           weight_dict, activation_function_dict))
 
+    print('sol shape: ', sol.y.shape)
+    #print('time: ', t[0], t[-1])
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict = state_dynamics_to_nested_dicts(sol.y, legend, input_pattern, num_units_dict,
@@ -505,6 +505,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
     cell_voltage_dynamics_dict = {}
     network_activity_dynamics_dict = {}
 
+    # Initialize empty arrays to store the dynamics
     for population in num_units_dict:
         network_activity_dynamics_dict[population] = np.empty((len(input_patterns), num_units_dict[population], len(t)))
 
@@ -520,12 +521,22 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         cell_voltage_dynamics_dict[post_population] = \
             np.empty((len(input_patterns), num_units_dict[post_population], len(t)))
 
-    for pattern_index in range(len(input_patterns)):
+    # Present each pattern and compute activity dynamics over time interval t
+    for pattern_index in np.arange(63,len(input_patterns)): #range(len(input_patterns)):
+
         this_input_pattern = input_patterns[pattern_index]
+
+        print('Pattern: ', pattern_index, this_input_pattern)
+
         this_channel_conductance_dynamics_dict, this_net_current_dynamics_dict, this_cell_voltage_dynamics_dict, \
         this_network_activity_dynamics_dict = \
             compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
                                               weight_dict, activation_function_dict)
+
+
+        # print(this_network_activity_dynamics_dict.keys())
+        # print('Activity dynamics input 2: ', this_network_activity_dynamics_dict['Input'].shape)
+        # assert 3==6, 'STOP!'
 
         for population in this_network_activity_dynamics_dict:
             network_activity_dynamics_dict[population][pattern_index, :, :] = \
@@ -1136,40 +1147,20 @@ def import_dynamic_model_data(data_file_path, description=None):
            syn_current_dynamics_history_dict, net_current_dynamics_history_dict, cell_voltage_dynamics_history_dict, \
            network_activity_dynamics_history_dict, t_history_dict
 
-
 #############################################################################
-# Example command to run from terminal:
-# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/example_config_file_optimization.yaml
-
-
-@click.command()
-@click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
-#Time paramters
-@click.option("--dt", type=float, default=0.001)  # sec
-@click.option("--duration", type=float, default=0.2)  # sec
-@click.option("--time_point", type=float, default=0.2)  # sec
-#Other optional arguments
-@click.option("--seed", type=int, default=None)
-@click.option("--description", type=str, default=None)
-@click.option("--export_file_name", type=str, default=None)
-@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='../data')
-@click.option("--plot", is_flag=True)
-@click.option("--export", is_flag=True)
-
-#############################################################################
-# Example command to run from terminal:
-# python -i -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
-# python -m nested.optimize --config_file_path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
-
-# python -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml --disp --framework=serial
-
 # Configure model for nested optimization
 
-import nested.utils as nt
+# Example command to run from terminal:
+# python -i -m nested.analyze --config-file-path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
+# python -m nested.optimize --config-file-path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
+
+# python -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml
 
 context = nt.Context()
 
 def config_worker():
+
+    plot= False
 
     #Extract dicts from context (everything in the yaml kwargs is already in context)
     num_units_dict = context.num_units_dict
@@ -1194,7 +1185,6 @@ def config_worker():
     context.update(locals())
 
 def modify_network(param_dict):
-
     context.weight_config_dict['Output']['Input']['mean_magnitude'] = param_dict['output_input_weight_magnitude']
     context.weight_config_dict['Output']['FF_Inh']['mean_magnitude'] = param_dict['output_FFI_weight_magnitude']
     context.weight_config_dict['FF_Inh']['Input']['mean_magnitude'] = param_dict['FFI_input_weight_magnitude']
@@ -1209,7 +1199,7 @@ def modify_network(param_dict):
     #         context.weight_config_dict[post_pop][pre_pop]['mean_magnitude'] = param_val
     #
 
-def compute_features(param_array, model_id=None, export=False, plot=False):
+def compute_features(param_array, model_id=None, export=False, plot=False, *args):
     '''
     :param params_array: array of float containing params being optimized
     :param model_id: int
@@ -1219,19 +1209,16 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
     '''
 
     start_time = time.time()
-
     param_dict = nt.param_array_to_dict(param_array, context.param_names)
-
     modify_network(param_dict) #update the weight config dict
-
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
                                   description=context.description, plot=plot)
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-        network_activity_dynamics_dict = get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict,
-                                                                cell_tau_dict, weight_dict, activation_function_dict)
+        network_activity_dynamics_dict = get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
+                                                                    context.synapse_tau_dict, context.cell_tau_dict, weight_dict, context.activation_function_dict)
 
-    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
+    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=time_point)
 
     summed_network_activity_dict, similarity_matrix_dict = analyze_sparsity_and_similarity(network_activity_dict)
@@ -1259,10 +1246,10 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
             export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
         export_file_path = '%s/%s' % (data_dir, export_file_name)
 
-        model_config_dict = {'description': description,
-                             'seed': seed,
-                             'duration': duration,
-                             'dt': dt,
+        model_config_dict = {'description': context.description,
+                             'seed': context.seed,
+                             'duration': context.duration,
+                             'dt': context.dt,
                              'num_FF_inh_units': num_FF_inh_units,
                              'num_FB_inh_units': num_FB_inh_units,
                              }
@@ -1275,8 +1262,7 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
 
     return features_dict
 
-
-def get_objectives(features_dict, model_id=None, export=False, plot=False): #compute loss function
+def get_objectives(features_dict, model_id=None, export=False, plot=False, *args): #compute loss function
     """
     :param features_dict: dict
     :param model_id: int
@@ -1294,10 +1280,25 @@ def get_objectives(features_dict, model_id=None, export=False, plot=False): #com
 
     return features_dict, objectives_dict
 
+#############################################################################
+# Example command to run from terminal:
+# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/example_config_file_optimization.yaml
+
+@click.command()
+@click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
+#Time paramters
+@click.option("--dt", type=float, default=0.001)  # sec
+@click.option("--duration", type=float, default=0.2)  # sec
+@click.option("--time_point", type=float, default=0.2)  # sec
+#Other optional arguments
+@click.option("--seed", type=int, default=None)
+@click.option("--description", type=str, default=None)
+@click.option("--export_file_name", type=str, default=None)
+@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='../data')
+@click.option("--plot", is_flag=True)
+@click.option("--export", is_flag=True)
 
 #############################################################################
-
-
 def main(config_file_path, dt, duration, time_point, seed, description, export_file_name, data_dir, plot, export):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
@@ -1314,7 +1315,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param export: bool; whether to export data to hdf5
     """
 
-    parameter_dict = read_from_yaml(config_file_path)
+    parameter_dict = nt.read_from_yaml(config_file_path)
     num_units_dict = parameter_dict['num_units_dict']
 
     num_input_units = num_units_dict['Input']

@@ -6,22 +6,22 @@ param_names: # params to optimize
     - FFI_input_weight_magnitude
 
 bounds:
-    output_input_weight_magnitude: !!python tuple
-        - 0.1
-        - 1
-    output_FFI_weight_magnitude: !!python tuple
-        - 0.1
-        - 1
-    FFI_input_weight_magnitude: !!python tuple
-        - 0.1
-        - 1
+    output_input_weight_magnitude: !!python/tuple
+        - 0.4
+        - 0.6
+    output_FFI_weight_magnitude: !!python/tuple
+        - 0.4
+        - 0.6
+    FFI_input_weight_magnitude: !!python/tuple
+        - 0.4
+        - 0.6
 
 feature_names:
     - final_summed_activity
     - final_similarity
     - final_selectivity
 
-get_feature_stages:
+get_features_stages:
     - source: simulate_dynamic_model_optimize
       compute_features: compute_features
 
@@ -52,7 +52,7 @@ param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
     description: only_FFI
-    seed: 123
+    seed: 1234
     duration: 0.2 #sec
     dt: 0.001 #sec
 
@@ -71,12 +71,29 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: log-normal
                 mean_magnitude: 0.5
                 connection_type: exc
+            FF_Inh:
+                dist_type: uniform
+                mean_magnitude: 0.5
+                connection_type: inh
+        FF_Inh:
+            Input:
+                dist_type: uniform
+                mean_magnitude: 0.2
+                connection_type: exc
 
     cell_tau_dict:
         Output: 0.05
+        FF_Inh: 0.02
 
     synapse_tau_dict:
         Output:
+            Input:
+                rise: 0.001
+                decay: 0.01
+            FF_Inh:
+                rise: 0.001
+                decay: 0.02
+        FF_Inh:
             Input:
                 rise: 0.001
                 decay: 0.01
