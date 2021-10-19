@@ -1151,10 +1151,10 @@ def import_dynamic_model_data(data_file_path, description=None):
 # Configure model for nested optimization
 
 # Example command to run from terminal:
-# python -i -m nested.analyze --config-file-path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
-# python -m nested.optimize --config-file-path=../config/example_config_file_optimization.yaml --disp --plot --framework=serial --interactive
+# python -i -m nested.analyze --config-file-path=../config/optimize_config_FF_Inh.yaml --disp --plot --framework=serial --interactive
+# python -m nested.optimize --config-file-path=../config/optimize_config_FF_Inh.yaml --disp --plot --framework=serial --interactive
 
-# python -m nested.analyze --config_file_path=../config/example_config_file_optimization.yaml
+# python -m nested.analyze --config_file_path=../config/optimize_config_FF_Inh.yaml
 
 context = nt.Context()
 
@@ -1282,7 +1282,7 @@ def get_objectives(features_dict, model_id=None, export=False, plot=False, *args
 
 #############################################################################
 # Example command to run from terminal:
-# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/example_config_file_optimization.yaml
+# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/optimize_config_FF_Inh.yaml
 
 @click.command()
 @click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))

@@ -21,7 +21,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections.abc import Iterable
 from copy import deepcopy
 from scipy.integrate import solve_ivp
-from nested.utils import read_from_yaml
+from nested.utils import read_from_yaml, Context, param_array_to_dict
+import os, time
+
+
+context = Context()
 
 
 # we'll need some functions that we have been storing in our Jupyter notebook:
@@ -91,11 +95,25 @@ def get_binary_input_patterns(n, sort=True, plot=False):
     return input_pattern_array
 
 
+def act_funct_args(population, activation_function_dict):
+    """
+    Gets custom parameters for the given activation function if they are provided
+    :param population: string
+    :param activation_function_dict: dictionary
+    :return: dictionary
+    """
+    if 'Arguments' in activation_function_dict[population]:
+        this_kwargs = activation_function_dict[population]['Arguments']
+    else:
+        this_kwargs = {}
+    return this_kwargs
+
+
 def identity_activation(x):
     return x
 
 
-def piecewise_linear_activation(weighted_input, peak_output=1., peak_input=7., threshold=0.):
+def piecewise_linear_activation(weighted_input, peak_output=3., peak_input=7., threshold=0.):
     """
     Output is zero below a threshold, then increases linearly for inputs up to the specified maximum values for inputs
     and output.
@@ -105,7 +123,9 @@ def piecewise_linear_activation(weighted_input, peak_output=1., peak_input=7., t
     :param threshold: float
     :return: array of float
     """
-    slope = peak_output / (peak_input-threshold)
+
+    slope = peak_output / (peak_input - threshold)
+
     input_above_threshold = np.maximum(0., weighted_input-threshold)
     output = slope * np.minimum(input_above_threshold, peak_input-threshold)
 
@@ -161,19 +181,25 @@ def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, cell_scalar
     d_cell_voltage_dt_array = (-cell_voltage + cell_scalar * net_current) / cell_tau
     return d_cell_voltage_dt_array
 
+
 def get_d_syn_weights_dt_array(learn_scalar, pre_activity, post_activity, weights):
     d_syn_weights_dt_array = (learn_scalar * pre_activity[:, None] * post_activity[:, None]) - (weights * post_activity[:, None])
     return d_syn_weights_dt_array
+
 
 def get_d_conductance_dt_array(channel_conductance, pre_activity, rise_tau, decay_tau):
     d_conductance_dt_array = -channel_conductance / decay_tau + np.maximum(0., pre_activity[:, None] - channel_conductance) / rise_tau
     return d_conductance_dt_array
 
-def get_net_current(weights, channel_conductances, cell_voltage, reversal_potential=60):
+
+def get_net_current(weights, channel_conductances, cell_voltage, reversal_potential):
     net_current_array = ((weights * channel_conductances) * (reversal_potential - cell_voltage))
+    net_current_array = np.sum(net_current_array, axis=0)
     return net_current_array
 
-def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, channel_conductance_dict,
+
+def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
+                                         synaptic_reversal_dict, channel_conductance_dict,
                                          cell_voltage_dict, network_activity_dict):
     """
     Computes rates of change of all synaptic currents and all cell voltages for all populations in a network.
@@ -194,6 +220,10 @@ def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_
                 2d array of float (number of presynaptic units, number of postsynaptic units)
             }
         }
+    :param weight_config_dict: nested dict:
+        {'postsynaptic population label':
+            {'resynaptic population label':
+                {'distribution: string
     :param syn_current_dict:
         {'post population label':
             {'pre population label':
@@ -215,34 +245,29 @@ def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_
     d_conductance_dt_dict = {}
 
     for post_population in weight_dict:  # get the change in synaptic currents for every connection
-        # d_syn_current_dt_dict[post_population] = {}
-        # for pre_population in weight_dict[post_population]:
-        #     this_synapse_tau = synapse_tau_dict[post_population][pre_population]
-        #     this_weights = weight_dict[post_population][pre_population]
-        #     this_pre_activity = network_activity_dict[pre_population]
-        #     this_syn_current = syn_current_dict[post_population][pre_population]
-        #     this_synapse_scalar = 1./this_synapse_tau
-        #     d_syn_current_dt_dict[post_population][pre_population] = \
-        #         get_d_syn_current_dt_array(this_syn_current, this_pre_activity, this_weights, this_synapse_tau,
-        #                                    this_synapse_scalar)
-
         d_conductance_dt_dict[post_population] = {}
+        this_cell_tau = cell_tau_dict[post_population]
+        this_net_current = np.zeros_like(network_activity_dict[post_population])
+        this_cell_voltage = cell_voltage_dict[post_population]
         for pre_population in weight_dict[post_population]:
+
             this_decay_tau = synapse_tau_dict[post_population][pre_population]['decay']
             this_rise_tau = synapse_tau_dict[post_population][pre_population]['rise']
+
             this_channel_conductance = channel_conductance_dict[post_population][pre_population]
+
             this_pre_activity = network_activity_dict[pre_population]
             d_conductance_dt_dict[post_population][pre_population] = \
                 get_d_conductance_dt_array(this_channel_conductance, this_pre_activity, this_rise_tau, this_decay_tau)
 
+            this_weights = weight_dict[post_population][pre_population]
 
-        this_cell_tau = cell_tau_dict[post_population]
-        this_weights = weight_dict[post_population][pre_population]
-        this_net_current = np.zeros_like(network_activity_dict[post_population])
-        this_cell_voltage = cell_voltage_dict[post_population]
-        for pre_population in weight_dict[post_population]:
-            this_net_current += np.sum(get_net_current(this_weights, channel_conductance_dict[post_population][pre_population],
-                                                       this_cell_voltage), axis=0)
+            this_connection_type = weight_config_dict[post_population][pre_population]['connection_type']
+            this_reversal_potential = synaptic_reversal_dict[this_connection_type]
+
+            # TODO(done): np.sum should be inside get_net_current
+            this_net_current += get_net_current(this_weights, channel_conductance_dict[post_population][pre_population],
+                                                       this_cell_voltage, this_reversal_potential)
             #this_net_current += np.sum(syn_current_dict[post_population][pre_population], axis=0)
         d_cell_voltage_dt_dict[post_population] = \
             get_d_cell_voltage_dt_array(this_cell_voltage, this_net_current, this_cell_tau)
@@ -306,14 +331,18 @@ def flat_state_list_to_nested_dicts(state_list, legend, num_units_dict):
         end = legend['cell_voltage'][population][1]
         cell_voltage_dict[population] = np.array(state_list[start:end])
 
+
+
     return channel_conductance_dict, cell_voltage_dict
 
 
 def simulate_network_dynamics(t, state_list, legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                              weight_dict, activation_function_dict):
+                              weight_dict, weight_config_dict,  activation_function_dict, synaptic_reversal_dict):
+
     """
     Called by scipy.integrate.solve_ivp to compute the rates of change of all network state variables given a flat list
     of initial state values and a pattern of activity in a population of inputs.
+    :param synaptic_reversal_dict:
     :param t: float; time point (seconds)
     :param state_list: list of float; flat list of intermediate network variables (synaptic currents and cell voltages)
     :param legend: nested dict: tuple of of int indexes
@@ -340,24 +369,41 @@ def simulate_network_dynamics(t, state_list, legend, input_pattern, num_units_di
         }
     :return: list of float; (time derivatives of states variables)
     """
+
     channel_conductance_dict, cell_voltage_dict = flat_state_list_to_nested_dicts(state_list, legend, num_units_dict)
+
     network_activity_dict = {}
     network_activity_dict['Input'] = np.copy(input_pattern)
 
-    for population in cell_voltage_dict:
-        network_activity_dict[population] = activation_function_dict[population](cell_voltage_dict[population])
 
-    d_conductance_dt_dict, d_cell_voltage_dt_dict = get_d_network_intermediates_dt_dicts(num_units_dict,
-                                                                                         synapse_tau_dict,
-                                                                                         cell_tau_dict, weight_dict, channel_conductance_dict,
+
+    for population in cell_voltage_dict:
+
+        this_activation_function = get_callable_from_str(activation_function_dict[population]['Name'])
+        # TODO(done): may want to have a helper function parse this dictionary
+        this_kwargs = act_funct_args(population, activation_function_dict)
+
+        network_activity_dict[population] = this_activation_function(cell_voltage_dict[population],
+                                                                     **this_kwargs)
+
+    d_conductance_dt_dict, d_cell_voltage_dt_dict = get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict,
+                                                                                         cell_tau_dict, weight_dict,
+                                                                                         weight_config_dict, synaptic_reversal_dict,
+                                                                                         channel_conductance_dict,
                                                                                          cell_voltage_dict, network_activity_dict)
+
+
+
+
 
     d_state_dt_list, legend = nested_dicts_to_flat_state_list(d_conductance_dt_dict, d_cell_voltage_dt_dict)
 
     return d_state_dt_list
 
 
-def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_units_dict, activation_function_dict, weight_dict, cell_voltage_dict):
+
+def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_units_dict, activation_function_dict, weight_dict, cell_voltage_dict,
+                                   weight_config_dict, synaptic_reversal_dict):
     """
     The output of scipy.integrate.solve_ivp is a 2D array containing the values of all network state variables (rows)
     over time (columns). This function uses the provided legend to construct nested dictionaries of network
@@ -401,20 +447,27 @@ def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_un
                     channel_conductance_dict[post_population][pre_population]
                 this_weights = weight_dict[post_population][pre_population]
                 this_cell_voltage = cell_voltage_dict[post_population]
+                this_connection_type = weight_config_dict[post_population][pre_population]['connection_type']
+                this_reversal_potential = synaptic_reversal_dict[this_connection_type]
+
+                # TODO: np.sum should happen inside get_net_current
                 net_current_dynamics_dict[post_population][:,i] += \
                     np.sum(get_net_current(this_weights, channel_conductance_dict[post_population][pre_population],
-                                           this_cell_voltage), axis=0)
+                                           this_cell_voltage, this_reversal_potential), axis=0)
         for population in cell_voltage_dict:
             cell_voltage_dynamics_dict[population][:,i] = cell_voltage_dict[population]
+            this_activation_function = get_callable_from_str(activation_function_dict[population]['Name'])
+            this_kwargs = act_funct_args(population, activation_function_dict)
             network_activity_dynamics_dict[population][:,i] = \
-                activation_function_dict[population](cell_voltage_dict[population])
+                this_activation_function(cell_voltage_dict[population], **this_kwargs)
 
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
            network_activity_dynamics_dict
 
 
 def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                                      activation_function_dict):
+                                      weight_config_dict,
+                                      activation_function_dict, synaptic_reversal_dict):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a single,
     static input pattern.
@@ -434,6 +487,7 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
     :param activation_function_dict: dict:
         {'population': callable (function to call to convert weighted input to output activity for this population)}
         }
+    :param synaptic_reversal_dict:
     :return: tuple of nested dict
     """
     # Initialize nested dictionaries to contain network intermediates for one time step in response to one input
@@ -460,19 +514,21 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
     initial_state_list, legend = nested_dicts_to_flat_state_list(channel_conductance_dict, cell_voltage_dict)
     sol = solve_ivp(simulate_network_dynamics, t_span=(t[0], t[-1]), y0=initial_state_list, t_eval=t,
                     args=(legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                          weight_dict, activation_function_dict))
+                          weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict))
 
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict = state_dynamics_to_nested_dicts(sol.y, legend, input_pattern, num_units_dict,
-                                                                    activation_function_dict, weight_dict, cell_voltage_dict)
+                                                                    activation_function_dict, weight_dict, cell_voltage_dict,
+                                                                    weight_config_dict, synaptic_reversal_dict)
 
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
         network_activity_dynamics_dict
 
 
 def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                               activation_function_dict):
+                               weight_config_dict,
+                               activation_function_dict, synaptic_reversal_dict):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
@@ -493,6 +549,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
     :param activation_function_dict: dict:
         {'population': callable (function to call to convert weighted input to output activity for this population)}
         }
+    :param synaptic_reversal_dict:
     :return: tuple of nested dict
     """
     # Initialize nested dictionaries to contain network intermediates in response to a set of input patterns across
@@ -522,7 +579,9 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         this_channel_conductance_dynamics_dict, this_net_current_dynamics_dict, this_cell_voltage_dynamics_dict, \
         this_network_activity_dynamics_dict = \
             compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                              weight_dict, activation_function_dict)
+                                              weight_dict, weight_config_dict, activation_function_dict,
+                                              synaptic_reversal_dict)
+
 
         for population in this_network_activity_dynamics_dict:
             network_activity_dynamics_dict[population][pattern_index, :, :] = \
@@ -874,35 +933,25 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
         for pre_pop in weight_config_dict[post_pop]:
             dist_type = weight_config_dict[post_pop][pre_pop]['dist_type']
             mean_weight = weight_config_dict[post_pop][pre_pop]['mean_magnitude']
-            connection_type = weight_config_dict[post_pop][pre_pop]['connection_type']
-            # TODO: remove direction parameter. weights are always positive, but inhibitory synapses have a
-            # negative reversal potential
-            if connection_type == 'exc':
-                direction = 1.
-            elif connection_type == 'inh':
-                direction = -1.
-            else:
-                raise ValueError('get_weight_dict: unrecognized connection_type: %s' % connection_type)
             if dist_type == 'equal':
                 weight_dict[post_pop][pre_pop] = \
-                    np.ones((num_units_dict[pre_pop], num_units_dict[post_pop])) * mean_weight * direction
+                    np.ones((num_units_dict[pre_pop], num_units_dict[post_pop])) * mean_weight
             elif dist_type == 'uniform':
                 weight_dict[post_pop][pre_pop] = \
-                    np.random.uniform(0, mean_weight * 2., (num_units_dict[pre_pop], num_units_dict[post_pop])) * \
-                    direction
+                    np.random.uniform(0, mean_weight * 2., (num_units_dict[pre_pop], num_units_dict[post_pop]))
             elif dist_type == 'normal':
                 # A normal distribution has a "full width" of 6 standard deviations.
                 # This sample will span from zero to 2 * mean_weight.
                 weight_dict[post_pop][pre_pop] = \
                     np.random.normal(mean_weight, mean_weight / 3., (num_units_dict[pre_pop], num_units_dict[post_pop]))
                 # enforce that normal weights are either all positive or all negative
-                weight_dict[post_pop][pre_pop] = np.maximum(0., weight_dict[post_pop][pre_pop]) * direction
+                weight_dict[post_pop][pre_pop] = np.maximum(0., weight_dict[post_pop][pre_pop])
             elif dist_type == 'log-normal':
                 weight_dict[post_pop][pre_pop] = \
                     np.random.lognormal(size=(num_units_dict[pre_pop], num_units_dict[post_pop]))
                 # re-scale the weights to match the target mean weight:
                 weight_dict[post_pop][pre_pop] = \
-                    mean_weight * weight_dict[post_pop][pre_pop] / np.mean(weight_dict[post_pop][pre_pop]) * direction
+                    mean_weight * weight_dict[post_pop][pre_pop] / np.mean(weight_dict[post_pop][pre_pop])
             else:
                 raise ValueError('get_weight_dict: unrecognized synaptic weight distribution type: %s' % dist_type)
 
@@ -1116,24 +1165,27 @@ def import_dynamic_model_data(data_file_path, description=None):
            network_activity_dynamics_history_dict, t_history_dict
 
 
-def loss_function(features_dict,objectives_dict):
-    '''
-    :param features_dict: dict of model activity quantifications to optimize
-    :param objectives_dict: dict of target values
-    :return: list of parameter losses to minimize
-    '''
-    summed_activity_loss = (objectives_dict['Output']['summed_activity'] - features_dict['Output']['final_summed_activity'])**2
-    similarity_loss = (objectives_dict['Output']['similarity'] - features_dict['Output']['final_similarity'])**2
-
-    return summed_activity_loss, similarity_loss
-
+def read_from_yaml(file_path, Loader=None):
+    """
+    Import a python dict from .yaml
+    :param file_path: str (should end in '.yaml')
+    :param Loader: :class:'yaml.Loader'
+    :return: dict
+    """
+    import yaml
+    if Loader is None:
+        Loader = yaml.FullLoader
+    if os.path.isfile(file_path):
+        with open(file_path, 'r') as stream:
+            data = yaml.load(stream, Loader=Loader)
+        return data
+    else:
+        raise Exception('File: {} does not exist.'.format(file_path))
 
 
 #############################################################################
-# Example command to run from terminal:
-# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/optimize_config_FF_Inh.yaml
 
-
+# now for our main() function that will do the work:
 @click.command()
 @click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
 #Time paramters
@@ -1144,10 +1196,9 @@ def loss_function(features_dict,objectives_dict):
 @click.option("--seed", type=int, default=None)
 @click.option("--description", type=str, default=None)
 @click.option("--export_file_name", type=str, default=None)
-@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='../data')
+@click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
-
 def main(config_file_path, dt, duration, time_point, seed, description, export_file_name, data_dir, plot, export):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
@@ -1163,7 +1214,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param plot: bool; whether to generate plots
     :param export: bool; whether to export data to hdf5
     """
-
+    start_time = time.time()
     parameter_dict = read_from_yaml(config_file_path)
     num_units_dict = parameter_dict['num_units_dict']
 
@@ -1175,11 +1226,11 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     num_units_dict['Output'] = len(sorted_input_patterns)
 
     # Let's be explicit about whether we will apply a nonlinear activation function to each population:
-    activation_function_name_dict = parameter_dict['activation_function_name_dict']
+    activation_function_dict = parameter_dict['activation_function_dict']
 
-    activation_function_dict = {}
-    for population in activation_function_name_dict:
-        activation_function_dict[population] = get_callable_from_str(activation_function_name_dict[population])
+    # activation_function_dict = {}
+    # for population in activation_function_name_dict:
+    #     activation_function_dict[population] = get_callable_from_str(activation_function_name_dict[population])
 
     weight_config_dict = parameter_dict['weight_config_dict']
 
@@ -1189,11 +1240,13 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     weight_dict = get_weight_dict(num_units_dict, weight_config_dict, seed, description=description, plot=plot)
 
+    synaptic_reversal_dict = parameter_dict['synaptic_reversal_dict']
+
     t = np.arange(0., duration + dt / 2., dt)
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
         get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                   weight_dict, activation_function_dict)
+                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict)
 
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
                                                                  time_point=time_point)
@@ -1202,6 +1255,8 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
+
+    # TODO: generate dictionaries for "features" and "objectives"
 
     if export:
         if export_file_name is None:
@@ -1228,7 +1283,123 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
                                               description)
 
     # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
+    print('Simulation took %.1f s' % (time.time() - start_time))
     plt.show()
+
+    context.update(locals())
+
+
+def config_worker():
+
+    num_input_units = context.num_units_dict['Input']
+
+    # generate all possible binary input patterns with specified number units in the input layer
+    sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True, plot=context.plot)
+
+    t = np.arange(0., context.duration + context.dt / 2., context.dt)
+
+    context.update(locals())
+
+
+def modify_network(param_dict):
+
+    for param_name, param_val in param_dict.items():
+        parsed_param_name = param_name.split(';')
+        if parsed_param_name[0] == 'mean_weight':
+            post_pop_name = parsed_param_name[1]
+            pre_pop_name = parsed_param_name[2]
+            context.weight_config_dict[post_pop_name][pre_pop_name]['mean_magnitude'] = param_val
+
+
+def compute_features(x, model_id=None, export=False, plot=False):
+    """
+
+    :param x: array of float
+    :param model_id: int
+    :param export: bool
+    :param plot: bool
+    :return: dict
+    """
+    param_dict = param_array_to_dict(x, context.param_names)
+    modify_network(param_dict)
+
+    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
+                                  description=context.description, plot=plot)
+    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
+        get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
+                                   context.synapse_tau_dict, context.cell_tau_dict,
+                                   context.weight_dict, context.weight_config_dict, context.activation_function_dict,
+                                   context.synaptic_reversal_dict)
+
+    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
+                                                                 time_point=context.time_point)
+
+    summed_network_activity_dict, similarity_matrix_dict = analyze_sparsity_and_similarity(network_activity_dict)
+
+    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
+
+    # TODO: generate dictionaries for "features" and "objectives"
+
+    if export:
+        if context.export_file_name is None:
+            export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
+        export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
+
+        model_config_dict = {'description': description,
+                             'seed': seed,
+                             'duration': duration,
+                             'dt': dt,
+                             'num_FF_inh_units': num_FF_inh_units,
+                             'num_FB_inh_units': num_FB_inh_units,
+                             }
+
+        export_dynamic_model_data(context.export_file_path, context.description, model_config_dict,
+                                  context.num_units_dict,
+                                  context.activation_function_dict, context.weight_config_dict, context.weight_dict,
+                                  context.cell_tau_dict,
+                                  context.synapse_tau_dict, channel_conductance_dynamics_dict,
+                                  net_current_dynamics_dict,
+                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+
+    if plot:
+        plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict,
+                           context.description)
+        plot_sparsity_and_similarity_dynamics(context.t, median_summed_network_activity_dynamics_dict,
+                                              median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
+                                              context.description)
+
+    # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
+    print('Simulation took %.1f s' % (time.time() - start_time))
+    plt.show()
+
+    #TODO: create features_dict
+    features_dict = {'median_sparsity': 0.,
+                     'median_similarity': 0.,
+                     'median_selectivity': 0.
+                     }
+
+    context.update(locals())
+
+    return features_dict
+
+
+def get_objectives(features_dict, model_id=None, export=False, plot=False):
+    """
+
+    :param features_dict:
+    :param model_id:
+    :param export:
+    :param plot:
+    :return: tuple of dict
+    """
+    print(context.target_val)
+    print(context.target_range)
+
+
+    return features_dict, objectives_dict
+
+
 
 if __name__ == '__main__':
     # this extra flag stops the click module from forcing system exit when python is in interactive mode

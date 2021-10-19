@@ -3,9 +3,19 @@ num_units_dict:
     Output: 128
     FF_Inh: 7
 
-activation_function_name_dict:
-    Output: piecewise_linear_activation
-    FF_Inh: identity_activation
+activation_function_dict:
+    Output:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+    FF_Inh:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
 
 weight_config_dict:
     Output:
@@ -35,6 +45,11 @@ synapse_tau_dict:
         FF_Inh:
             rise: 0.001
             decay: 0.02
+    FF_Inh:
+        Input:
+            rise: 0.001
+            decay: 0.01
+
 
 synaptic_reversal_dict:
     exc: 60.
