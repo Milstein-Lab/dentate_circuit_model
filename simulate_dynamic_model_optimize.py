@@ -582,7 +582,7 @@ def slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t, time
     return network_activity_dict
 
 
-def analyze_sparsity_and_similarity(network_activity_dict):
+def analyze_slice(network_activity_dict):
     """
     For each population, for each input pattern, compute summed_network_activity.
     For each population, compare the reponses across all input patterns using cosine similarity. Exclude responses where
@@ -600,6 +600,7 @@ def analyze_sparsity_and_similarity(network_activity_dict):
     """
     summed_network_activity_dict = {}
     similarity_matrix_dict = {}
+    selectivity_matrix_dict = {}
 
     for population in network_activity_dict:
         summed_network_activity_dict[population] = np.sum(network_activity_dict[population], axis=1)
@@ -614,17 +615,16 @@ def analyze_sparsity_and_similarity(network_activity_dict):
         # similarity_matrix_dict[population][invalid_indexes, :] = np.nan
         # similarity_matrix_dict[population][:, invalid_indexes] = np.nan
 
-    return summed_network_activity_dict, similarity_matrix_dict
+    return summed_network_activity_dict, similarity_matrix_dict, selectivity_matrix_dict
 
 def gini_coefficient(x):
-    # The rest of the code requires numpy arrays.
     x = np.asarray(x) + 0.0001
     sorted_x = np.sort(x)
     n = len(x)
     cumx = np.cumsum(sorted_x, dtype=float)
     return (n + 1 - 2 * np.sum(cumx) / cumx[-1]) / n
 
-def analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict):
+def analyze_dynamics(network_activity_dynamics_dict):
     """
     For each population, for each input pattern, for each time point, compute summed_network_activity. For each time
     point, return the median activity across input patterns.
@@ -677,7 +677,7 @@ def analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict):
             median_selectivity_dynamics_dict[population][i] = np.median(selectivity)
 
     return median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
-           fraction_nonzero_response_dynamics_dict, median_selectivity_dynamics_dict
+           median_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
 def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description=None):
@@ -1224,10 +1224,10 @@ def compute_features(param_array, model_id=None, export=False, plot=False, *args
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=time_point)
 
-    summed_network_activity_dict, similarity_matrix_dict = analyze_sparsity_and_similarity(network_activity_dict)
+    summed_network_activity_dict, similarity_matrix_dict, selectivity_matrix_dict = analyze_slice(network_activity_dict)
 
-    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
-    fraction_nonzero_response_dynamics_dict, median_selectivity_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
+    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, median_selectivity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
     # Calculate loss to optimize network for sparsity and similarity
     features_dict = {'Output':
@@ -1352,10 +1352,10 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
                                                                  time_point=time_point)
 
-    summed_network_activity_dict, similarity_matrix_dict = analyze_sparsity_and_similarity(network_activity_dict)
+    summed_network_activity_dict, similarity_matrix_dict, selectivity_matrix_dict = analyze_slice(network_activity_dict)
 
-    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
-    fraction_nonzero_response_dynamics_dict = analyze_sparsity_and_similarity_dynamics(network_activity_dynamics_dict)
+    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, median_selectivity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
     if export:
         if export_file_name is None:
