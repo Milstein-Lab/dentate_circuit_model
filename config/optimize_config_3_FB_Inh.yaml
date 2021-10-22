@@ -1,0 +1,123 @@
+# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+
+optimization_title: dentate_model_optimization
+
+param_names: # params to optimize
+    - mean_weight;Output;Input
+    - mean_weight;Output;FF_Inh
+    - mean_weight;FF_Inh;Input
+
+bounds:
+    mean_weight;Output;Input: !!python/tuple
+        - 0.2
+        - 0.8
+    mean_weight;Output;FF_Inh: !!python/tuple
+        - 0.2
+        - 0.8
+    mean_weight;FF_Inh;Input: !!python/tuple
+        - 0.2
+        - 0.8
+
+feature_names:
+    - summed_activity
+    - similarity
+    - selectivity
+    - fraction_active
+
+get_features_stages:
+    - source: optimize_dynamic_model
+      compute_features: compute_features
+
+objective_names: #loss/error values to minimize
+    - sparsity_loss
+    - discriminability_loss
+    - selectivity_loss
+    - fraction_active_loss
+
+get_objectives:
+    optimize_dynamic_model: get_objectives
+
+target_val:
+    summed_activity: 1. #sparsity of output population
+    similarity: 0. #target cosine similarity for each pair of patterns
+    selectivity: 1. #number of nonzero patters for each unit
+    fraction_active: 1. #fraction of patterns with any nonzero output activity
+
+target_range: #scaling factor to determine sensitivity of each objective
+    summed_activity: 0.1
+    similarity: 0.1
+    selectivity: 0.1
+    fraction_active: 0.001
+
+x0: #initial parameters
+    mean_weight;Output;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
+    mean_weight;FF_Inh;Input: 0.5
+
+param_gen: PopulationAnnealing
+
+kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
+    description: FF_Inh
+    seed: 1234
+    duration: 0.2 #sec
+    dt: 0.001 #sec
+    time_point: 0.2
+    plot_patterns: False
+
+    num_units_dict:
+        Input: 7
+        Output: 128
+        FF_Inh: 7
+
+    activation_function_dict:
+        Output:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+        FF_Inh:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+
+    weight_config_dict:
+        Output:
+            Input:
+                dist_type: log-normal
+                mean_magnitude: 0.5
+                connection_type: exc
+            FF_Inh:
+                dist_type: uniform
+                mean_magnitude: 0.5
+                connection_type: inh
+        FF_Inh:
+            Input:
+                dist_type: uniform
+                mean_magnitude: 0.2
+                connection_type: exc
+
+    cell_tau_dict:
+        Output: 0.05
+        FF_Inh: 0.02
+
+    synapse_tau_dict:
+        Output:
+            Input:
+                rise: 0.001
+                decay: 0.01
+            FF_Inh:
+                rise: 0.001
+                decay: 0.02
+        FF_Inh:
+            Input:
+                rise: 0.001
+                decay: 0.01
+
+
+    synaptic_reversal_dict:
+        exc: 60.
+        inh: -10.
