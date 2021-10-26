@@ -1,23 +1,24 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml
-# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.analyze --config_file_path=config/optimize_config_3_FB_Inh.yaml
+# python -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+#mpirun -n 4 python -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=3 --disp --framework=serial --interactive
 
 optimization_title: dentate_model_optimization
 
-param_names: # params to optimize
+param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
-    - mean_weight;Output;FF_Inh
-    - mean_weight;FF_Inh;Input
+    - mean_weight;FB_Inh;Output
+    - mean_weight;Output;FB_Inh
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
-        - 0.2
-        - 0.8
-    mean_weight;Output;FF_Inh: !!python/tuple
-        - 0.2
-        - 0.8
-    mean_weight;FF_Inh;Input: !!python/tuple
-        - 0.2
-        - 0.8
+        - 0.
+        - 1.
+    mean_weight;FB_Inh;Output: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;Output;FB_Inh: !!python/tuple
+        - 0.
+        - 1.
 
 feature_names:
     - summed_activity
@@ -52,8 +53,8 @@ target_range: #scaling factor to determine sensitivity of each objective
 
 x0: #initial parameters
     mean_weight;Output;Input: 0.5
-    mean_weight;Output;FF_Inh: 0.5
-    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;FB_Inh;Output: 0.5
+    mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
@@ -68,7 +69,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     num_units_dict:
         Input: 7
         Output: 128
-        FF_Inh: 7
+        FB_Inh: 7
 
     activation_function_dict:
         Output:
@@ -77,7 +78,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 peak_output: 1.
                 peak_input: 60.
                 threshold: 10.
-        FF_Inh:
+        FB_Inh:
             Name: piecewise_linear_activation
             Arguments:
                 peak_output: 1.
@@ -90,33 +91,32 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: log-normal
                 mean_magnitude: 0.5
                 connection_type: exc
-            FF_Inh:
+            FB_Inh:
                 dist_type: uniform
                 mean_magnitude: 0.5
                 connection_type: inh
-        FF_Inh:
-            Input:
+        FB_Inh:
+            Output:
                 dist_type: uniform
                 mean_magnitude: 0.2
                 connection_type: exc
 
     cell_tau_dict:
         Output: 0.05
-        FF_Inh: 0.02
+        FB_Inh: 0.02
 
     synapse_tau_dict:
         Output:
             Input:
                 rise: 0.001
                 decay: 0.01
-            FF_Inh:
+            FB_Inh:
                 rise: 0.001
                 decay: 0.02
-        FF_Inh:
-            Input:
+        FB_Inh:
+            Output:
                 rise: 0.001
                 decay: 0.01
-
 
     synaptic_reversal_dict:
         exc: 60.

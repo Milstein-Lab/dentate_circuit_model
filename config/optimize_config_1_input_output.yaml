@@ -8,8 +8,8 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
-        - 0.2
-        - 0.8
+        - 0.
+        - 1.
 
 feature_names:
     - summed_activity

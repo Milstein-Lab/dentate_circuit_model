@@ -24,6 +24,9 @@ from scipy.integrate import solve_ivp
 from nested.utils import read_from_yaml, Context, param_array_to_dict
 import os, time
 
+import warnings
+warnings.filterwarnings("ignore")
+
 
 context = Context()
 
@@ -760,7 +763,7 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
 
         for i in range(len_t):
             summed_network_activity = np.sum(network_activity_dynamics_dict[population][:, :, i], axis=1)
-            summed_network_activity_dynamics_dict[population][i] = np.median(summed_network_activity)
+            median_summed_network_activity_dynamics_dict[population][i] = np.median(summed_network_activity)
 
             invalid_indexes = np.where(summed_network_activity == 0.)[0]
             fraction_nonzero_response_dynamics_dict[population][i] = 1. - len(invalid_indexes) / num_patterns
@@ -768,11 +771,11 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
             similarity_matrix = cosine_similarity(network_activity_dynamics_dict[population][:, :, i])
             similarity_matrix[invalid_indexes, :] = np.nan
             similarity_matrix[:, invalid_indexes] = np.nan
-            similarity_dynamics_dict[population][i] = np.median(similarity_matrix)
+            median_similarity_dynamics_dict[population][i] = np.nanmedian(similarity_matrix)
 
             nonzero_idx = np.where(network_activity_dynamics_dict[population][:, :, i] > 0)
             selectivity_nonzero_count = np.unique(nonzero_idx[1], return_counts=True)[1]
-            selectivity_dynamics_dict[population][i] = np.mean(selectivity_nonzero_count)
+            mean_selectivity_dynamics_dict[population][i] = np.mean(selectivity_nonzero_count)
 
             # # Compute selectivity using Gini coefficient:
             # selectivity = []
@@ -782,8 +785,8 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
             # selectivity_dynamics_dict[population][i] = np.array(selectivity)
 
 
-    return summed_network_activity_dynamics_dict, similarity_dynamics_dict, \
-           selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
+    return median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
+           mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
 def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description=None):
@@ -802,7 +805,7 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
     """
     num_of_populations = len(network_activity_dict)
 
-    fig, axes = plt.subplots(4, num_of_populations, figsize=(3.5 * num_of_populations, 12))
+    fig, axes = plt.subplots(4, num_of_populations, figsize=(3 * num_of_populations, 8))
     for i, population in enumerate(network_activity_dict):
         im1 = axes[0, i].imshow(network_activity_dict[population], aspect='auto')
         cbar = plt.colorbar(im1, ax=axes[0, i])
@@ -831,8 +834,8 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
             hist, edges = np.histogram(similarity_matrix_dict[population][~invalid_indexes],
                                        bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
             axes[3, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
-                            label='%.0f%% nonzero' %
-                                  (100. * num_valid_patterns / len(summed_network_activity_dict[population])))
+                            label='%.0f inactive pattern' %
+                                  (len(summed_network_activity_dict[population]) - num_valid_patterns))
             axes[3, i].set_xlabel('Cosine similarity')
             axes[3, i].set_ylabel('Probability')
             axes[3, i].set_title('Pairwise similarity distribution\n%s population' % population)
@@ -1038,6 +1041,8 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
             else:
                 raise ValueError('get_weight_dict: unrecognized synaptic weight distribution type: %s' % dist_type)
 
+            if pre_pop == post_pop: #remove self connection from recurrent networks
+                np.fill_diagonal(weight_dict[post_pop][pre_pop],0)
     if plot:
         fig = plt.figure()
         for post_pop in weight_dict:
@@ -1270,11 +1275,11 @@ def read_from_yaml(file_path, Loader=None):
 # Configure model for nested optimization
 
 # Example command to run from terminal:
-# python -m nested.optimize --config-file-path=config/optimize_config_FF_Inh_3.yaml --path_length=1 --kmax_iter=1 --pop_size=10 --disp --framework=serial --interactive
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --kmax_iter=1 --pop_size=10 --disp --framework=serial --interactive
 
-# python -m nested.analyze --config_file_path=config/optimize_config_FF_Inh_3.yaml
+# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml
 
-# python -m nested.optimize --config-file-path=config/optimize_config_FF_Inh_3.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 
 
 def config_worker():
@@ -1333,6 +1338,8 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
     summed_network_activity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
+    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
 
     similarity_matrix_idx = np.tril_indices_from(similarity_dynamics_dict['Output'][-1]) #extract all values below diagonal
 
@@ -1399,7 +1406,7 @@ def get_objectives(orig_features_dict, model_id=None, export=False, plot=False):
                        'fraction_active_loss': np.sum(fraction_active_errors**2)}
 
     summary_features_dict = {'summed_activity': np.mean(orig_features_dict['summed_activity_array']),
-                             'similarity': np.mean(orig_features_dict['similarity_array']),
+                             'similarity': np.nanmean(orig_features_dict['similarity_array']),
                              'selectivity': np.mean(orig_features_dict['selectivity_array']),
                              'fraction_active': np.mean(orig_features_dict['fraction_active_array'])}
 
@@ -1408,7 +1415,7 @@ def get_objectives(orig_features_dict, model_id=None, export=False, plot=False):
 
 #############################################################################
 # Example command to run from terminal:
-# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/optimize_config_FF_Inh.yaml
+# python -i simulate_dynamic_model_read_from_yaml.py --config_file_path=../config/optimize_config_2_FF_Inh.yaml
 
 @click.command()
 @click.option("--config_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))

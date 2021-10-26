@@ -1,5 +1,6 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml
-# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.analyze --config_file_path=config/optimize_config_4_FF+FB_Inh.yaml
+# python -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+#mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --path_length=1 --max_iter=3 --pop_size=3 --disp --framework=serial --interactive
 
 optimization_title: dentate_model_optimization
 
@@ -12,14 +13,20 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
-        - 0.2
-        - 0.8
-    mean_weight;Output;FF_Inh: !!python/tuple
-        - 0.2
-        - 0.8
+        - 0.
+        - 1.
     mean_weight;FF_Inh;Input: !!python/tuple
-        - 0.2
-        - 0.8
+        - 0.
+        - 1.
+    mean_weight;Output;FF_Inh: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;FB_Inh;Output: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;Output;FB_Inh: !!python/tuple
+        - 0.
+        - 1.
 
 feature_names:
     - summed_activity
@@ -53,11 +60,19 @@ target_range: #scaling factor to determine sensitivity of each objective
     fraction_active: 0.001
 
 x0: #initial parameters
-    mean_weight;Output;Input: 0.5
-    mean_weight;FF_Inh;Input: 0.5
-    mean_weight;Output;FF_Inh: 0.5
-    mean_weight;FB_Inh;Output: 0.5
-    mean_weight;Output;FB_Inh: 0.5
+    mean_weight;FB_Inh;Output: 0.653036431588467
+    mean_weight;FF_Inh;Input: 0.4461443670799585
+    mean_weight;Output;FB_Inh: 0.844591426936864
+    mean_weight;Output;FF_Inh: 0.4638718827561642
+    mean_weight;Output;Input: 0.34294549585724454
+
+#    mean_weight;Output;Input: 0.5
+#    mean_weight;FF_Inh;Input: 0.5
+#    mean_weight;Output;FF_Inh: 0.5
+#    mean_weight;FB_Inh;Output: 0.5
+#    mean_weight;Output;FB_Inh: 0.5
+
+
 
 param_gen: PopulationAnnealing
 
@@ -114,7 +129,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: uniform
                 mean_magnitude: 0.2
                 connection_type: exc
-        FF_Inh:
+        FB_Inh:
             Output:
                 dist_type: uniform
                 mean_magnitude: 0.2

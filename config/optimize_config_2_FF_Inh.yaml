@@ -1,23 +1,24 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_FF_Inh.yaml
-# python -m nested.optimize --config-file-path=config/optimize_config_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml --plot
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=2 --pop_size=3 --disp --framework=serial --interactive
+# mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=2 --max_iter=3 --pop_size=3 --disp --framework=serial --interactive --plot
 
 optimization_title: dentate_model_optimization
 
-param_names: # params to optimize
+param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
-    - mean_weight;Output;FF_Inh
     - mean_weight;FF_Inh;Input
+    - mean_weight;Output;FF_Inh
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
-        - 0.4
-        - 0.6
-    mean_weight;Output;FF_Inh: !!python/tuple
-        - 0.4
-        - 0.6
+        - 0.
+        - 1.
     mean_weight;FF_Inh;Input: !!python/tuple
-        - 0.4
-        - 0.6
+        - 0.
+        - 1.
+    mean_weight;Output;FF_Inh: !!python/tuple
+        - 0.
+        - 1.
 
 feature_names:
     - summed_activity
@@ -52,8 +53,8 @@ target_range: #scaling factor to determine sensitivity of each objective
 
 x0: #initial parameters
     mean_weight;Output;Input: 0.5
-    mean_weight;Output;FF_Inh: 0.5
     mean_weight;FF_Inh;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
