@@ -1,0 +1,29 @@
+1:
+  mean_weight;Output;Input: 0.011437845734182477
+  mean_weight;FF_Inh;Input: 0.40290727838036505
+  mean_weight;Output;FF_Inh: 0.22718806383294354
+test:
+  mean_weight;Output;Input: 0.011437845734182477
+  mean_weight;FF_Inh;Input: 0.40290727838036505
+  mean_weight;Output;FF_Inh: 0.22718806383294354
+
+# mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=2 --max_iter=3 --pop_size=3 --disp --framework=serial --interactive
+
+#mpiexec -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=2 --max_iter=3 --pop_size=5 --framework=mpi
+
+#PopulationAnnealing: 6 generations took 602.51 s
+#best model_id: 17
+#params:
+#{'mean_weight;FF_Inh;Input': 0.40290727838036505,
+# 'mean_weight;Output;FF_Inh': 0.22718806383294354,
+# 'mean_weight;Output;Input': 0.011437845734182477}
+#features:
+#{'fraction_active': 0.0,
+# 'selectivity': 0.0,
+# 'similarity': nan,
+# 'summed_activity': 0.0}
+#objectives:
+#{'discriminability_loss': 0.0,
+# 'fraction_active_loss': 1000000.0,
+# 'selectivity_loss': 12800.0,
+# 'sparsity_loss': 12800.0}
