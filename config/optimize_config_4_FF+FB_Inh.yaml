@@ -32,7 +32,7 @@ feature_names:
     - summed_activity
     - similarity
     - selectivity
-    - fraction_active
+    - fraction_active_patterns
 
 get_features_stages:
     - source: optimize_dynamic_model
@@ -42,7 +42,7 @@ objective_names: #loss/error values to minimize
     - sparsity_loss
     - discriminability_loss
     - selectivity_loss
-    - fraction_active_loss
+    - fraction_active_patterns_loss
 
 get_objectives:
     optimize_dynamic_model: get_objectives
@@ -51,26 +51,21 @@ target_val:
     summed_activity: 1. #sparsity of output population
     similarity: 0. #target cosine similarity for each pair of patterns
     selectivity: 1. #number of nonzero patters for each unit
-    fraction_active: 1. #fraction of patterns with any nonzero output activity
+    fraction_active_patterns: 1. #fraction of patterns with any nonzero output activity
 
 target_range: #scaling factor to determine sensitivity of each objective
     summed_activity: 0.1
     similarity: 0.1
     selectivity: 0.1
-    fraction_active: 0.001
+    fraction_active_patterns: 0.001
 
 x0: #initial parameters
-    mean_weight;FB_Inh;Output: 0.653036431588467
-    mean_weight;FF_Inh;Input: 0.4461443670799585
-    mean_weight;Output;FB_Inh: 0.844591426936864
-    mean_weight;Output;FF_Inh: 0.4638718827561642
-    mean_weight;Output;Input: 0.34294549585724454
 
-#    mean_weight;Output;Input: 0.5
-#    mean_weight;FF_Inh;Input: 0.5
-#    mean_weight;Output;FF_Inh: 0.5
-#    mean_weight;FB_Inh;Output: 0.5
-#    mean_weight;Output;FB_Inh: 0.5
+    mean_weight;Output;Input: 0.5
+    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
+    mean_weight;FB_Inh;Output: 0.5
+    mean_weight;Output;FB_Inh: 0.5
 
 
 
@@ -83,6 +78,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     dt: 0.001 #sec
     time_point: 0.2
     plot_patterns: False
+    fraction_active_patterns_threshold: 0.9
 
     num_units_dict:
         Input: 7

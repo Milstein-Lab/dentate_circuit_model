@@ -661,6 +661,7 @@ def analyze_slice(network_activity_dict):
         similarity_matrix_dict[population][:, invalid_indexes] = np.nan
 
         nonzero_idx = np.where(network_activity_dict[population] > 0)
+        # returns number of patterns that each unit had a nonzero response
         nonzero_count = np.unique(nonzero_idx[1], return_counts=True)[1]
         selectivity_dict[population] = nonzero_count
 
@@ -700,7 +701,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
         summed_network_activity_dynamics_dict[population] = np.empty([len_t,num_patterns])
         similarity_dynamics_dict[population] = np.empty([len_t,num_patterns, num_patterns])
         selectivity_dynamics_dict[population] = np.empty([len_t,pop_size])
-        fraction_nonzero_response_dynamics_dict[population] = np.empty([len_t,pop_size])
+        fraction_nonzero_response_dynamics_dict[population] = np.empty([len_t])
 
         for i in range(len_t):
             summed_network_activity = np.sum(network_activity_dynamics_dict[population][:, :, i], axis=1)
@@ -1290,6 +1291,9 @@ def config_worker():
 
     t = np.arange(0., context.duration + context.dt / 2., context.dt)
 
+    if 'plot' not in context():
+        context.plot = False
+
     context.update(locals())
 
 
@@ -1306,13 +1310,12 @@ def modify_network(param_dict):
             context.weight_config_dict[post_pop_name][pre_pop_name]['mean_magnitude'] = param_val
 
 
-def compute_features(param_array, model_id=None, export=False, plot=False):
+def compute_features(param_array, model_id=None, export=False):
     """
 
     :param x: array of float
     :param model_id: int
     :param export: bool
-    :param plot: bool
     :return: dict
     """
 
@@ -1322,7 +1325,7 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
     modify_network(param_dict) #update the weight config dict
 
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
-                                  description=context.description, plot=plot)
+                                  description=context.description, plot=context.plot)
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
         get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
@@ -1335,19 +1338,19 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
 
     summed_network_activity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
 
-    summed_network_activity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
-    fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
+    _,_,_, fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
-    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
-    fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
+    print('shape of fraction_nonzero_response_dynamics_dict[Output]: %s' %
+          str(fraction_nonzero_response_dynamics_dict['Output'].shape))
 
-    similarity_matrix_idx = np.tril_indices_from(similarity_dynamics_dict['Output'][-1]) #extract all values below diagonal
+    # extract all values below diagonal
+    similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
 
-    #Generate dictionary for "features" that will be used in the loss function (get objectives)
-    orig_features_dict = {'summed_activity_array': summed_network_activity_dynamics_dict['Output'][-1],
-                          'similarity_array': similarity_dynamics_dict['Output'][-1,similarity_matrix_idx[0],similarity_matrix_idx[1]],
-                          'selectivity_array': selectivity_dynamics_dict['Output'][-1],
-                          'fraction_active_array': fraction_nonzero_response_dynamics_dict['Output'][-1]}
+    # Generate dictionary for "features" that will be used in the loss function (get objectives)
+    orig_features_dict = {'summed_activity_array': summed_network_activity_dict['Output'],
+                          'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
+                          'selectivity_array': selectivity_dict['Output'],
+                          'fraction_active_patterns': fraction_nonzero_response_dynamics_dict['Output'][-1]}
 
     if export:
         if context.export_file_name is None:
@@ -1370,9 +1373,13 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
                                   net_current_dynamics_dict,
                                   cell_voltage_dynamics_dict, network_activity_dynamics_dict)
 
-    if plot:
+    if context.plot:
         plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict,
                            context.description)
+
+        median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+        fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
+
         plot_sparsity_and_similarity_dynamics(context.t, median_summed_network_activity_dynamics_dict,
                                               median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
                                               context.description)
@@ -1383,32 +1390,40 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
 
     context.update(locals())
 
+    #if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
+    #    return dict()
+
     return orig_features_dict
 
 
-def get_objectives(orig_features_dict, model_id=None, export=False, plot=False): #compute loss function
+def get_objectives(orig_features_dict, model_id=None, export=False):
     """
+    Compute loss function.
     :param features_dict: dict
     :param model_id: int
     :param export: bool
-    :param plot: bool
     :return: tuple of dict
     """
 
-    sparsity_errors = (context.target_val['summed_activity'] - orig_features_dict['summed_activity_array'])/context.target_range['summed_activity']
-    discriminability_errors = (context.target_val['similarity'] - orig_features_dict['similarity_array'])/context.target_range['similarity']
-    selectivity_errors = (context.target_val['selectivity'] - orig_features_dict['selectivity_array'])/context.target_range['selectivity']
-    fraction_active_errors = (context.target_val['fraction_active']- orig_features_dict['fraction_active_array'])/context.target_range['fraction_active']
+    sparsity_errors = (context.target_val['summed_activity'] -
+                       orig_features_dict['summed_activity_array'])/context.target_range['summed_activity']
+    discriminability_errors = (context.target_val['similarity'] -
+                               orig_features_dict['similarity_array'])/context.target_range['similarity']
+    selectivity_errors = (context.target_val['selectivity'] -
+                          orig_features_dict['selectivity_array'])/context.target_range['selectivity']
+    fraction_active_error = (context.target_val['fraction_active_patterns'] -
+                              orig_features_dict['fraction_active_patterns']) / \
+                            context.target_range['fraction_active_patterns']
 
     objectives_dict = {'sparsity_loss': np.sum(sparsity_errors**2),
                        'discriminability_loss': np.nansum(discriminability_errors**2),
                        'selectivity_loss': np.sum(selectivity_errors**2),
-                       'fraction_active_loss': np.sum(fraction_active_errors**2)}
+                       'fraction_active_patterns_loss': fraction_active_error**2}
 
     summary_features_dict = {'summed_activity': np.mean(orig_features_dict['summed_activity_array']),
                              'similarity': np.nanmean(orig_features_dict['similarity_array']),
                              'selectivity': np.mean(orig_features_dict['selectivity_array']),
-                             'fraction_active': np.mean(orig_features_dict['fraction_active_array'])}
+                             'fraction_active_patterns': orig_features_dict['fraction_active_patterns']}
 
     return summary_features_dict, objectives_dict
 
