@@ -85,7 +85,7 @@ param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
     description: FF_Inh
-    seed: 1234
+    weight_seed: 1234
     duration: 0.2 #sec
     dt: 0.001 #sec
     time_point: 0.2

@@ -1141,14 +1141,14 @@ def loss_function(features_dict,objectives_dict):
 @click.option("--duration", type=float, default=0.2)  # sec
 @click.option("--time_point", type=float, default=0.2)  # sec
 #Other optional arguments
-@click.option("--seed", type=int, default=None)
+@click.option("--weight_seed", type=int, default=None)
 @click.option("--description", type=str, default=None)
 @click.option("--export_file_name", type=str, default=None)
 @click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='../data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
 
-def main(config_file_path, dt, duration, time_point, seed, description, export_file_name, data_dir, plot, export):
+def main(config_file_path, dt, duration, time_point, weight_seed, description, export_file_name, data_dir, plot, export):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
     Optionally can generate summary plots and/or export data to an hdf5 file.
@@ -1156,7 +1156,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param dt: float; time step (in sec) for simulation of activity dynamics
     :param duration: float; total length (in sec) of simulated activity dynamics
     :param time_point: float; time point to analyze final sparsity and discriminability
-    :param seed: int; random seed for random but reproducible weights
+    :param weight_seed: int; random seed for random but reproducible weights
     :param description: str; unique identifier for model configuration and data export
     :param export_file_name: str; hdf5 file name for data export
     :param data_dir: str (path); directory to export data
@@ -1187,7 +1187,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     synapse_tau_dict = parameter_dict['synapse_tau_dict']
 
-    weight_dict = get_weight_dict(num_units_dict, weight_config_dict, seed, description=description, plot=plot)
+    weight_dict = get_weight_dict(num_units_dict, weight_config_dict, weight_seed, description=description, plot=plot)
 
     t = np.arange(0., duration + dt / 2., dt)
 
@@ -1209,7 +1209,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
         export_file_path = '%s/%s' % (data_dir, export_file_name)
 
         model_config_dict = {'description': description,
-                             'seed': seed,
+                             'weight_seed': weight_seed,
                              'duration': duration,
                              'dt': dt,
                              'num_FF_inh_units': num_FF_inh_units,

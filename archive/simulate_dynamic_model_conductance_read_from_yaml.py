@@ -1193,13 +1193,13 @@ def read_from_yaml(file_path, Loader=None):
 @click.option("--duration", type=float, default=0.2)  # sec
 @click.option("--time_point", type=float, default=0.2)  # sec
 #Other optional arguments
-@click.option("--seed", type=int, default=None)
+@click.option("--weight_seed", type=int, default=None)
 @click.option("--description", type=str, default=None)
 @click.option("--export_file_name", type=str, default=None)
 @click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
-def main(config_file_path, dt, duration, time_point, seed, description, export_file_name, data_dir, plot, export):
+def main(config_file_path, dt, duration, time_point, weight_seed, description, export_file_name, data_dir, plot, export):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
     Optionally can generate summary plots and/or export data to an hdf5 file.
@@ -1207,7 +1207,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
     :param dt: float; time step (in sec) for simulation of activity dynamics
     :param duration: float; total length (in sec) of simulated activity dynamics
     :param time_point: float; time point to analyze final sparsity and discriminability
-    :param seed: int; random seed for random but reproducible weights
+    :param weight_seed: int; random seed for random but reproducible weights
     :param description: str; unique identifier for model configuration and data export
     :param export_file_name: str; hdf5 file name for data export
     :param data_dir: str (path); directory to export data
@@ -1238,7 +1238,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
 
     synapse_tau_dict = parameter_dict['synapse_tau_dict']
 
-    weight_dict = get_weight_dict(num_units_dict, weight_config_dict, seed, description=description, plot=plot)
+    weight_dict = get_weight_dict(num_units_dict, weight_config_dict, weight_seed, description=description, plot=plot)
 
     synaptic_reversal_dict = parameter_dict['synaptic_reversal_dict']
 
@@ -1264,7 +1264,7 @@ def main(config_file_path, dt, duration, time_point, seed, description, export_f
         export_file_path = '%s/%s' % (data_dir, export_file_name)
 
         model_config_dict = {'description': description,
-                             'seed': seed,
+                             'weight_seed': weight_seed,
                              'duration': duration,
                              'dt': dt,
                              'num_FF_inh_units': num_FF_inh_units,
@@ -1323,7 +1323,7 @@ def compute_features(x, model_id=None, export=False, plot=False):
     param_dict = param_array_to_dict(x, context.param_names)
     modify_network(param_dict)
 
-    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.seed,
+    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.weight_seed,
                                   description=context.description, plot=plot)
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
         get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
@@ -1347,7 +1347,7 @@ def compute_features(x, model_id=None, export=False, plot=False):
         export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
 
         model_config_dict = {'description': description,
-                             'seed': seed,
+                             'weight_seed': weight_seed,
                              'duration': duration,
                              'dt': dt,
                              'num_FF_inh_units': num_FF_inh_units,
