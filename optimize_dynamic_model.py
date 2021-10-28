@@ -1390,8 +1390,8 @@ def compute_features(param_array, model_id=None, export=False):
 
     context.update(locals())
 
-    #if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
-    #    return dict()
+    if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
+        return dict()
 
     return orig_features_dict
 
