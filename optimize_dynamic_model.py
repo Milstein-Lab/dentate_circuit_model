@@ -1294,6 +1294,9 @@ def config_worker():
     if 'plot' not in context():
         context.plot = False
 
+    if 'debug' not in context():
+        context.debug = False
+
     context.update(locals())
 
 
@@ -1340,9 +1343,6 @@ def compute_features(param_array, model_id=None, export=False):
 
     _,_,_, fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
-    print('shape of fraction_nonzero_response_dynamics_dict[Output]: %s' %
-          str(fraction_nonzero_response_dynamics_dict['Output'].shape))
-
     # extract all values below diagonal
     similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
 
@@ -1384,11 +1384,9 @@ def compute_features(param_array, model_id=None, export=False):
                                               median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
                                               context.description)
 
-    # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
-    print('Simulation took %.1f s' % (time.time() - start_time))
-    plt.show()
-
-    context.update(locals())
+    if context.debug:
+        print('Simulation took %.1f s' % (time.time() - start_time))
+        context.update(locals())
 
     if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
         return dict()
