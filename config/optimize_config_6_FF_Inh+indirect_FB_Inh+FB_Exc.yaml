@@ -72,22 +72,14 @@ target_range: #scaling factor to determine sensitivity of each objective
     fraction_active_patterns: 0.001
 
 x0: #initial parameters
-    mean_weight;FB_Exc;FB_Exc: 0.4591192469776252
-    mean_weight;FB_Exc;Output: 0.23306316494156287
-    mean_weight;FB_Inh;FB_Exc: 0.975337838963541
-    mean_weight;FF_Inh;Input: 0.6568515873050551
-    mean_weight;Output;FB_Exc: 0.29799906140047383
-    mean_weight;Output;FB_Inh: 0.9828533510071497
-    mean_weight;Output;FF_Inh: 0.22797782528164703
-    mean_weight;Output;Input: 0.11962583371583442
-    # mean_weight;Output;Input: 0.5
-    # mean_weight;FF_Inh;Input: 0.5
-    # mean_weight;Output;FF_Inh: 0.5
-    # mean_weight;FB_Exc;Output: 0.5
-    # mean_weight;FB_Exc;FB_Exc: 0.5
-    # mean_weight;Output;FB_Exc: 0.5
-    # mean_weight;FB_Inh;FB_Exc: 0.5
-    # mean_weight;Output;FB_Inh: 0.5
+    mean_weight;Output;Input: 0.5
+    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
+    mean_weight;FB_Exc;Output: 0.5
+    mean_weight;FB_Exc;FB_Exc: 0.5
+    mean_weight;Output;FB_Exc: 0.5
+    mean_weight;FB_Inh;FB_Exc: 0.5
+    mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
