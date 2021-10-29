@@ -3,6 +3,7 @@ export DATE=$(date +%Y%m%d_%H%M%S)
 export LABEL="$2"
 export JOB_NAME=optimize_dentate_circuit_model_"$LABEL"_"$DATE"
 export CONFIG_FILE_PATH="$1"
+export SEED="$3"
 sbatch <<EOT
 #!/bin/bash -l
 #SBATCH -J $JOB_NAME
@@ -20,5 +21,6 @@ set -x
 cd $WORK/dentate_circuit_model
 
 ibrun -n 224 python3 -m nested.optimize --config-file-path=$CONFIG_FILE_PATH \
-  --output-dir=$SCRATCH/data/optimize_dentate_circuit_model --pop_size=200 --max_iter=50 --path_length=3 --disp
+  --output-dir=$SCRATCH/data/optimize_dentate_circuit_model --pop_size=200 --max_iter=50 --path_length=3 --disp \
+  --label=$LABEL --seed=$SEED
 EOT
