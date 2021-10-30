@@ -2,7 +2,7 @@
 # python -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 #mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --path_length=1 --max_iter=3 --pop_size=3 --disp --framework=serial --interactive
 
-optimization_title: dentate_model_optimization
+optimization_title: dentate_optimization_4
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
