@@ -21,7 +21,7 @@ bounds:
         - 1.
 
 feature_names:
-    - summed_activity
+    - sparsity
     - similarity
     - selectivity
     - fraction_active_patterns
@@ -40,13 +40,13 @@ get_objectives:
     optimize_dynamic_model: get_objectives
 
 target_val:
-    summed_activity: 1. #sparsity of output population
+    sparsity: 1. # number of nonzero units for each pattern
     similarity: 0. #target cosine similarity for each pair of patterns
     selectivity: 1. #number of nonzero patters for each unit
     fraction_active_patterns: 1. #fraction of patterns with any nonzero output activity
 
 target_range: #scaling factor to determine sensitivity of each objective
-    summed_activity: 0.1
+    sparsity: 0.1
     similarity: 0.1
     selectivity: 0.1
     fraction_active_patterns: 0.001

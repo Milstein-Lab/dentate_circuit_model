@@ -648,24 +648,22 @@ def analyze_slice(network_activity_dict):
                 (number of valid response patterns, number of valid response patterns)
             }
     """
-    summed_network_activity_dict = {}
+
+    sparsity_dict = {}
     similarity_matrix_dict = {}
     selectivity_dict = {}
 
     for population in network_activity_dict:
-        summed_network_activity_dict[population] = np.sum(network_activity_dict[population], axis=1)
+        sparsity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=1)
 
         invalid_indexes = np.where(summed_network_activity_dict[population] == 0.)[0] #if pop activity is 0, remove this sample from similarity calculation
         similarity_matrix_dict[population] = cosine_similarity(network_activity_dict[population])
         similarity_matrix_dict[population][invalid_indexes, :] = np.nan
         similarity_matrix_dict[population][:, invalid_indexes] = np.nan
 
-        nonzero_idx = np.where(network_activity_dict[population] > 0)
-        # returns number of patterns that each unit had a nonzero response
-        nonzero_count = np.unique(nonzero_idx[1], return_counts=True)[1]
-        selectivity_dict[population] = nonzero_count
+        selectivity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=0)
 
-    return summed_network_activity_dict, similarity_matrix_dict, selectivity_dict
+    return sparsity_dict, similarity_matrix_dict, selectivity_dict
 
 
 def analyze_dynamics(network_activity_dynamics_dict):
@@ -687,7 +685,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
             }
 
     """
-    summed_network_activity_dynamics_dict = {}
+    sparsity_dynamics_dict = {}
     similarity_dynamics_dict = {}
     selectivity_dynamics_dict = {}
     fraction_nonzero_response_dynamics_dict = {}
@@ -698,14 +696,14 @@ def analyze_dynamics(network_activity_dynamics_dict):
 
     for population in network_activity_dynamics_dict:
         pop_size = network_activity_dynamics_dict[population].shape[1]
-        summed_network_activity_dynamics_dict[population] = np.empty([len_t,num_patterns])
+        sparsity_dynamics_dict[population] = np.empty([len_t,num_patterns])
         similarity_dynamics_dict[population] = np.empty([len_t,num_patterns, num_patterns])
         selectivity_dynamics_dict[population] = np.empty([len_t,pop_size])
         fraction_nonzero_response_dynamics_dict[population] = np.empty([len_t])
 
         for i in range(len_t):
-            summed_network_activity = np.sum(network_activity_dynamics_dict[population][:, :, i], axis=1)
-            summed_network_activity_dynamics_dict[population][i] = summed_network_activity
+            sparsity = np.count_nonzero(network_activity_dynamics_dict[population][:, :, i], axis=1)
+            sparsity_dynamics_dict[population][i] = sparsity
 
             invalid_indexes = np.where(summed_network_activity == 0.)[0]
             fraction_nonzero_response_dynamics_dict[population][i] = 1. - len(invalid_indexes) / num_patterns
@@ -724,7 +722,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
             #     selectivity.append(gini_coefficient(unit_activity))
             # selectivity_dynamics_dict[population][i] = np.array(selectivity)
 
-    return summed_network_activity_dynamics_dict, similarity_dynamics_dict, \
+    return sparsity_dynamics_dict, similarity_dynamics_dict, \
            selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
@@ -790,7 +788,7 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
            mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
-def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description=None):
+def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, selectivity_dict, description=None):
     """
     Generate a panel of plots summarizing the activity of each layer.
     :param network_activity_dict: dict:
@@ -808,6 +806,7 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
 
     fig, axes = plt.subplots(4, num_of_populations, figsize=(3 * num_of_populations, 8))
     for i, population in enumerate(network_activity_dict):
+        # Show activity heatmap of units for all patterns
         im1 = axes[0, i].imshow(network_activity_dict[population], aspect='auto')
         cbar = plt.colorbar(im1, ax=axes[0, i])
         cbar.ax.set_ylabel('Unit activity', rotation=270, labelpad=20)
@@ -815,6 +814,7 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
         axes[0, i].set_ylabel('Input pattern ID')
         axes[0, i].set_title('Activity\n%s population' % population)
 
+        # Plot sparsity over patterns
         axes[1, i].scatter(range(len(network_activity_dict[population])), summed_network_activity_dict[population])
         axes[1, i].set_xlabel('Input pattern ID')
         axes[1, i].set_ylabel('Summed activity')
@@ -822,12 +822,14 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
         axes[1, i].spines["top"].set_visible(False)
         axes[1, i].spines["right"].set_visible(False)
 
+        # Plot similarity matrix heatmap
         im2 = axes[2, i].imshow(similarity_matrix_dict[population], aspect='auto')
         axes[2, i].set_xlabel('Input pattern ID')
         axes[2, i].set_ylabel('Input pattern ID')
         axes[2, i].set_title('Similarity\n%s population' % population)
         plt.colorbar(im2, ax=axes[2, i])
 
+        # Plot discriminability distribution
         bin_width = 0.05
         num_valid_patterns = len(np.where(summed_network_activity_dict[population] > 0.)[0])
         invalid_indexes = np.isnan(similarity_matrix_dict[population])
@@ -843,6 +845,20 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
             axes[3, i].legend(loc='best', frameon=False)
             axes[3, i].spines["top"].set_visible(False)
             axes[3, i].spines["right"].set_visible(False)
+
+        #Plot selectivity distribution
+        # hist, edges = np.histogram(selectivity_dict[population],
+        #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+        # axes[4, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+        #                 label='%.0f inactive pattern' %
+        #                       (len(summed_network_activity_dict[population]) - num_valid_patterns))
+        # axes[4, i].set_xlabel('Cosine similarity')
+        # axes[4, i].set_ylabel('Probability')
+        # axes[4, i].set_title('Pairwise similarity distribution\n%s population' % population)
+        # axes[4, i].legend(loc='best', frameon=False)
+        # axes[4, i].spines["top"].set_visible(False)
+        # axes[4, i].spines["right"].set_visible(False)
+
 
     if description is not None:
         fig.suptitle(description)
@@ -1347,7 +1363,7 @@ def compute_features(param_array, model_id=None, export=False):
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
 
-    summed_network_activity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
 
     _,_,_, fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
@@ -1355,7 +1371,7 @@ def compute_features(param_array, model_id=None, export=False):
     similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
 
     # Generate dictionary for "features" that will be used in the loss function (get objectives)
-    orig_features_dict = {'summed_activity_array': summed_network_activity_dict['Output'],
+    orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
                           'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
                           'selectivity_array': selectivity_dict['Output'],
                           'fraction_active_patterns': fraction_nonzero_response_dynamics_dict['Output'][-1]}
@@ -1382,8 +1398,8 @@ def compute_features(param_array, model_id=None, export=False):
                                   cell_voltage_dynamics_dict, network_activity_dynamics_dict)
 
     if context.plot:
-        plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict,
-                           context.description)
+        plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
+                           selectivity_dict, context.description)
 
         median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
         fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
@@ -1411,8 +1427,8 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
     :return: tuple of dict
     """
 
-    sparsity_errors = (context.target_val['summed_activity'] -
-                       orig_features_dict['summed_activity_array'])/context.target_range['summed_activity']
+    sparsity_errors = (context.target_val['sparsity'] -
+                       orig_features_dict['sparsity_array'])/context.target_range['sparsity']
     discriminability_errors = (context.target_val['similarity'] -
                                orig_features_dict['similarity_array'])/context.target_range['similarity']
     selectivity_errors = (context.target_val['selectivity'] -

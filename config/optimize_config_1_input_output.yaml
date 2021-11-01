@@ -1,4 +1,4 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_1_Input_Output.yaml
+# python -i -m nested.analyze --config_file_path=config/optimize_config_1_Input_Output.yaml --framework=serial --plot --interactive
 # python -m nested.optimize --config-file-path=config/optimize_config_1_Input_Output.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 
 optimization_title: dentate_optimization_1
