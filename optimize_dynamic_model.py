@@ -1100,14 +1100,14 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
     return weight_dict
 
 
-def export_dynamic_model_data(export_file_path, description, model_config_dict, num_units_dict,
+def export_dynamic_model_data(export_file_path, weight_seed, model_config_dict, num_units_dict,
                               activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
                               synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
                               cell_voltage_dynamics_dict, network_activity_dynamics_dict):
     """
     Exports data from a single model configuration to hdf5.
     :param export_file_path: str (path); path to hdf5 file
-    :param description: str; unique identifier for model configuration, used as key in hdf5 file
+    :param weight_seed: int
     :param model_config_dict: nested dict
     :param num_units_dict: dict of int
     :param activation_function_dict: dict of callable
@@ -1133,11 +1133,10 @@ def export_dynamic_model_data(export_file_path, description, model_config_dict, 
             3d array of float (number of input patterns, number of units in this population, number of time points)
         }
     """
-    if description is None:
-        raise RuntimeError('export_dynamic_model_data: missing required description (unique string identifier for '
-                           'model configuration)')
+
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     with h5py.File(export_file_path, 'a') as f:
+        description = "weight_seed:"+str(weight_seed)
         model_group = f.create_group(description)
         # save the meta data for this model configuration
         for key, value in model_config_dict.items():
@@ -1408,7 +1407,7 @@ def compute_features(param_array, model_id=None, export=False):
                              'duration': context.duration,
                              'dt': context.dt}
 
-        export_dynamic_model_data(context.export_file_path, context.description, model_config_dict,
+        export_dynamic_model_data(context.export_file_path, context.weight_seed, model_config_dict,
                                   context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
                                   weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
                                   channel_conductance_dynamics_dict, net_current_dynamics_dict,
