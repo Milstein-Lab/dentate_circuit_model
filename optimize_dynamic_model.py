@@ -634,14 +634,14 @@ def gini_coefficient(x):
 
 def analyze_slice(network_activity_dict):
     """
-    For each population, for each input pattern, compute summed_network_activity.
+    For each population, for each input pattern, compute sparsity.
     For each population, compare the reponses across all input patterns using cosine similarity. Exclude responses where
     all units in a population are zero.
     :param network_activity_dict: dict:
         {'population label': 2d array of float (number of input patterns, number of units in this population)
         }
     :return: tuple of dict:
-        summed_network_activity_dict: dict:
+        sparsity_dict: dict:
             {'population label': 1d array of float (number of input patterns),
         similarity_matrix_dict: dict:
             {'population label': 2d array of float
@@ -652,23 +652,29 @@ def analyze_slice(network_activity_dict):
     sparsity_dict = {}
     similarity_matrix_dict = {}
     selectivity_dict = {}
+    fraction_nonzero_dict = {}
+
+    num_patterns = network_activity_dict['Input'].shape[0]
 
     for population in network_activity_dict:
-        sparsity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=1)
+        sparsity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=1) #number of nonzero units per pattern
 
-        invalid_indexes = np.where(summed_network_activity_dict[population] == 0.)[0] #if pop activity is 0, remove this sample from similarity calculation
+        invalid_indexes = np.where(sparsity_dict[population] == 0.)[0] #if pop activity is 0, remove this sample from similarity calculation
         similarity_matrix_dict[population] = cosine_similarity(network_activity_dict[population])
         similarity_matrix_dict[population][invalid_indexes, :] = np.nan
         similarity_matrix_dict[population][:, invalid_indexes] = np.nan
 
-        selectivity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=0)
+        selectivity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=0) #number of nonzero patterns per unit
 
-    return sparsity_dict, similarity_matrix_dict, selectivity_dict
+        invalid_indexes = np.where(sparsity_dict[population] == 0.)[0]
+        fraction_nonzero_dict[population] = 1. - len(invalid_indexes) / num_patterns
+
+    return sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict
 
 
 def analyze_dynamics(network_activity_dynamics_dict):
     """
-    For each population, for each input pattern, for each time point, compute summed_network_activity. For each time
+    For each population, for each input pattern, for each time point, compute sparsity. For each time
     point, return the median activity across input patterns.
     For each population, for each time point, compare the reponses across all input patterns using cosine similarity.
     Exclude responses where all units in a population are zero. For each time point, return the median similarity across
@@ -678,7 +684,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
             (number of input patterns, number of units in this population, number of timepoints)
         }
     :return: :return: tuple of dict:
-        median_summed_network_activity_dynamics_dict: dict:
+        median_sparsity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points),
         median_similarity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points)
@@ -705,7 +711,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
             sparsity = np.count_nonzero(network_activity_dynamics_dict[population][:, :, i], axis=1)
             sparsity_dynamics_dict[population][i] = sparsity
 
-            invalid_indexes = np.where(summed_network_activity == 0.)[0]
+            invalid_indexes = np.where(sparsity == 0.)[0]
             fraction_nonzero_response_dynamics_dict[population][i] = 1. - len(invalid_indexes) / num_patterns
 
             similarity_matrix = cosine_similarity(network_activity_dynamics_dict[population][:, :, i])
@@ -728,7 +734,7 @@ def analyze_dynamics(network_activity_dynamics_dict):
 
 def analyze_median_dynamics(network_activity_dynamics_dict):
     """
-    For each population, for each input pattern, for each time point, compute summed_network_activity. For each time
+    For each population, for each input pattern, for each time point, compute sparsity. For each time
     point, return the median activity across input patterns.
     For each population, for each time point, compare the reponses across all input patterns using cosine similarity.
     Exclude responses where all units in a population are zero. For each time point, return the median similarity across
@@ -738,14 +744,14 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
             (number of input patterns, number of units in this population, number of timepoints)
         }
     :return: :return: tuple of dict:
-        median_summed_network_activity_dynamics_dict: dict:
+        median_sparsity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points),
         median_similarity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points)
             }
 
     """
-    median_summed_network_activity_dynamics_dict = {}
+    median_sparsity_dynamics_dict = {}
     median_similarity_dynamics_dict = {}
     mean_selectivity_dynamics_dict = {}
     fraction_nonzero_response_dynamics_dict = {}
@@ -755,16 +761,16 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
     len_t = first_activity_dynamics_matrix.shape[-1]
 
     for population in network_activity_dynamics_dict:
-        median_summed_network_activity_dynamics_dict[population] = np.empty(len_t)
+        median_sparsity_dynamics_dict[population] = np.empty(len_t)
         median_similarity_dynamics_dict[population] = np.empty(len_t)
         mean_selectivity_dynamics_dict[population] = np.empty(len_t)
         fraction_nonzero_response_dynamics_dict[population] = np.empty(len_t)
 
         for i in range(len_t):
-            summed_network_activity = np.sum(network_activity_dynamics_dict[population][:, :, i], axis=1)
-            median_summed_network_activity_dynamics_dict[population][i] = np.median(summed_network_activity)
+            sparsity = np.count_nonzero(network_activity_dynamics_dict[population][:, :, i], axis=1)
+            median_sparsity_dynamics_dict[population][i] = np.median(sparsity)
 
-            invalid_indexes = np.where(summed_network_activity == 0.)[0]
+            invalid_indexes = np.where(sparsity == 0.)[0]
             fraction_nonzero_response_dynamics_dict[population][i] = 1. - len(invalid_indexes) / num_patterns
 
             similarity_matrix = cosine_similarity(network_activity_dynamics_dict[population][:, :, i])
@@ -784,17 +790,17 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
             # selectivity_dynamics_dict[population][i] = np.array(selectivity)
 
 
-    return median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, \
+    return median_sparsity_dynamics_dict, median_similarity_dynamics_dict, \
            mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
-def plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, selectivity_dict, description=None):
+def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description=None):
     """
     Generate a panel of plots summarizing the activity of each layer.
     :param network_activity_dict: dict:
         {'population label': 2d array of float (number of input patterns, number of units in this population)
         }
-    :param summed_network_activity_dict: dict:
+    :param sparsity_dict: dict:
         {'population label': 1d array of float (number of input patterns)
         }
     :param similarity_matrix_dict: dict:
@@ -804,7 +810,7 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
     """
     num_of_populations = len(network_activity_dict)
 
-    fig, axes = plt.subplots(4, num_of_populations, figsize=(3 * num_of_populations, 8))
+    fig, axes = plt.subplots(5, num_of_populations, figsize=(3 * num_of_populations, 8))
     for i, population in enumerate(network_activity_dict):
         # Show activity heatmap of units for all patterns
         im1 = axes[0, i].imshow(network_activity_dict[population], aspect='auto')
@@ -815,10 +821,10 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
         axes[0, i].set_title('Activity\n%s population' % population)
 
         # Plot sparsity over patterns
-        axes[1, i].scatter(range(len(network_activity_dict[population])), summed_network_activity_dict[population])
+        axes[1, i].scatter(range(len(network_activity_dict[population])), sparsity_dict[population])
         axes[1, i].set_xlabel('Input pattern ID')
-        axes[1, i].set_ylabel('Summed activity')
-        axes[1, i].set_title('Summed activity\n%s population' % population)
+        axes[1, i].set_ylabel('Num nonzero units')
+        axes[1, i].set_title('Sparsity \n%s population' % population)
         axes[1, i].spines["top"].set_visible(False)
         axes[1, i].spines["right"].set_visible(False)
 
@@ -831,14 +837,14 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
 
         # Plot discriminability distribution
         bin_width = 0.05
-        num_valid_patterns = len(np.where(summed_network_activity_dict[population] > 0.)[0])
+        num_valid_patterns = len(np.where(sparsity_dict[population] > 0.)[0])
         invalid_indexes = np.isnan(similarity_matrix_dict[population])
         if len(invalid_indexes) < similarity_matrix_dict[population].size:
             hist, edges = np.histogram(similarity_matrix_dict[population][~invalid_indexes],
                                        bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
             axes[3, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
                             label='%.0f inactive pattern' %
-                                  (len(summed_network_activity_dict[population]) - num_valid_patterns))
+                                  (len(sparsity_dict[population]) - num_valid_patterns))
             axes[3, i].set_xlabel('Cosine similarity')
             axes[3, i].set_ylabel('Probability')
             axes[3, i].set_title('Pairwise similarity distribution\n%s population' % population)
@@ -847,17 +853,21 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
             axes[3, i].spines["right"].set_visible(False)
 
         #Plot selectivity distribution
-        # hist, edges = np.histogram(selectivity_dict[population],
-        #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-        # axes[4, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
-        #                 label='%.0f inactive pattern' %
-        #                       (len(summed_network_activity_dict[population]) - num_valid_patterns))
-        # axes[4, i].set_xlabel('Cosine similarity')
-        # axes[4, i].set_ylabel('Probability')
-        # axes[4, i].set_title('Pairwise similarity distribution\n%s population' % population)
-        # axes[4, i].legend(loc='best', frameon=False)
-        # axes[4, i].spines["top"].set_visible(False)
-        # axes[4, i].spines["right"].set_visible(False)
+        num_nonzero_units = np.count_nonzero(selectivity_dict[population])
+        active_units_idx = np.where(selectivity_dict[population]>0)
+        max_response = np.max(selectivity_dict[population])
+        bin_width = max_response / 20
+        hist, edges = np.histogram(selectivity_dict[population][active_units_idx],
+                                   bins=np.arange(-bin_width / 2., max_response + bin_width, bin_width), density=True)
+        axes[4, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+                        label='%.0f inactive units' %
+                              (len(selectivity_dict[population]) - num_nonzero_units))
+        axes[4, i].set_xlabel('Selectivity (# patterns w/ activity)')
+        axes[4, i].set_ylabel('Probability')
+        axes[4, i].set_title('Selectivity distribution\n%s population' % population)
+        axes[4, i].legend(loc='best', frameon=False)
+        axes[4, i].spines["top"].set_visible(False)
+        axes[4, i].spines["right"].set_visible(False)
 
 
     if description is not None:
@@ -866,10 +876,10 @@ def plot_model_summary(network_activity_dict, summed_network_activity_dict, simi
     fig.show()
 
 
-def plot_compare_model_sparsity_and_similarity(summed_network_activity_history_dict, similarity_matrix_history_dict):
+def plot_compare_model_sparsity_and_similarity(sparsity_history_dict, similarity_matrix_history_dict):
     """
     Generate a panel of plots comparing different model configuration.
-    :param summed_network_activity_history_dict: nested dict:
+    :param sparsity_history_dict: nested dict:
         {'model description':
             {'population label': 1d array of float (number of input patterns)}
         }
@@ -880,13 +890,13 @@ def plot_compare_model_sparsity_and_similarity(summed_network_activity_history_d
     """
     fig, axes = plt.subplots(2, 2, figsize=(7, 6))
 
-    for j, description in enumerate(summed_network_activity_history_dict):
+    for j, description in enumerate(sparsity_history_dict):
         for i, population in enumerate(['Input', 'Output']):
-            axes[0, i].scatter(range(len(summed_network_activity_history_dict[description][population])),
-                               summed_network_activity_history_dict[description][population], label=description)
+            axes[0, i].scatter(range(len(sparsity_history_dict[description][population])),
+                               sparsity_history_dict[description][population], label=description)
 
             bin_width = 0.05
-            num_valid_patterns = len(np.where(summed_network_activity_history_dict[description][population] > 0.)[0])
+            num_valid_patterns = len(np.where(sparsity_history_dict[description][population] > 0.)[0])
             invalid_indexes = np.isnan(similarity_matrix_history_dict[description][population])
             if len(invalid_indexes) < similarity_matrix_history_dict[description][population].size:
                 hist, edges = np.histogram(similarity_matrix_history_dict[description][population][~invalid_indexes],
@@ -894,12 +904,12 @@ def plot_compare_model_sparsity_and_similarity(summed_network_activity_history_d
                 axes[1, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
                                 label='%.0f%% nonzero' %
                                       (100. * num_valid_patterns /
-                                       len(summed_network_activity_history_dict[description][population])))
+                                       len(sparsity_history_dict[description][population])))
 
             if j == 0:
                 axes[0, i].set_xlabel('Input pattern ID')
-                axes[0, i].set_ylabel('Summed activity')
-                axes[0, i].set_title('Summed activity\n%s population' % population)
+                axes[0, i].set_ylabel('Sparsity')
+                axes[0, i].set_title('Sparsity\n%s population' % population)
                 axes[0, i].spines["top"].set_visible(False)
                 axes[0, i].spines["right"].set_visible(False)
 
@@ -916,27 +926,29 @@ def plot_compare_model_sparsity_and_similarity(summed_network_activity_history_d
     fig.show()
 
 
-def plot_sparsity_and_similarity_dynamics(t, median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict,
-                                          fraction_nonzero_response_dynamics_dict, description=None):
+def plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_dict,
+                  mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict, description=None):
     """
-
     :param t: array of float
-    :param median_summed_network_activity_dynamics_dict: dict:
+    :param median_sparsity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points)
     :param median_similarity_dynamics_dict: dict:
+            {'population label': 1d array of float (number of time points)
+    :param mean_selectivity_dynamics_dict: dict:
             {'population label': 1d array of float (number of time points)
     :param fraction_nonzero_response_dynamics_dict: dict:
             {'population label': 1d array of int (number of time points)
     :param description: str
     """
-    num_of_populations = len(median_summed_network_activity_dynamics_dict)
-    fig, axes = plt.subplots(3, num_of_populations, figsize=(3.5 * num_of_populations, 9))
 
-    for i, population in enumerate(median_summed_network_activity_dynamics_dict):
-        axes[0, i].plot(t, median_summed_network_activity_dynamics_dict[population])
+    num_of_populations = len(median_sparsity_dynamics_dict)
+    fig, axes = plt.subplots(4, num_of_populations, figsize=(3.5 * num_of_populations, 9))
+
+    for i, population in enumerate(median_sparsity_dynamics_dict):
+        axes[0, i].plot(t, median_sparsity_dynamics_dict[population])
         axes[0, i].set_xlabel('Time (s)')
-        axes[0, i].set_ylabel('Summed activity')
-        axes[0, i].set_title('Median summed activity\n%s population' % population)
+        axes[0, i].set_ylabel('Sparsity')
+        axes[0, i].set_title('Median sparsity\n%s population' % population)
         axes[0, i].spines["top"].set_visible(False)
         axes[0, i].spines["right"].set_visible(False)
 
@@ -954,19 +966,27 @@ def plot_sparsity_and_similarity_dynamics(t, median_summed_network_activity_dyna
         axes[2, i].spines["top"].set_visible(False)
         axes[2, i].spines["right"].set_visible(False)
 
+        axes[3,i].plot(t, mean_selectivity_dynamics_dict[population])
+        axes[3, i].set_xlabel('Time (s)')
+        axes[3, i].set_ylabel('Selectivity')
+        axes[3, i].set_title('Mean selectivity \n%s population' % population)
+        axes[3, i].spines["top"].set_visible(False)
+        axes[3, i].spines["right"].set_visible(False)
+
+
     if description is not None:
         fig.suptitle(description)
     fig.tight_layout(w_pad=3, h_pad=3, rect=(0., 0., 1., 0.98))
     fig.show()
 
 
-def plot_compare_sparsity_and_similarity_dynamics(t, median_summed_network_activity_history_dict,
+def plot_compare_sparsity_and_similarity_dynamics(t, median_sparsity_history_dict,
                                                   median_similarity_dynamics_history_dict,
                                                   fraction_nonzero_response_history_dict):
     """
     Compare sparsity and similarity dynamics across model configurations.
     :param t: array of float
-    :param median_summed_network_activity_history_dict: nested dict:
+    :param median_sparsity_history_dict: nested dict:
             {'model description':
                 {'population label': 1d array of float (number of time points)}
             }
@@ -981,17 +1001,17 @@ def plot_compare_sparsity_and_similarity_dynamics(t, median_summed_network_activ
     """
     fig, axes = plt.subplots(3, 2, figsize=(7, 9))
 
-    for j, description in enumerate(median_summed_network_activity_history_dict):
+    for j, description in enumerate(median_sparsity_history_dict):
 
         for i, population in enumerate(['Input', 'Output']):
-            axes[0, i].plot(t, median_summed_network_activity_history_dict[description][population])
+            axes[0, i].plot(t, median_sparsity_history_dict[description][population])
             axes[1, i].plot(t, 100. * fraction_nonzero_response_history_dict[description][population],
                             label=description)
             axes[2, i].plot(t, median_similarity_dynamics_history_dict[description][population])
             if j == 0:
                 axes[0, i].set_xlabel('Time (s)')
-                axes[0, i].set_ylabel('Summed activity')
-                axes[0, i].set_title('Median summed activity\n%s population' % population)
+                axes[0, i].set_ylabel('Sparsity activity')
+                axes[0, i].set_title('Median sparsity\n%s population' % population)
                 axes[0, i].spines["top"].set_visible(False)
                 axes[0, i].spines["right"].set_visible(False)
 
@@ -1363,9 +1383,7 @@ def compute_features(param_array, model_id=None, export=False):
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
 
-    sparsity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
-
-    _,_,_, fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict  = analyze_slice(network_activity_dict)
 
     # extract all values below diagonal
     similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
@@ -1374,7 +1392,7 @@ def compute_features(param_array, model_id=None, export=False):
     orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
                           'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
                           'selectivity_array': selectivity_dict['Output'],
-                          'fraction_active_patterns': fraction_nonzero_response_dynamics_dict['Output'][-1]}
+                          'fraction_active_patterns': fraction_nonzero_dict['Output']}
 
     if export:
         if 'export_file_path' not in context() or context.export_file_path is None:
@@ -1388,8 +1406,7 @@ def compute_features(param_array, model_id=None, export=False):
         model_config_dict = {'description': context.description,
                              'weight_seed': context.weight_seed,
                              'duration': context.duration,
-                             'dt': context.dt,
-                             }
+                             'dt': context.dt}
 
         export_dynamic_model_data(context.export_file_path, context.description, model_config_dict,
                                   context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
@@ -1401,12 +1418,15 @@ def compute_features(param_array, model_id=None, export=False):
         plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
                            selectivity_dict, context.description)
 
-        median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+        median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
         fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
 
-        plot_sparsity_and_similarity_dynamics(context.t, median_summed_network_activity_dynamics_dict,
-                                              median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
-                                              context.description)
+        plot_dynamics(context.t,
+                      median_sparsity_dynamics_dict,
+                      median_similarity_dynamics_dict,
+                      mean_selectivity_dynamics_dict,
+                      fraction_nonzero_response_dynamics_dict,
+                      context.description)
 
     if context.debug:
         print('Simulation took %.1f s' % (time.time() - start_time))
@@ -1442,7 +1462,7 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
                        'selectivity_loss': np.sum(selectivity_errors**2),
                        'fraction_active_patterns_loss': fraction_active_error**2}
 
-    summary_features_dict = {'summed_activity': np.mean(orig_features_dict['summed_activity_array']),
+    summary_features_dict = {'sparsity': np.mean(orig_features_dict['sparsity_array']),
                              'similarity': np.nanmean(orig_features_dict['similarity_array']),
                              'selectivity': np.mean(orig_features_dict['selectivity_array']),
                              'fraction_active_patterns': orig_features_dict['fraction_active_patterns']}
@@ -1515,12 +1535,12 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
                                                                  time_point=time_point)
 
-    summed_network_activity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
 
-    summed_network_activity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
+    sparsity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
 
-    median_summed_network_activity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+    median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
 
     if export:
@@ -1540,8 +1560,8 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
                                   cell_voltage_dynamics_dict, network_activity_dynamics_dict)
 
     if plot:
-        plot_model_summary(network_activity_dict, summed_network_activity_dict, similarity_matrix_dict, description)
-        plot_sparsity_and_similarity_dynamics(t, median_summed_network_activity_dynamics_dict,
+        plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict, description)
+        plot_sparsity_and_similarity_dynamics(t, median_sparsity_dynamics_dict,
                                               median_similarity_dynamics_dict, fraction_nonzero_response_dynamics_dict,
                                               description)
 
