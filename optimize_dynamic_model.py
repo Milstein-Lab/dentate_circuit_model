@@ -1343,9 +1343,6 @@ def config_worker():
 
 
 def modify_network(param_dict):
-    # context.weight_config_dict['Output']['Input']['mean_magnitude'] = param_dict['output_input_weight_magnitude']
-    # context.weight_config_dict['Output']['FF_Inh']['mean_magnitude'] = param_dict['output_FFI_weight_magnitude']
-    # context.weight_config_dict['FF_Inh']['Input']['mean_magnitude'] = param_dict['FFI_input_weight_magnitude']
 
     for param_name, param_val in param_dict.items():
         parsed_param_name = param_name.split(';')
