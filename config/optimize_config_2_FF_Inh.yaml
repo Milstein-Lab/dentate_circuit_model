@@ -1,4 +1,4 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml --plot
+# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml --export
 # python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=2 --pop_size=3 --disp --framework=serial --interactive
 #mpirun -n 2 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=mpi
 

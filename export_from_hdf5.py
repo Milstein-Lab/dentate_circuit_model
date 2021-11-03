@@ -1,5 +1,7 @@
 # from export_from_hdf5 import import_model_data
-# import_model_data('data/20211101_232302_dentate_optimization_4_exported_output.hdf5')
+# model_config_history_dict, num_units_history_dict, \
+# activation_function_history_dict, weight_config_history_dict, weight_history_dict, \
+# network_activity_history_dict = import_model_data('data/20211101_232302_dentate_optimization_4_exported_output.hdf5')
 
 import h5py
 from copy import deepcopy

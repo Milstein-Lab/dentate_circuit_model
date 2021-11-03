@@ -1,29 +1,114 @@
-1:
-  mean_weight;Output;Input: 0.011437845734182477
-  mean_weight;FF_Inh;Input: 0.40290727838036505
-  mean_weight;Output;FF_Inh: 0.22718806383294354
-test:
+best_params:
   mean_weight;Output;Input: 0.011437845734182477
   mean_weight;FF_Inh;Input: 0.40290727838036505
   mean_weight;Output;FF_Inh: 0.22718806383294354
 
-# mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=2 --max_iter=3 --pop_size=3 --disp --framework=serial --interactive
 
-#mpiexec -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=2 --max_iter=3 --pop_size=5 --framework=mpi
 
-#PopulationAnnealing: 6 generations took 602.51 s
-#best model_id: 17
+#mpiexec -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=10 --pop_size=3 --framework=mpi
+#PopulationAnnealing: 10 generations took 314.23 s
+#best model_id: 3
 #params:
-#{'mean_weight;FF_Inh;Input': 0.40290727838036505,
-# 'mean_weight;Output;FF_Inh': 0.22718806383294354,
-# 'mean_weight;Output;Input': 0.011437845734182477}
+#{'mean_weight;FF_Inh;Input': 0.15667117156333962,
+# 'mean_weight;Output;FF_Inh': 0.1017445085298513,
+# 'mean_weight;Output;Input': 0.04768583835600906}
 #features:
-#{'fraction_active': 0.0,
-# 'selectivity': 0.0,
-# 'similarity': nan,
-# 'summed_activity': 0.0}
+#{'fraction_active': 0.9921875,
+# 'selectivity': 18.0859375,
+# 'similarity': 0.432590776305689,
+# 'summed_activity': 1.1364587624157294}
 #objectives:
-#{'discriminability_loss': 0.0,
-# 'fraction_active_loss': 1000000.0,
-# 'selectivity_loss': 12800.0,
-# 'sparsity_loss': 12800.0}
+#{'discriminability_loss': 212887.0702071477,
+# 'fraction_active_loss': 61.03515625,
+# 'selectivity_loss': 12245900.0,
+# 'sparsity_loss': 7489.494470446105}
+
+#mpirun -n 8 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=3 --pop_size=7 --framework=mpi --disp
+#PopulationAnnealing: 3 generations took 137.39 s
+#best model_id: 9
+#params:
+#{'mean_weight;FF_Inh;Input': 0.34063745401699674,
+# 'mean_weight;Output;FF_Inh': 0.23668239951219364,
+# 'mean_weight;Output;Input': 0.08572496643957947}
+#features:
+#{'fraction_active': 0.9921875,
+# 'selectivity': 18.0703125,
+# 'similarity': 0.4431352503254842,
+# 'summed_activity': 1.4132751277281228}
+#objectives:
+#{'discriminability_loss': 222781.0821229121,
+# 'fraction_active_loss': 61.03515625,
+# 'selectivity_loss': 12548700.0,
+# 'sparsity_loss': 9827.86321709221}
+
+#mpirun -n 8 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=10 --pop_size=7 --framework=mpi --disp
+#PopulationAnnealing: 10 generations took 464.96 s
+#best model_id: 43
+#params:
+#{'mean_weight;FF_Inh;Input': 0.38606668417257284,
+# 'mean_weight;Output;FF_Inh': 0.2120581740057013,
+# 'mean_weight;Output;Input': 0.023329865732136468}
+#features:
+#{'fraction_active': 0.0078125,
+# 'selectivity': 0.0078125,
+# 'similarity': 1.0,
+# 'summed_activity': 4.931952129068662e-05}
+#objectives:
+#{'discriminability_loss': 100.0,
+# 'fraction_active_loss': 984436.03515625,
+# 'selectivity_loss': 12700.0,
+# 'sparsity_loss': 12798.74140552399}
+
+#mpirun -n 8 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=50 --pop_size=7 --framework=mpi --disp
+#PopulationAnnealing: 50 generations took 2304.14 s
+#best model_id: 348
+#params:
+#{'mean_weight;FF_Inh;Input': 0.3070180918678274,
+# 'mean_weight;Output;FF_Inh': 0.2540775968833144,
+# 'mean_weight;Output;Input': 0.02499039586706385}
+#features:
+#{'fraction_active': 0.0078125,
+# 'selectivity': 0.0078125,
+# 'similarity': 1.0,
+# 'summed_activity': 0.00020668714536063032}
+#objectives:
+#{'discriminability_loss': 100.0,
+# 'fraction_active_loss': 984436.03515625,
+# 'selectivity_loss': 12700.0,
+# 'sparsity_loss': 12794.77880083218}
+
+#mpirun -n 8 python -i -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=3 --pop_size=7 --framework=mpi --disp
+#PopulationAnnealing: 3 generations took 84.09 s
+#best model_id: 9
+#params:
+#{'mean_weight;FF_Inh;Input': 0.2999156103553968,
+# 'mean_weight;Output;FF_Inh': 0.22398836488425247,
+# 'mean_weight;Output;Input': 0.06728765733765478}
+#features:
+#{'fraction_active': 0.9921875,
+# 'selectivity': 11.4296875,
+# 'similarity': 0.42320467556638147,
+# 'summed_activity': 0.7399945641506865}
+#objectives:
+#{'discriminability_loss': 2156440222.6556025,
+# 'fraction_active_loss': 61.03515625,
+# 'selectivity_loss': 7187700.0,
+# 'sparsity_loss': 3206.260115493506}
+
+#mpirun -n 8 python -i -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=5 --pop_size=7 --framework=mpi --disp --interactive
+#PopulationAnnealing: 5 generations took 235.73 s
+#best model_id: 27
+#params:
+#{'mean_weight;FF_Inh;Input': 0.4129441527857173,
+# 'mean_weight;Output;FF_Inh': 0.19434522402910004,
+# 'mean_weight;Output;Input': 0.0691453875492387}
+#features:
+#{'fraction_active': 0.984375,
+# 'selectivity': 11.75,
+# 'similarity': 0.4297783274829604,
+# 'summed_activity': 0.776188586658003}
+#objectives:
+#{'discriminability_loss': 2162361134.104385,
+# 'fraction_active_loss': 244.140625,
+# 'selectivity_loss': 7432200.0,
+# 'sparsity_loss': 3526.05161363566}
