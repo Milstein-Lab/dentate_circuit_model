@@ -33,6 +33,7 @@ feature_names:
     - similarity
     - selectivity
     - fraction_active_patterns
+    - fraction_active_units
 
 get_features_stages:
     - source: optimize_dynamic_model
@@ -79,6 +80,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     time_point: 0.2
     plot_patterns: False
     fraction_active_patterns_threshold: 0.9
+    fraction_active_units_threshold: 0.9
 
     num_units_dict:
         Input: 7

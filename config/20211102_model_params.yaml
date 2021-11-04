@@ -1,0 +1,33 @@
+1:
+  mean_weight;Output;Input: 0.045267797518192585
+2:
+  mean_weight;FF_Inh;Input: 1.395008E-01
+  mean_weight;Output;FF_Inh: 4.011269E-01
+  mean_weight;Output;Input: 4.655265E-02
+3:
+  mean_weight;FB_Inh;Output: 9.992877E-01
+  mean_weight;Output;FB_Inh: 9.978374E-01
+  mean_weight;Output;Input: 4.526981E-02
+4:
+  mean_weight;FB_Inh;Output: 9.957024E-01
+  mean_weight;FF_Inh;Input: 1.351233E-01
+  mean_weight;Output;FB_Inh: 8.931942E-01
+  mean_weight;Output;FF_Inh: 4.713522E-01
+  mean_weight;Output;Input: 4.528336E-02
+5:
+  mean_weight;FB_Exc;FB_Exc: 5.428055E-01
+  mean_weight;FB_Exc;Output: 9.507891E-01
+  mean_weight;FB_Inh;FB_Exc: 9.119415E-01
+  mean_weight;FF_Inh;Input: 5.342058E-01
+  mean_weight;Output;FB_Inh: 2.635160E-01
+  mean_weight;Output;FF_Inh: 6.120157E-01
+  mean_weight;Output;Input: 1.134357E-01
+6:
+  mean_weight;FB_Exc;FB_Exc: 6.400561E-01
+  mean_weight;FB_Exc;Output: 4.046782E-01
+  mean_weight;FB_Inh;FB_Exc: 7.656466E-01
+  mean_weight;FF_Inh;Input: 1.531406E-01
+  mean_weight;Output;FB_Exc: 1.449760E-01
+  mean_weight;Output;FB_Inh: 6.894937E-01
+  mean_weight;Output;FF_Inh: 6.463387E-01
+  mean_weight;Output;Input: 1.137032E-01
