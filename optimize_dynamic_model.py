@@ -1100,17 +1100,73 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
     return weight_dict
 
 
-def export_dynamic_model_data(export_file_path, weight_seed, model_config_dict, num_units_dict,
+def export_model_slice_data(export_file_path, description, weight_seed, model_config_dict, weight_dict,
+                            num_units_dict, activation_function_dict, weight_config_dict, network_activity_dict):
+    '''
+    Export minimal data file required to generate final figures
+
+    :param export_file_path: str (path); path to hdf5 file
+    :param description: str; unique identifier for model configuration, used as key in hdf5 file
+    :param weight_seed: int
+    :param model_config_dict: nested dict
+    :param weight_dict: nested dict of ndarray of float
+    :param num_units_dict: dict of int
+    :param activation_function_dict: dict of str
+    :param weight_config_dict: nested dict
+    :param network_activity_dict: dict of 2d arrays of float
+    '''
+    if description is None:
+        raise RuntimeError('export_dynamic_model_data: missing required description (unique string identifier for '
+                           'model configuration)')
+
+    # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
+    export_file_path = export_file_path[:-5] + "_slice.hdf5"
+    with h5py.File(export_file_path, 'a') as f:
+
+        description = 'description:'+description
+        if description in f:
+            model_group = f[description]
+        else:
+            model_group = f.create_group(description)
+
+        # save the meta data for this model configuration
+        for key, value in model_config_dict.items():
+            model_group.attrs[key] = value
+
+        model_seed_group = model_group.create_group('seed:'+str(weight_seed))
+
+        group = model_seed_group.create_group('weights')
+        for post_pop in weight_dict:
+            post_group = group.create_group(post_pop)
+            for pre_pop in weight_dict[post_pop]:
+                post_group.create_dataset(pre_pop, data=weight_dict[post_pop][pre_pop])
+                # save the meta data for the weight configuration of this projection
+                for key, value in weight_config_dict[post_pop][pre_pop].items():
+                    post_group[pre_pop].attrs[key] = value
+
+        group = model_seed_group.create_group('activity')
+        for post_pop in network_activity_dict:
+            group.create_dataset(post_pop, data=network_activity_dict[post_pop])
+            group[post_pop].attrs['num_units'] = num_units_dict[post_pop]
+            if post_pop in activation_function_dict:
+                group[post_pop].attrs['activation_func_name'] = activation_function_dict[post_pop]['Name']
+                group[post_pop].attrs['activation_func_thresh'] = activation_function_dict[post_pop]['Arguments']['threshold']
+                group[post_pop].attrs['activation_func_peak_in'] = activation_function_dict[post_pop]['Arguments']['peak_input']
+                group[post_pop].attrs['activation_func_peak_out'] = activation_function_dict[post_pop]['Arguments']['peak_output']
+
+
+def export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
                               activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
                               synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
                               cell_voltage_dynamics_dict, network_activity_dynamics_dict):
     """
     Exports data from a single model configuration to hdf5.
     :param export_file_path: str (path); path to hdf5 file
+    :param description: str; unique identifier for model configuration, used as key in hdf5 file
     :param weight_seed: int
     :param model_config_dict: nested dict
     :param num_units_dict: dict of int
-    :param activation_function_dict: dict of callable
+    :param activation_function_dict: dict of str
     :param weight_config_dict: nested dict
     :param weight_dict: nested dict of ndarray of float
     :param cell_tau_dict: dict of float
@@ -1133,16 +1189,26 @@ def export_dynamic_model_data(export_file_path, weight_seed, model_config_dict, 
             3d array of float (number of input patterns, number of units in this population, number of time points)
         }
     """
+    if description is None:
+        raise RuntimeError('export_dynamic_model_data: missing required description (unique string identifier for '
+                           'model configuration)')
 
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     with h5py.File(export_file_path, 'a') as f:
-        description = "weight_seed:"+str(weight_seed)
-        model_group = f.create_group(description)
+
+        description = 'description:'+description
+        if description in f:
+            model_group = f[description]
+        else:
+            model_group = f.create_group(description)
+
         # save the meta data for this model configuration
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
 
-        group = model_group.create_group('weights')
+        model_seed_group = model_group.create_group('seed:'+str(weight_seed))
+
+        group = model_seed_group.create_group('weights')
         for post_pop in weight_dict:
             post_group = group.create_group(post_pop)
             for pre_pop in weight_dict[post_pop]:
@@ -1151,35 +1217,32 @@ def export_dynamic_model_data(export_file_path, weight_seed, model_config_dict, 
                 for key, value in weight_config_dict[post_pop][pre_pop].items():
                     post_group[pre_pop].attrs[key] = value
 
-        group = model_group.create_group('syn_conductances')
+        group = model_seed_group.create_group('channel_conductances')
         for post_pop in channel_conductance_dynamics_dict:
             subgroup = group.create_group(post_pop)
             for pre_pop in channel_conductance_dynamics_dict[post_pop]:
                 subgroup.create_dataset(pre_pop, data=channel_conductance_dynamics_dict[post_pop][pre_pop])
-                subgroup[pre_pop].attrs['synapse_tau_rise'] = synapse_tau_dict[post_pop][pre_pop]['rise']
-                subgroup[pre_pop].attrs['synapse_tau_decay'] = synapse_tau_dict[post_pop][pre_pop]['decay']
+                subgroup[pre_pop].attrs['synapse_rise_tau'] = synapse_tau_dict[post_pop][pre_pop]['rise']
+                subgroup[pre_pop].attrs['synapse_decay_tau'] = synapse_tau_dict[post_pop][pre_pop]['decay']
 
-        group = model_group.create_group('net_currents')
+        group = model_seed_group.create_group('net_currents')
         for post_pop in net_current_dynamics_dict:
             group.create_dataset(post_pop, data=net_current_dynamics_dict[post_pop])
 
-        group = model_group.create_group('cell_voltages')
+        group = model_seed_group.create_group('cell_voltages')
         for post_pop in cell_voltage_dynamics_dict:
             group.create_dataset(post_pop, data=cell_voltage_dynamics_dict[post_pop])
             group[post_pop].attrs['cell_tau'] = cell_tau_dict[post_pop]
 
-        group = model_group.create_group('activity')
+        group = model_seed_group.create_group('activity')
         for post_pop in network_activity_dynamics_dict:
             group.create_dataset(post_pop, data=network_activity_dynamics_dict[post_pop])
             group[post_pop].attrs['num_units'] = num_units_dict[post_pop]
-
-        group = model_group.create_group('activation_function')
-        for post_pop in activation_function_dict:
-            group.create_group(post_pop)
-            group[post_pop].attrs['Name'] = activation_function_dict[post_pop]['Name']
-            group[post_pop].create_group('Arguments')
-            for key, value in activation_function_dict[post_pop]['Arguments'].items():
-                group[post_pop]['Arguments'].attrs[key] = value
+            if post_pop in activation_function_dict:
+                group[post_pop].attrs['activation_func_name'] = activation_function_dict[post_pop]['Name']
+                group[post_pop].attrs['activation_func_thresh'] = activation_function_dict[post_pop]['Arguments']['threshold']
+                group[post_pop].attrs['activation_func_peak_in'] = activation_function_dict[post_pop]['Arguments']['peak_input']
+                group[post_pop].attrs['activation_func_peak_out'] = activation_function_dict[post_pop]['Arguments']['peak_output']
 
     print('export_dynamic_model_data: saved data for model %s to %s' % (description, export_file_path))
 
@@ -1324,7 +1387,6 @@ def read_from_yaml(file_path, Loader=None):
 
 # python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 
-
 def config_worker():
     num_input_units = context.num_units_dict['Input']
 
@@ -1339,11 +1401,18 @@ def config_worker():
     if 'debug' not in context():
         context.debug = False
 
+    if 'num_instances' in context():
+        context.num_instances = int(context.num_instances)
+
+    if 'init_weight_seed' in context():
+        context.init_weight_seed = int(context.init_weight_seed)
+
+    print(os.getpid(), context.debug)
+
     context.update(locals())
 
 
 def modify_network(param_dict):
-
     for param_name, param_val in param_dict.items():
         parsed_param_name = param_name.split(';')
         if parsed_param_name[0] == 'mean_weight':
@@ -1399,12 +1468,14 @@ def compute_features(param_array, model_id=None, export=False):
                                            datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
             context.export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
 
-        model_config_dict = {'description': context.description,
-                             'weight_seed': context.weight_seed,
-                             'duration': context.duration,
+        model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
-        export_dynamic_model_data(context.export_file_path, context.weight_seed, model_config_dict,
+        export_model_slice_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
+                                weight_dict, context.num_units_dict, context.activation_function_dict,
+                                context.weight_config_dict, network_activity_dict)
+
+        export_dynamic_model_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
                                   context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
                                   weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
                                   channel_conductance_dynamics_dict, net_current_dynamics_dict,
@@ -1462,6 +1533,165 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
                              'similarity': np.nanmean(orig_features_dict['similarity_array']),
                              'selectivity': np.mean(orig_features_dict['selectivity_array']),
                              'fraction_active_patterns': orig_features_dict['fraction_active_patterns']}
+
+    return summary_features_dict, objectives_dict
+
+
+
+# When simulating with multiple random seeds in parallel, use alternative compute functions:
+def get_weight_seeds():
+    weight_seed_list = list(range(context.init_weight_seed, context.init_weight_seed + context.num_instances))
+    return [weight_seed_list]
+
+
+def compute_features_multiple_instances(param_array, weight_seed, model_id=None, export=False):
+    """
+
+    :param param_array: array of float
+    :param weight_seed: int
+    :param model_id: int
+    :param export: bool
+    :return: dict
+    """
+
+    start_time = time.time()
+
+    param_dict = param_array_to_dict(param_array, context.param_names)
+    modify_network(param_dict) #update the weight config dict
+
+    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, weight_seed,
+                                  description=context.description, plot=context.plot)
+
+    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    network_activity_dynamics_dict = \
+        get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
+                                   context.synapse_tau_dict, context.cell_tau_dict,
+                                   weight_dict, context.weight_config_dict, context.activation_function_dict,
+                                   context.synaptic_reversal_dict)
+
+    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
+                                                                 time_point=context.time_point)
+
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict  = analyze_slice(network_activity_dict)
+
+    # extract all values below diagonal
+    similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
+
+    # Generate dictionary for "features" that will be used in the loss function (get objectives)
+    orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
+                          'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
+                          'selectivity_array': selectivity_dict['Output'],
+                          'fraction_active_patterns': fraction_nonzero_dict['Output']}
+
+    if export:
+        if 'export_file_path' not in context() or context.export_file_path is None:
+            if 'data_dir' not in context() or context.data_dir is None:
+                raise Exception('optimize_dynamic_model.get_features: missing required parameter for export: data_dir')
+            if 'export_file_name' not in context() or context.export_file_name is None:
+                context.export_file_name = '%s_exported_model_data.hdf5' % \
+                                           datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
+            context.export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
+
+        model_config_dict = {'duration': context.duration,
+                             'dt': context.dt}
+
+        export_model_slice_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+                                weight_dict, context.num_units_dict, context.activation_function_dict,
+                                context.weight_config_dict, network_activity_dict)
+
+        export_dynamic_model_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+                                  context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
+                                  weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
+                                  channel_conductance_dynamics_dict, net_current_dynamics_dict,
+                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+
+    if context.plot:
+        plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
+                           selectivity_dict, context.description)
+
+        median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+        fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
+
+        plot_dynamics(context.t,
+                      median_sparsity_dynamics_dict,
+                      median_similarity_dynamics_dict,
+                      mean_selectivity_dynamics_dict,
+                      fraction_nonzero_response_dynamics_dict,
+                      context.description)
+
+    if context.debug:
+        print('%s used weight_seed: %i' % (os.getpid(), weight_seed))
+        print('Simulation took %.1f s' % (time.time() - start_time))
+        sys.stdout.flush()
+        context.update(locals())
+
+    if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
+        return dict()
+
+    return orig_features_dict
+
+
+def filter_features_multiple_instances(features_dict_list, current_features, model_id=None, export=False):
+    """
+
+    :param features_dict_list:
+    :param model_id:
+    :param export:
+    :return: dict
+    """
+
+    final_features_dict = {'sparsity_loss': [],
+                           'discriminability_loss': [],
+                           'selectivity_loss': [],
+                           'fraction_active_patterns_loss': [],
+                           'sparsity': [],
+                           'similarity': [],
+                           'selectivity': [],
+                           'fraction_active_patterns': []}
+
+    for orig_features_dict in features_dict_list:
+        sparsity_errors = (context.target_val['sparsity'] -
+                           orig_features_dict['sparsity_array']) / context.target_range['sparsity']
+        discriminability_errors = (context.target_val['similarity'] -
+                                   orig_features_dict['similarity_array']) / context.target_range['similarity']
+        selectivity_errors = (context.target_val['selectivity'] -
+                              orig_features_dict['selectivity_array']) / context.target_range['selectivity']
+        fraction_active_error = (context.target_val['fraction_active_patterns'] -
+                                 orig_features_dict['fraction_active_patterns']) / \
+                                context.target_range['fraction_active_patterns']
+
+        final_features_dict['sparsity_loss'].append(np.sum(sparsity_errors ** 2))
+        final_features_dict['discriminability_loss'].append(np.nansum(discriminability_errors ** 2))
+        final_features_dict['selectivity_loss'].append(np.sum(selectivity_errors ** 2))
+        final_features_dict['fraction_active_patterns_loss'].append(fraction_active_error ** 2)
+        final_features_dict['sparsity'].append(np.mean(orig_features_dict['sparsity_array']))
+        final_features_dict['similarity'].append(np.nanmean(orig_features_dict['similarity_array']))
+        final_features_dict['selectivity'].append(np.mean(orig_features_dict['selectivity_array']))
+        final_features_dict['fraction_active_patterns'].append(orig_features_dict['fraction_active_patterns'])
+
+    if context.debug:
+        print(final_features_dict)
+        sys.stdout.flush()
+        context.update(locals())
+
+    return final_features_dict
+
+
+def get_objectives_multiple_instances(final_features_dict, model_id=None, export=False):
+    """
+    Compute loss function.
+    :param features_dict: dict
+    :param model_id: int
+    :param export: bool
+    :return: tuple of dict
+    """
+    objectives_dict = {}
+    summary_features_dict = {}
+    for feature_name in final_features_dict:
+        if 'loss' in feature_name:
+            objectives_dict[feature_name] = np.mean(final_features_dict[feature_name])
+        else:
+            summary_features_dict[feature_name] = np.mean(final_features_dict[feature_name])
 
     return summary_features_dict, objectives_dict
 
@@ -1544,13 +1774,15 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
             export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
         export_file_path = '%s/%s' % (data_dir, export_file_name)
 
-        model_config_dict = {'description': description,
-                             'weight_seed': weight_seed,
-                             'duration': duration,
+        model_config_dict = {'duration': duration,
                              'dt': dt
                              }
 
-        export_dynamic_model_data(export_file_path, description, model_config_dict, num_units_dict,
+        export_model_slice_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
+                                weight_dict, context.num_units_dict, context.activation_function_dict,
+                                context.weight_config_dict, network_activity_dict)
+
+        export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
                                   activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
                                   synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
                                   cell_voltage_dynamics_dict, network_activity_dynamics_dict)
