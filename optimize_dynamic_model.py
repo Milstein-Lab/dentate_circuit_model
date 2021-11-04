@@ -1428,6 +1428,8 @@ def compute_features(param_array, model_id=None, export=False):
         print('Simulation took %.1f s' % (time.time() - start_time))
         context.update(locals())
 
+    # TODO: fail models with high fraction of units that are silent for all patterns
+
     if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
         return dict()
 
