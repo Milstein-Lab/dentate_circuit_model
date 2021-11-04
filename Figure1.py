@@ -7,9 +7,11 @@ import click
 import numpy as np
 import h5py
 from copy import deepcopy
-import matplotlib.pyplot as plt
 from optimize_dynamic_model import analyze_slice, get_binary_input_patterns
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_style(style='ticks')
 
 def import_slice_data(data_file_path, model_seed = 'all'):
     """
@@ -110,33 +112,87 @@ def import_slice_data(data_file_path, model_seed = 'all'):
             fraction_nonzero_history_dict
 
 
-def plot_figure1(sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  weight_history_dict, network_activity_history_dict):
 
-    fig, axes = plt.subplots(3, 3, figsize=(6, 6),)
+    fig, axes = plt.subplots(3, 3, figsize=(6, 6))
 
     # Top left: input patterns
-    sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True)
+    num_input_units = num_units_history_dict['seed:1234']['Input']
+    sorted_input_patterns = (get_binary_input_patterns(num_input_units, sort=True)).transpose()
 
-    axes[0, 0].imshow(sorted_input_patterns, aspect='auto')
-
+    im1 = axes[0, 0].imshow(sorted_input_patterns, aspect='auto',cmap='gray_r')
+    axes[0, 0].set_xlabel('Input Pattern ID')
+    axes[0, 0].set_ylabel('Input Unit ID')
+    axes[0, 0].set_title('Input Patterns')
+    cbar = plt.colorbar(im1, ax=axes[0, 0])
     # Top middle: simple input-output network diagram
 
     # Top right: ideal output (identity matrix)
+    num_output_units = num_units_history_dict['seed:1234']['Output']
+    im2 = axes[0, 2].imshow(np.eye(num_output_units), aspect='auto', cmap='viridis')
+    axes[0, 2].set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    axes[0, 2].set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    axes[0, 2].set_xlabel('Output Pattern ID')
+    axes[0, 2].set_ylabel('Output Unit ID')
+    axes[0, 2].set_title('Ideal Output Activity')
+    cbar = plt.colorbar(im2, ax=axes[0, 2])
 
-    # Middle left: sparsity
+    # Middle left: weight distribution
 
-    # Middle middle: selectivity
+    # Middle middle: output activity uniform
 
-    # Middle right: discriminability (cosine similarity)
+    # Middle right: output activity log-normal
 
-    # Bottom left: weight distribution
+    # Bottom left: sparsity
+    active_output_unit_count = sparsity_history_dict['seed:1234']['Output']
+    im3 = axes[2,0].scatter((np.arange(0, num_output_units)), active_output_unit_count, label = 'log-normal')
+    x = [0,num_output_units]
+    y = [1,1]
+    axes[2, 0].plot(x,y, color = 'red',label='Ideal')
+    axes[2, 0].set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    axes[2, 0].set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    axes[2, 0].set_xlabel('Input Pattern ID')
+    axes[2, 0].set_ylabel('# of active neurons') #active output neurons count
+    axes[2, 0].set_title('Sparsity')
+    axes[2, 0].legend(loc='best', frameon=False)
 
-    # Bottom middle:
+    # Bottom middle: selectivity
+    num_patterns_selected = selectivity_history_dict['seed:1234']['Output']
+    max_response = np.max(num_patterns_selected)
+    bin_width = max_response / 20
+    hist, edges = np.histogram(num_patterns_selected,
+                               bins=np.arange(-bin_width / 2., max_response + bin_width, bin_width), density=True)
+    axes[2, 1].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+                    label='log-normal')
+    x = [1, 1]
+    y = [0, 1]
+    axes[2, 1].plot(x, y, color='red', label='Ideal')
+    axes[2, 1].set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    axes[2, 1].set_xlabel('# of patterns selected')
+    axes[2, 1].set_title('Selectivity Distribution')
+    axes[2, 1].legend(loc='best', frameon=False)
 
-    # Bottom right: output activity
+    # Bottom right: discriminability (cosine similarity)
+    output_similarity = similarity_matrix_history_dict['seed:1234']['Output']
+    bin_width = 0.05
+    invalid_indexes = np.isnan(output_similarity)
+    hist, edges = np.histogram(output_similarity[~invalid_indexes],
+                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    axes[2, 2].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+                    label='log-normal')
+    x = [0, 0]
+    y = [0, 1]
+    axes[2, 2].plot(x, y, color='red', label='Ideal')
+    axes[2, 2].set_xticks(np.arange(0, 1.25, 1 / 4))
+    axes[2, 2].set_xlabel('Output Pattern Cosine Similarity')
+    axes[2, 2].set_title('Discriminability')
+    axes[2, 2].legend(loc='best', frameon=False)
 
+    fig.suptitle('Figure 1')
+    fig.tight_layout(w_pad=1.0, h_pad=2.0, rect=(0., 0., 1., 0.98))
 
+    sns.despine()
     plt.show()
     # plt.savefig(file.jpeg, edgecolor='black', dpi=400, facecolor='black', transparent=True)
 
@@ -184,14 +240,15 @@ def plot_figure4():
 @click.option("--model_seed", type=str, default='all')
 
 def main(data_file_path,model_seed):
-    _,_,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
-        similarity_matrix_history_dict, selectivity_history_dict, \
-        fraction_nonzero_history_dict = import_slice_data(data_file_path,model_seed)
+    _,num_units_history_dict,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
+        similarity_matrix_history_dict, selectivity_history_dict,_ = import_slice_data(data_file_path,model_seed)
 
-    # plot_figure1(sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              weight_history_dict, network_activity_history_dict)
+    globals().update(locals())
 
-    plot_figure2(similarity_matrix_history_dict)
+    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 weight_history_dict, network_activity_history_dict)
+
+    # plot_figure2(similarity_matrix_history_dict)
 
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
     #                        selectivity_dict, description)
@@ -200,7 +257,7 @@ def main(data_file_path,model_seed):
     #               mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict, description)
 
 
-    globals().update(locals())
+
 
 
 if __name__ == '__main__':
