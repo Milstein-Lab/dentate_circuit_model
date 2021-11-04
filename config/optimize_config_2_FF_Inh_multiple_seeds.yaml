@@ -1,6 +1,7 @@
 # python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml --plot
 # python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=2 --pop_size=3 --disp --framework=serial --interactive
-#mpirun -n 2 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=mpi
+# mpirun -n 2 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=mpi
+# mpirun -n 4 python -m mpi4py.futures -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh_multiple_seeds.yaml --framework=mpi --export --debug
 
 optimization_title: dentate_optimization_2
 
@@ -27,7 +28,7 @@ feature_names:
     - fraction_active_patterns
 
 get_features_stages:
-    - source: optimize_dynamic_model_multiple_seeds
+    - source: optimize_dynamic_model
       get_args_static: get_weight_seeds
       compute_features: compute_features_multiple_instances
       filter_features: filter_features_multiple_instances
@@ -39,7 +40,7 @@ objective_names: #loss/error values to minimize
     - fraction_active_patterns_loss
 
 get_objectives:
-    optimize_dynamic_model_multiple_seeds: get_objectives_multiple_instances
+    optimize_dynamic_model: get_objectives_multiple_instances
 
 target_val:
     sparsity: 1. # number of nonzero units for each pattern

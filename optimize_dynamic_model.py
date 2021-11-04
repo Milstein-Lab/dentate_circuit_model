@@ -1122,7 +1122,13 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     export_file_path = export_file_path[:-5] + "_slice.hdf5"
     with h5py.File(export_file_path, 'a') as f:
-        model_group = f.create_group('description:'+description)
+
+        description = 'description:'+description
+        if description in f:
+            model_group = f[description]
+        else:
+            model_group = f.create_group(description)
+
         # save the meta data for this model configuration
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
@@ -1189,7 +1195,13 @@ def export_dynamic_model_data(export_file_path, description, weight_seed, model_
 
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     with h5py.File(export_file_path, 'a') as f:
-        model_group = f.create_group('description:'+description)
+
+        description = 'description:'+description
+        if description in f:
+            model_group = f[description]
+        else:
+            model_group = f.create_group(description)
+
         # save the meta data for this model configuration
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
@@ -1395,6 +1407,8 @@ def config_worker():
     if 'init_weight_seed' in context():
         context.init_weight_seed = int(context.init_weight_seed)
 
+    print(os.getpid(), context.debug)
+
     context.update(locals())
 
 
@@ -1581,6 +1595,10 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
+        export_model_slice_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+                                weight_dict, context.num_units_dict, context.activation_function_dict,
+                                context.weight_config_dict, network_activity_dict)
+
         export_dynamic_model_data(context.export_file_path, context.description, weight_seed, model_config_dict,
                                   context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
                                   weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
@@ -1759,6 +1777,10 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
         model_config_dict = {'duration': duration,
                              'dt': dt
                              }
+
+        export_model_slice_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
+                                weight_dict, context.num_units_dict, context.activation_function_dict,
+                                context.weight_config_dict, network_activity_dict)
 
         export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
                                   activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
