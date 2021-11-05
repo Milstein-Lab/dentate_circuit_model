@@ -143,6 +143,8 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     # Middle middle: output activity uniform
 
     # Middle right: output activity log-normal
+    output_activity_dict = network_activity_history_dict['seed:1234']['Output']
+    im5 = axes[1, 2].imshow(output_activity_dict, aspect = 'auto')
 
     # Bottom left: sparsity
     active_output_unit_count = sparsity_history_dict['seed:1234']['Output']
