@@ -7,9 +7,11 @@ import click
 import numpy as np
 import h5py
 from copy import deepcopy
-import matplotlib.pyplot as plt
 from optimize_dynamic_model import analyze_slice, get_binary_input_patterns
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_style(style='ticks')
 
 def import_slice_data(data_file_path, model_seed = 'all'):
     """
@@ -140,8 +142,91 @@ def plot_figure1(sparsity_history_dict, selectivity_history_dict, similarity_mat
     plt.show()
     # plt.savefig(file.jpeg, edgecolor='black', dpi=400, facecolor='black', transparent=True)
 
+def plot_cumulative_similarity(similarity_matrix_history_dict):
 
-def plot_figure2(similarity_matrix_history_dict):
+    cumulative_similarity = []
+    bin_width = 0.01
+    for model_seed in similarity_matrix_history_dict:
+        similarity_matrix = similarity_matrix_history_dict[model_seed]['Output']
+
+        # extract all values below diagonal
+        similarity_matrix_idx = np.tril_indices_from(similarity_matrix, -1)
+        similarity_array = similarity_matrix[similarity_matrix_idx]
+
+        invalid_indexes = np.isnan(similarity_array)
+        hist, edges = np.histogram(similarity_array[~invalid_indexes],
+                                   bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+
+        cumulative_similarity.append(np.cumsum(hist) * bin_width)
+
+    cumulative_similarity = np.array(cumulative_similarity)
+    mean_similarity = np.mean(cumulative_similarity, axis=0)
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
+
+    SEM = np.std(cumulative_similarity, axis=0)  # /np.sqrt(cumulative_similarity.shape[0])
+    error_min = edges - SEM
+    error_max = edges + SEM
+
+    plt.fill_betweenx(mean_similarity, error_min, error_max,
+                      facecolor="gray",  # The fill color
+                      color='gray',  # The outline color
+                      alpha=0.2)  # Transparency of the fill
+
+    plt.plot(edges, mean_similarity, color='red', label='FF_I')
+
+    ax.legend(loc='best')
+    ax.set_title('Cumulative histograms')
+    ax.set_xlabel('cosine similarity')
+    ax.set_ylabel('probability')
+
+    sns.despine()
+    plt.show()
+
+
+def plot_cumulative_selectivity(selectivity_history_dict):
+
+    cumulative_selectivity = []
+    bin_width = 0.01
+    max_value = 128 #maximum number of possible responses per neuron
+    for model_seed in selectivity_history_dict:
+        selectivity = selectivity_history_dict[model_seed]['Output']
+
+        hist, edges = np.histogram(selectivity,
+                           bins=np.arange(-bin_width / 2., max_value+bin_width, bin_width), density=True)
+
+        cumulative_selectivity.append(np.cumsum(hist) * bin_width)
+
+    cumulative_selectivity = np.array(cumulative_selectivity)
+    mean_selectivity = np.mean(cumulative_selectivity, axis=0)
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
+
+    SEM = np.std(cumulative_selectivity, axis=0)  # /np.sqrt(cumulative_similarity.shape[0])
+    error_min = edges - SEM
+    error_max = edges + SEM
+
+    plt.fill_betweenx(mean_selectivity, error_min, error_max,
+                      facecolor="gray",  # The fill color
+                      color='gray',  # The outline color
+                      alpha=0.2)  # Transparency of the fill
+
+    plt.plot(edges, mean_selectivity, color='red', label='FF_I')
+
+    ax.legend(loc='best')
+    ax.set_title('Cumulative histograms')
+    ax.set_xlabel('selectivity')
+    ax.set_ylabel('probability')
+
+    sns.despine()
+    plt.show()
+
+def plot_figure2():
+    return
     # FF Inh
         #E->E
         #E->I
@@ -155,19 +240,9 @@ def plot_figure2(similarity_matrix_history_dict):
     #plot weight distributions
     #plot...
 
-    similarity = []
-    for model_seed in similarity_matrix_history_dict:
-        similarity_matrix = similarity_matrix_history_dict[model_seed]['Output']
-
-        # extract all values below diagonal
-        similarity_matrix_idx = np.tril_indices_from(similarity_matrix, -1)
-        similarity_array = similarity_matrix[similarity_matrix_idx]
-
-        similarity.append(similarity_array)
-
-
 
 def plot_figure3():
+
     #Indirect FB inh by MCs
     return
 
@@ -185,13 +260,14 @@ def plot_figure4():
 
 def main(data_file_path,model_seed):
     _,_,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
-        similarity_matrix_history_dict, selectivity_history_dict, \
-        fraction_nonzero_history_dict = import_slice_data(data_file_path,model_seed)
+        similarity_matrix_history_dict, selectivity_history_dict,_ = import_slice_data(data_file_path,model_seed)
 
+    globals().update(locals())
     # plot_figure1(sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
     #              weight_history_dict, network_activity_history_dict)
 
-    plot_figure2(similarity_matrix_history_dict)
+    # plot_figure2(similarity_matrix_history_dict)
+    plot_cumulative_selectivity(selectivity_history_dict)
 
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
     #                        selectivity_dict, description)
@@ -200,7 +276,7 @@ def main(data_file_path,model_seed):
     #               mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict, description)
 
 
-    globals().update(locals())
+
 
 
 if __name__ == '__main__':
