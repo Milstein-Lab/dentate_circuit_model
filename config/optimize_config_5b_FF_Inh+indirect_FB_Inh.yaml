@@ -2,7 +2,7 @@
 # python -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 #mpiexec -n 4 python -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=2 --disp --framework=serial --interactive
 
-optimization_title: dentate_optimization_5
+optimization_title: dentate_optimization_5b
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
@@ -10,6 +10,7 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;FF_Inh
     - mean_weight;FB_Exc;Output
     - mean_weight;FB_Exc;FB_Exc
+    - mean_weight;FB_Exc;FB_Inh
     - mean_weight;FB_Inh;FB_Exc
     - mean_weight;Output;FB_Inh
 
@@ -27,6 +28,9 @@ bounds:
         - 0.
         - 1.
     mean_weight;FB_Exc;FB_Exc: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;FB_Exc;FB_Inh: !!python/tuple
         - 0.
         - 1.
     mean_weight;FB_Inh;FB_Exc: !!python/tuple
@@ -74,13 +78,14 @@ x0: #initial parameters
     mean_weight;Output;FF_Inh: 0.5
     mean_weight;FB_Exc;Output: 0.5
     mean_weight;FB_Exc;FB_Exc: 0.5
+    mean_weight;FB_Exc;FB_Inh: 0.5
     mean_weight;FB_Inh;FB_Exc: 0.5
     mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: FF_Inh+indirect_FB_Inh
+    description: FF_Inh+indirect_FB_Inh(b)
     weight_seed: 1234
     duration: 0.2 #sec
     dt: 0.001 #sec
@@ -150,6 +155,10 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: log-normal
                 mean_magnitude: 0.2
                 connection_type: exc
+            FB_Inh:
+                dist_type: uniform
+                mean_magnitude: 0.5
+                connection_type: inh
         FB_Inh:
             FB_Exc:
                 dist_type: uniform
@@ -184,6 +193,9 @@ kwargs: #All these will become will become dictionaries in Context() once nested
             FB_Exc:
                 rise: 0.001
                 decay: 0.01
+            FB_Inh:
+                rise: 0.001
+                decay: 0.02
         FB_Inh:
             FB_Exc:
                 rise: 0.001

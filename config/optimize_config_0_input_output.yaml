@@ -1,7 +1,7 @@
 # python -i -m nested.analyze --config_file_path=config/optimize_config_1_Input_Output.yaml --framework=serial --plot --interactive
 # python -m nested.optimize --config-file-path=config/optimize_config_1_Input_Output.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 
-optimization_title: dentate_optimization_1
+optimization_title: dentate_optimization_0
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
@@ -75,7 +75,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     weight_config_dict:
         Output:
             Input:
-                dist_type: log-normal
+                dist_type: uniform
                 mean_magnitude: 0.5
                 connection_type: exc
 

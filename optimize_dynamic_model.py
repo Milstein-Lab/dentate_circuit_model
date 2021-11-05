@@ -652,24 +652,33 @@ def analyze_slice(network_activity_dict):
     sparsity_dict = {}
     similarity_matrix_dict = {}
     selectivity_dict = {}
-    fraction_nonzero_dict = {}
+    fraction_active_patterns_dict = {}
+    fraction_active_units_dict = {}
 
     num_patterns = network_activity_dict['Input'].shape[0]
 
     for population in network_activity_dict:
-        sparsity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=1) #number of nonzero units per pattern
 
-        invalid_indexes = np.where(sparsity_dict[population] == 0.)[0] #if pop activity is 0, remove this sample from similarity calculation
+        # number of nonzero units per pattern
+        sparsity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=1)
+
+        # if pop activity is 0, remove this sample from similarity calculation
+        invalid_indexes = np.where(sparsity_dict[population] == 0.)[0]
         similarity_matrix_dict[population] = cosine_similarity(network_activity_dict[population])
         similarity_matrix_dict[population][invalid_indexes, :] = np.nan
         similarity_matrix_dict[population][:, invalid_indexes] = np.nan
 
-        selectivity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=0) #number of nonzero patterns per unit
-
         invalid_indexes = np.where(sparsity_dict[population] == 0.)[0]
-        fraction_nonzero_dict[population] = 1. - len(invalid_indexes) / num_patterns
+        fraction_active_patterns_dict[population] = 1. - len(invalid_indexes) / num_patterns
 
-    return sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict
+        # number of nonzero patterns per unit
+        selectivity_dict[population] = np.count_nonzero(network_activity_dict[population], axis=0)
+        invalid_indexes = np.where(selectivity_dict[population] == 0.)[0]
+        fraction_active_units_dict[population] = 1. - len(invalid_indexes) / num_patterns
+
+
+    return sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
+           fraction_active_units_dict
 
 
 def analyze_dynamics(network_activity_dynamics_dict):
@@ -1407,8 +1416,6 @@ def config_worker():
     if 'init_weight_seed' in context():
         context.init_weight_seed = int(context.init_weight_seed)
 
-    print(os.getpid(), context.debug)
-
     context.update(locals())
 
 
@@ -1448,7 +1455,8 @@ def compute_features(param_array, model_id=None, export=False):
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
 
-    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict  = analyze_slice(network_activity_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
+    fraction_active_units_dict = analyze_slice(network_activity_dict)
 
     # extract all values below diagonal
     similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
@@ -1457,7 +1465,8 @@ def compute_features(param_array, model_id=None, export=False):
     orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
                           'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
                           'selectivity_array': selectivity_dict['Output'],
-                          'fraction_active_patterns': fraction_nonzero_dict['Output']}
+                          'fraction_active_patterns': fraction_active_patterns_dict['Output'],
+                          'fraction_active_units': fraction_active_units_dict['Output']}
 
     if export:
         if 'export_file_path' not in context() or context.export_file_path is None:
@@ -1500,6 +1509,9 @@ def compute_features(param_array, model_id=None, export=False):
         context.update(locals())
 
     if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
+        return dict()
+
+    if orig_features_dict['fraction_active_units'] < context.fraction_active_units_threshold:
         return dict()
 
     return orig_features_dict
@@ -1572,7 +1584,8 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
 
-    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_nonzero_dict  = analyze_slice(network_activity_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
+    fraction_active_units_dict = analyze_slice(network_activity_dict)
 
     # extract all values below diagonal
     similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
@@ -1581,7 +1594,8 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
     orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
                           'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
                           'selectivity_array': selectivity_dict['Output'],
-                          'fraction_active_patterns': fraction_nonzero_dict['Output']}
+                          'fraction_active_patterns': fraction_active_patterns_dict['Output'],
+                          'fraction_active_units': fraction_active_units_dict['Output']}
 
     if export:
         if 'export_file_path' not in context() or context.export_file_path is None:
@@ -1626,6 +1640,9 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         context.update(locals())
 
     if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
+        return dict()
+
+    if orig_features_dict['fraction_active_units'] < context.fraction_active_units_threshold:
         return dict()
 
     return orig_features_dict
@@ -1713,7 +1730,8 @@ def get_objectives_multiple_instances(final_features_dict, model_id=None, export
 @click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
-def main(config_file_path, dt, duration, time_point, weight_seed, description, export_file_name, data_dir, plot, export):
+def main(config_file_path, dt, duration, time_point, weight_seed, description, export_file_name, data_dir, plot,
+         export):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
     Optionally can generate summary plots and/or export data to an hdf5 file.
@@ -1761,7 +1779,8 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
                                                                  time_point=time_point)
 
-    sparsity_dict, similarity_matrix_dict, selectivity_dict = analyze_slice(network_activity_dict)
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
+    fraction_active_units_dict = analyze_slice(network_activity_dict)
 
     sparsity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
