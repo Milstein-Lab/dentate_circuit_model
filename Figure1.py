@@ -34,7 +34,8 @@ def import_slice_data(data_file_path, model_seed = 'all'):
     sparsity_history_dict = {}
     similarity_matrix_history_dict = {}
     selectivity_history_dict = {}
-    fraction_nonzero_history_dict = {}
+    fraction_active_patterns_history_dict = {}
+    fraction_active_units_history_dict ={}
 
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     with h5py.File(data_file_path, 'r') as f:
@@ -90,7 +91,7 @@ def import_slice_data(data_file_path, model_seed = 'all'):
                         get_callable_from_str(group[post_pop].attrs['activation_function'])
 
             sparsity_dict, similarity_matrix_dict, selectivity_dict, \
-                fraction_nonzero_dict = analyze_slice(network_activity_dict)
+                fraction_active_patterns_dict,fraction_active_units_dict = analyze_slice(network_activity_dict)
 
             model_config_history_dict[model_seed] = deepcopy(model_config_dict)
             num_units_history_dict[model_seed] = deepcopy(num_units_dict)
@@ -102,7 +103,8 @@ def import_slice_data(data_file_path, model_seed = 'all'):
             sparsity_history_dict[model_seed] = sparsity_dict
             similarity_matrix_history_dict[model_seed] = similarity_matrix_dict
             selectivity_history_dict[model_seed] = selectivity_dict
-            fraction_nonzero_history_dict[model_seed] = fraction_nonzero_dict
+            fraction_active_patterns_history_dict[model_seed] = fraction_active_patterns_dict
+            fraction_active_units_history_dict[model_seed] = fraction_active_units_dict
 
     print('import_model_data: loaded data from %s for the following model model_seeds: %s' %
           (data_file_path, model_seed_list))
@@ -110,7 +112,7 @@ def import_slice_data(data_file_path, model_seed = 'all'):
     return  model_config_history_dict, num_units_history_dict, activation_function_history_dict, \
             weight_config_history_dict, weight_history_dict, network_activity_history_dict, \
             sparsity_history_dict, similarity_matrix_history_dict, selectivity_history_dict, \
-            fraction_nonzero_history_dict
+            fraction_active_patterns_history_dict, fraction_active_units_history_dict
 
 
 def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
@@ -325,7 +327,7 @@ def plot_figure4():
 
 def main(data_file_path,model_seed):
     _,num_units_history_dict,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
-        similarity_matrix_history_dict, selectivity_history_dict,_ = import_slice_data(data_file_path,model_seed)
+        similarity_matrix_history_dict, selectivity_history_dict,_,_ = import_slice_data(data_file_path,model_seed)
 
     globals().update(locals())
 
