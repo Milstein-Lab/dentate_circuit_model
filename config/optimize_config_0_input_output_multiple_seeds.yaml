@@ -1,5 +1,5 @@
-# python -i -m nested.analyze --config_file_path=config/optimize_config_1_Input_Output.yaml --framework=serial --plot --interactive
-# python -m nested.optimize --config-file-path=config/optimize_config_1_Input_Output.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.analyze --config_file_path=config/optimize_config_0_input_output_multiple_seeds.yaml --framework=serial --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+
 
 optimization_title: dentate_optimization_0
 
@@ -20,7 +20,9 @@ feature_names:
 
 get_features_stages:
     - source: optimize_dynamic_model
-      compute_features: compute_features
+      get_args_static: get_weight_seeds
+      compute_features: compute_features_multiple_instances
+      filter_features: filter_features_multiple_instances
 
 objective_names: #loss/error values to minimize
     - sparsity_loss
@@ -29,7 +31,7 @@ objective_names: #loss/error values to minimize
     - fraction_active_patterns_loss
 
 get_objectives:
-    optimize_dynamic_model: get_objectives
+    optimize_dynamic_model: get_objectives_multiple_instances
 
 target_val:
     sparsity: 1. # number of nonzero units for each pattern

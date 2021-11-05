@@ -1131,8 +1131,6 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     export_file_path = export_file_path[:-5] + "_slice.hdf5"
     with h5py.File(export_file_path, 'a') as f:
-
-        description = 'description:'+description
         if description in f:
             model_group = f[description]
         else:
@@ -1142,7 +1140,12 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
 
-        model_seed_group = model_group.create_group('seed:'+str(weight_seed))
+        seed_group_name = 'seed:'+str(weight_seed)
+        if seed_group_name in f[description]: #don't export if the data already exists
+            print("ERROR: Data already exists, new values not saved")
+            return
+        else:
+            model_seed_group = model_group.create_group(seed_group_name)
 
         group = model_seed_group.create_group('weights')
         for post_pop in weight_dict:
@@ -1480,11 +1483,11 @@ def compute_features(param_array, model_id=None, export=False):
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
-        export_model_slice_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
+        export_model_slice_data(context.temp_output_path, context.description, context.weight_seed, model_config_dict,
                                 weight_dict, context.num_units_dict, context.activation_function_dict,
                                 context.weight_config_dict, network_activity_dict)
 
-        export_dynamic_model_data(context.export_file_path, context.description, context.weight_seed, model_config_dict,
+        export_dynamic_model_data(context.temp_output_path, context.description, context.weight_seed, model_config_dict,
                                   context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
                                   weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
                                   channel_conductance_dynamics_dict, net_current_dynamics_dict,
@@ -1609,15 +1612,17 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
+        print('Exporting model seed:',weight_seed)
+
         export_model_slice_data(context.export_file_path, context.description, weight_seed, model_config_dict,
                                 weight_dict, context.num_units_dict, context.activation_function_dict,
                                 context.weight_config_dict, network_activity_dict)
 
-        export_dynamic_model_data(context.export_file_path, context.description, weight_seed, model_config_dict,
-                                  context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
-                                  weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
-                                  channel_conductance_dynamics_dict, net_current_dynamics_dict,
-                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+        # export_dynamic_model_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+        #                           context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
+        #                           weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
+        #                           channel_conductance_dynamics_dict, net_current_dynamics_dict,
+        #                           cell_voltage_dynamics_dict, network_activity_dynamics_dict)
 
     if context.plot:
         plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
