@@ -242,24 +242,8 @@ def plot_cumulative_similarity(similarity_matrix_history_dict):
     edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
 
     SEM = np.std(cumulative_similarity, axis=0)  # /np.sqrt(cumulative_similarity.shape[0])
-    error_min = edges - SEM
-    error_max = edges + SEM
 
-    plt.fill_betweenx(mean_similarity, error_min, error_max,
-                      facecolor="gray",  # The fill color
-                      color='gray',  # The outline color
-                      alpha=0.2)  # Transparency of the fill
-
-    plt.plot(edges, mean_similarity, color='red', label='FF_I')
-
-    ax.legend(loc='best')
-    ax.set_title('Cumulative histograms')
-    ax.set_xlabel('cosine similarity')
-    ax.set_ylabel('probability')
-
-    sns.despine()
-    plt.show()
-
+    return edges, mean_similarity, SEM
 
 def plot_cumulative_selectivity(selectivity_history_dict):
 
@@ -289,19 +273,30 @@ def plot_cumulative_selectivity(selectivity_history_dict):
     edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
 
     SEM = np.std(cumulative_selectivity, axis=0) /np.sqrt(cumulative_selectivity.shape[0])
-    error_min = edges - SEM -10
-    error_max = edges + SEM +10
 
+    # x = np.arange(1., max_value, max_value/100)
+    # plt.plot(x, mean_selectivity, color='red', label='description')
+    return edges, mean_selectivity, SEM
+
+def plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 fraction_active_patterns_history_dict):
+    #Make 3x3 figure
+
+    #Top row: network diagrams for FF, FB, FF+FB
+
+    #Middle row: activity heatmap for FF, FB, FF+FB
+
+    #Bottom row: cumulative distributions for selectivity, similarity, fraction active
+
+    edges, mean_selectivity, SEM = plot_cumulative_selectivity(selectivity_history_dict)
+    error_min = edges - SEM
+    error_max = edges + SEM
     plt.fill_betweenx(mean_selectivity, error_min, error_max,
                       facecolor="gray",  # The fill color
                       color='gray',  # The outline color
                       alpha=0.2)  # Transparency of the fill
 
     plt.plot(edges, mean_selectivity, color='red', label='description')
-
-    # x = np.arange(1., max_value, max_value/100)
-    # plt.plot(x, mean_selectivity, color='red', label='description')
-
     ax.legend(loc='best')
     ax.set_title('Cumulative histograms')
     ax.set_xlabel('selectivity')
@@ -311,30 +306,23 @@ def plot_cumulative_selectivity(selectivity_history_dict):
     plt.show()
 
 
-def plot_figure2():
-    return
-    # FF Inh
-        #E->E
-        #E->I
-        #I->E
+    edges, mean_similarity, SEM = plot_cumulative_similarity(similarity_matrix_history_dict)
+    error_min = edges - SEM
+    error_max = edges + SEM
+    plt.fill_betweenx(mean_similarity, error_min, error_max,
+                      facecolor="gray",  # The fill color
+                      color='gray',  # The outline color
+                      alpha=0.2)  # Transparency of the fill
 
-    # FF+FB Inh
-        #E->E
-        #E->I_ff
-        #E->I_fb
+    plt.plot(edges, mean_similarity, color='red', label='FF_I')
 
-    #plot weight distributions
-    #plot...
+    ax.legend(loc='best')
+    ax.set_title('Cumulative histograms')
+    ax.set_xlabel('cosine similarity')
+    ax.set_ylabel('probability')
 
-    similarity = []
-    for model_seed in similarity_matrix_history_dict:
-        similarity_matrix = similarity_matrix_history_dict[model_seed]['Output']
-
-        # extract all values below diagonal
-        similarity_matrix_idx = np.tril_indices_from(similarity_matrix, -1)
-        similarity_array = similarity_matrix[similarity_matrix_idx]
-
-        similarity.append(similarity_array)
+    sns.despine()
+    plt.show()
 
 
 def plot_figure3():
@@ -355,16 +343,16 @@ def plot_figure4():
 
 def main(data_file_path,model_seed):
     _,num_units_history_dict,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
-        similarity_matrix_history_dict, selectivity_history_dict,_,_ = import_slice_data(data_file_path,model_seed)
+        similarity_matrix_history_dict, selectivity_history_dict,fraction_active_patterns_history_dict,\
+        _ = import_slice_data(data_file_path,model_seed)
 
     globals().update(locals())
 
-    # plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              weight_history_dict, network_activity_history_dict)
+    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 weight_history_dict, network_activity_history_dict)
 
-    # plot_figure2(similarity_matrix_history_dict)
-    # plot_cumulative_similarity(similarity_matrix_history_dict)
-    # plot_cumulative_selectivity(selectivity_history_dict)
+    # plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              fraction_active_patterns_history_dict)
 
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
     #                        selectivity_dict, description)
