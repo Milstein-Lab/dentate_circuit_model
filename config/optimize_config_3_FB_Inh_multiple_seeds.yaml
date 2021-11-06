@@ -1,13 +1,22 @@
-# python -m nested.analyze --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --disp --framework=serial --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+# python -i -m nested.analyze --config-file-path=config/optimize_config_3_FB_Inh.yaml --disp --framework=serial --interactive --plot
+# python -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_3_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
 
-
-optimization_title: dentate_optimization_0
+optimization_title: dentate_optimization_3
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
+    - mean_weight;FB_Inh;Output
+    - mean_weight;Output;FB_Inh
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;FB_Inh;Output: !!python/tuple
+        - 0.
+        - 1.
+    mean_weight;Output;FB_Inh: !!python/tuple
         - 0.
         - 1.
 
@@ -35,9 +44,9 @@ get_objectives:
 
 target_val:
     sparsity: 1. # number of nonzero units for each pattern
-    similarity: 0. #target cosine similarity for each pair of patterns
-    selectivity: 1. #number of nonzero patters for each unit
-    fraction_active_patterns: 1. #fraction of patterns with any nonzero output activity
+    similarity: 0. # target cosine similarity for each pair of patterns
+    selectivity: 1. # number of nonzero patters for each unit
+    fraction_active_patterns: 1. # fraction of patterns with any nonzero output activity
 
 target_range: #scaling factor to determine sensitivity of each objective
     sparsity: 0.1
@@ -47,13 +56,13 @@ target_range: #scaling factor to determine sensitivity of each objective
 
 x0: #initial parameters
     mean_weight;Output;Input: 0.5
-    mean_weight;Output;FF_Inh: 0.5
-    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;FB_Inh;Output: 0.5
+    mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: Input-Output-uniform
+    description: FB_Inh
     init_weight_seed: 1234
     num_instances: 5
     duration: 0.2 #sec
@@ -66,9 +75,16 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     num_units_dict:
         Input: 7
         Output: 128
+        FB_Inh: 7
 
     activation_function_dict:
         Output:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+        FB_Inh:
             Name: piecewise_linear_activation
             Arguments:
                 peak_output: 1.
@@ -78,16 +94,33 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     weight_config_dict:
         Output:
             Input:
+                dist_type: log-normal
+                mean_magnitude: 0.5
+                connection_type: exc
+            FB_Inh:
                 dist_type: uniform
                 mean_magnitude: 0.5
+                connection_type: inh
+        FB_Inh:
+            Output:
+                dist_type: uniform
+                mean_magnitude: 0.2
                 connection_type: exc
 
     cell_tau_dict:
         Output: 0.05
+        FB_Inh: 0.02
 
     synapse_tau_dict:
         Output:
             Input:
+                rise: 0.001
+                decay: 0.01
+            FB_Inh:
+                rise: 0.001
+                decay: 0.02
+        FB_Inh:
+            Output:
                 rise: 0.001
                 decay: 0.01
 

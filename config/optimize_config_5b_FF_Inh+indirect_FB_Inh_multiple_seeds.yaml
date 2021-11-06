@@ -1,6 +1,6 @@
 # python -i -m nested.analyze --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
 # python -m nested.optimize --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
-# mpirun -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=3 --disp --framework=mpi
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
 
 optimization_title: dentate_optimization_5b
 
@@ -49,7 +49,9 @@ feature_names:
 
 get_features_stages:
     - source: optimize_dynamic_model
-      compute_features: compute_features
+      get_args_static: get_weight_seeds
+      compute_features: compute_features_multiple_instances
+      filter_features: filter_features_multiple_instances
 
 objective_names: #loss/error values to minimize
     - sparsity_loss
@@ -58,13 +60,13 @@ objective_names: #loss/error values to minimize
     - fraction_active_patterns_loss
 
 get_objectives:
-    optimize_dynamic_model: get_objectives
+    optimize_dynamic_model: get_objectives_multiple_instances
 
 target_val:
     sparsity: 1. # number of nonzero units for each pattern
-    similarity: 0. #target cosine similarity for each pair of patterns
-    selectivity: 1. #number of nonzero patters for each unit
-    fraction_active_patterns: 1. #fraction of patterns with any nonzero output activity
+    similarity: 0. # target cosine similarity for each pair of patterns
+    selectivity: 1. # number of nonzero patters for each unit
+    fraction_active_patterns: 1. # fraction of patterns with any nonzero output activity
 
 target_range: #scaling factor to determine sensitivity of each objective
     sparsity: 0.1
@@ -86,7 +88,8 @@ param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
     description: FF_Inh+indirect_FB_Inh_b
-    weight_seed: 1234
+    init_weight_seed: 1234
+    num_instances: 5
     duration: 0.2 #sec
     dt: 0.001 #sec
     time_point: 0.2

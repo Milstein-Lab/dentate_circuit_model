@@ -864,7 +864,10 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
         #Plot selectivity distribution
         num_nonzero_units = np.count_nonzero(selectivity_dict[population])
         active_units_idx = np.where(selectivity_dict[population]>0)
-        max_response = np.max(selectivity_dict[population])
+        if num_nonzero_units > 0:
+            max_response = np.max(selectivity_dict[population])
+        else:
+            max_response = 1.
         bin_width = max_response / 20
         hist, edges = np.histogram(selectivity_dict[population][active_units_idx],
                                    bins=np.arange(-bin_width / 2., max_response + bin_width, bin_width), density=True)
