@@ -51,8 +51,9 @@ x0: #initial parameters
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: Input-Output
-    weight_seed: 1234
+    description: Input-Output-lognormal
+    init_weight_seed: 1234
+    num_instances: 5
     duration: 0.2 #sec
     dt: 0.001 #sec
     time_point: 0.2
