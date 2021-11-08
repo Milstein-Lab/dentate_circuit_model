@@ -220,65 +220,52 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
 
 def plot_cumulative_similarity(similarity_matrix_history_dict):
-
     cumulative_similarity = []
-    bin_width = 0.01
+    n_bins = 100
+    cdf_prob_bins = np.arange(1., n_bins + 1.) / n_bins
+
     for model_seed in similarity_matrix_history_dict:
         similarity_matrix = similarity_matrix_history_dict[model_seed]['Output']
 
         # extract all values below diagonal
         similarity_matrix_idx = np.tril_indices_from(similarity_matrix, -1)
-        similarity_array = similarity_matrix[similarity_matrix_idx]
+        similarity = similarity_matrix[similarity_matrix_idx]
 
-        invalid_indexes = np.isnan(similarity_array)
-        hist, edges = np.histogram(similarity_array[~invalid_indexes],
-                                   bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+        #remove nan values
+        invalid_idx = np.isnan(similarity)
+        similarity = similarity[~invalid_idx]
 
-        cumulative_similarity.append(np.cumsum(hist) * bin_width)
+        similarity = np.sort(similarity[:])
+        quantiles = [np.quantile(similarity, pi) for pi in cdf_prob_bins]
+        cumulative_similarity.append(quantiles)
 
     cumulative_similarity = np.array(cumulative_similarity)
     mean_similarity = np.mean(cumulative_similarity, axis=0)
+    SD = np.std(cumulative_similarity, axis=0)
+    SEM = SD / np.sqrt(cumulative_similarity.shape[0])
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    return mean_similarity, cdf_prob_bins, SD
 
-    edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
-
-    SEM = np.std(cumulative_similarity, axis=0)  # /np.sqrt(cumulative_similarity.shape[0])
-
-    return edges, mean_similarity, SEM
 
 def plot_cumulative_selectivity(selectivity_history_dict):
-
     cumulative_selectivity = []
-    bin_width = 0.01
-    max_value = 128 #maximum number of possible responses per neuron
+    n_bins = 100
+    cdf_prob_bins = np.arange(1., n_bins + 1.) / n_bins
+
     for model_seed in selectivity_history_dict:
         selectivity = selectivity_history_dict[model_seed]['Output']
 
-        # n_bins = 100
-        # cdf_prob_bins = np.arange(1.,n_bins+1.)/n_bins
-        # selectivity = np.sort(selectivity[:])
-        # quantiles = [np.quantile(selectivity,pi) for pi in cdf_prob_bins]
-        # cumulative_selectivity.append(quantiles)
-
-        hist, edges = np.histogram(selectivity,
-                           bins=np.arange(-bin_width / 2., max_value+bin_width, bin_width), density=True)
-
-        cumulative_selectivity.append(np.cumsum(hist) * bin_width)
-
+        selectivity = np.sort(selectivity[:])
+        quantiles = [np.quantile(selectivity, pi) for pi in cdf_prob_bins]
+        cumulative_selectivity.append(quantiles)
 
     cumulative_selectivity = np.array(cumulative_selectivity)
     mean_selectivity = np.mean(cumulative_selectivity, axis=0)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    SD = np.std(cumulative_selectivity, axis=0)
+    SEM = SD / np.sqrt(cumulative_selectivity.shape[0])
 
-    edges = edges[:-1] + bin_width / 2  # plot line using center of each bin (instead of edges)
-
-    SEM = np.std(cumulative_selectivity, axis=0) /np.sqrt(cumulative_selectivity.shape[0])
-
-    # x = np.arange(1., max_value, max_value/100)
-    # plt.plot(x, mean_selectivity, color='red', label='description')
-    return edges, mean_selectivity, SEM
+    return mean_selectivity, cdf_prob_bins, SD
 
 def plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  fraction_active_patterns_history_dict):
@@ -290,38 +277,37 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
 
     #Bottom row: cumulative distributions for selectivity, similarity, fraction active
 
-    edges, mean_selectivity, SEM = plot_cumulative_selectivity(selectivity_history_dict)
-    error_min = edges - SEM
-    error_max = edges + SEM
-    plt.fill_betweenx(mean_selectivity, error_min, error_max,
+    fig, axes = plt.subplots(3, 3, figsize=(6, 6))
+
+
+    mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict['FF_Inh'])
+    axes[2,0].plot(mean_selectivity, cdf_prob_bins, color='red', label='description')
+    error_min = mean_selectivity - SD
+    error_max = mean_selectivity + SD
+    axes[2,0].fill_betweenx(cdf_prob_bins, error_min, error_max,
                       facecolor="gray",  # The fill color
                       color='gray',  # The outline color
                       alpha=0.2)  # Transparency of the fill
 
-    plt.plot(edges, mean_selectivity, color='red', label='description')
-    ax.legend(loc='best')
-    ax.set_title('Cumulative histograms')
-    ax.set_xlabel('selectivity')
-    ax.set_ylabel('probability')
-
-    sns.despine()
-    plt.show()
+    axes[2,0].legend(loc='best')
+    axes[2,0].set_title('Cumulative histograms')
+    axes[2,0].set_xlabel('selectivity')
+    axes[2,0].set_ylabel('probability')
 
 
-    edges, mean_similarity, SEM = plot_cumulative_similarity(similarity_matrix_history_dict)
-    error_min = edges - SEM
-    error_max = edges + SEM
-    plt.fill_betweenx(mean_similarity, error_min, error_max,
+    mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict['FF_Inh'])
+    axes[2,1].plot(mean_similarity, cdf_prob_bins, color='red', label='description')
+    error_min = mean_similarity - SD
+    error_max = mean_similarity + SD
+    axes[2,1].fill_betweenx(cdf_prob_bins, error_min, error_max,
                       facecolor="gray",  # The fill color
                       color='gray',  # The outline color
                       alpha=0.2)  # Transparency of the fill
+    axes[2,1].legend(loc='best')
+    axes[2,1].set_title('Cumulative histograms')
+    axes[2,1].set_xlabel('cosine similarity')
+    axes[2,1].set_ylabel('probability')
 
-    plt.plot(edges, mean_similarity, color='red', label='FF_I')
-
-    ax.legend(loc='best')
-    ax.set_title('Cumulative histograms')
-    ax.set_xlabel('cosine similarity')
-    ax.set_ylabel('probability')
 
     sns.despine()
     plt.show()
@@ -350,11 +336,11 @@ def main(data_file_path,model_seed):
 
     globals().update(locals())
 
-    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 weight_history_dict, network_activity_history_dict)
+    # plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              weight_history_dict, network_activity_history_dict)
 
-    # plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              fraction_active_patterns_history_dict)
+    plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 fraction_active_patterns_history_dict)
 
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
     #                        selectivity_dict, description)
