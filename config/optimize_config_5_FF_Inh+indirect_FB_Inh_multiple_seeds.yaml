@@ -89,8 +89,8 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     dt: 0.001 #sec
     time_point: 0.2
     plot_patterns: False
-    fraction_active_patterns_threshold: 0.9
-    fraction_active_units_threshold: 0.9
+    fraction_active_patterns_threshold: 0.8
+    fraction_active_units_threshold: 0.8
 
     num_units_dict:
         Input: 7
