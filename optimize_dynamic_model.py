@@ -864,7 +864,10 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
         #Plot selectivity distribution
         num_nonzero_units = np.count_nonzero(selectivity_dict[population])
         active_units_idx = np.where(selectivity_dict[population]>0)
-        max_response = np.max(selectivity_dict[population])
+        if num_nonzero_units > 0:
+            max_response = np.max(selectivity_dict[population])
+        else:
+            max_response = 1.
         bin_width = max_response / 20
         hist, edges = np.histogram(selectivity_dict[population][active_units_idx],
                                    bins=np.arange(-bin_width / 2., max_response + bin_width, bin_width), density=True)
@@ -1413,12 +1416,6 @@ def config_worker():
     if 'debug' not in context():
         context.debug = False
 
-    if 'num_instances' in context():
-        context.num_instances = int(context.num_instances)
-
-    if 'init_weight_seed' in context():
-        context.init_weight_seed = int(context.init_weight_seed)
-
     context.update(locals())
 
 
@@ -1440,84 +1437,7 @@ def compute_features(param_array, model_id=None, export=False):
     :return: dict
     """
 
-    start_time = time.time()
-
-    param_dict = param_array_to_dict(param_array, context.param_names)
-    modify_network(param_dict) #update the weight config dict
-
-    weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, context.weight_seed,
-                                  description=context.description, plot=context.plot)
-
-    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    network_activity_dynamics_dict = \
-        get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
-                                   context.synapse_tau_dict, context.cell_tau_dict,
-                                   weight_dict, context.weight_config_dict, context.activation_function_dict,
-                                   context.synaptic_reversal_dict)
-
-    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
-                                                                 time_point=context.time_point)
-
-    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
-    fraction_active_units_dict = analyze_slice(network_activity_dict)
-
-    # extract all values below diagonal
-    similarity_matrix_idx = np.tril_indices_from(similarity_matrix_dict['Output'], -1)
-
-    # Generate dictionary for "features" that will be used in the loss function (get objectives)
-    orig_features_dict = {'sparsity_array': sparsity_dict['Output'],
-                          'similarity_array': similarity_matrix_dict['Output'][similarity_matrix_idx],
-                          'selectivity_array': selectivity_dict['Output'],
-                          'fraction_active_patterns': fraction_active_patterns_dict['Output'],
-                          'fraction_active_units': fraction_active_units_dict['Output']}
-
-    if export:
-        if 'export_file_path' not in context() or context.export_file_path is None:
-            if 'data_dir' not in context() or context.data_dir is None:
-                raise Exception('optimize_dynamic_model.get_features: missing required parameter for export: data_dir')
-            if 'export_file_name' not in context() or context.export_file_name is None:
-                context.export_file_name = '%s_exported_model_data.hdf5' % \
-                                           datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
-            context.export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
-
-        model_config_dict = {'duration': context.duration,
-                             'dt': context.dt}
-
-        export_model_slice_data(context.temp_output_path, context.description, context.weight_seed, model_config_dict,
-                                weight_dict, context.num_units_dict, context.activation_function_dict,
-                                context.weight_config_dict, network_activity_dict)
-
-        export_dynamic_model_data(context.temp_output_path, context.description, context.weight_seed, model_config_dict,
-                                  context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
-                                  weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
-                                  channel_conductance_dynamics_dict, net_current_dynamics_dict,
-                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
-
-    if context.plot:
-        plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
-                           selectivity_dict, context.description)
-
-        median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
-        fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
-
-        plot_dynamics(context.t,
-                      median_sparsity_dynamics_dict,
-                      median_similarity_dynamics_dict,
-                      mean_selectivity_dynamics_dict,
-                      fraction_nonzero_response_dynamics_dict,
-                      context.description)
-
-    if context.debug:
-        print('Simulation took %.1f s' % (time.time() - start_time))
-        context.update(locals())
-
-    if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
-        return dict()
-
-    if orig_features_dict['fraction_active_units'] < context.fraction_active_units_threshold:
-        return dict()
-
-    return orig_features_dict
+    return compute_features_multiple_instances(param_array, context.weight_seed, model_id, export)
 
 
 def get_objectives(orig_features_dict, model_id=None, export=False):
@@ -1552,10 +1472,10 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
     return summary_features_dict, objectives_dict
 
 
-
 # When simulating with multiple random seeds in parallel, use alternative compute functions:
 def get_weight_seeds():
-    weight_seed_list = list(range(context.init_weight_seed, context.init_weight_seed + context.num_instances))
+    weight_seed_list = list(range(int(context.init_weight_seed),
+                                  int(context.init_weight_seed) + int(context.num_instances)))
     return [weight_seed_list]
 
 
@@ -1568,11 +1488,12 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
     :param export: bool
     :return: dict
     """
-
     start_time = time.time()
 
     param_dict = param_array_to_dict(param_array, context.param_names)
     modify_network(param_dict) #update the weight config dict
+
+    weight_seed = int(weight_seed)
 
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, weight_seed,
                                   description=context.description, plot=context.plot)
@@ -1601,24 +1522,14 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
                           'fraction_active_units': fraction_active_units_dict['Output']}
 
     if export:
-        if 'export_file_path' not in context() or context.export_file_path is None:
-            if 'data_dir' not in context() or context.data_dir is None:
-                raise Exception('optimize_dynamic_model.get_features: missing required parameter for export: data_dir')
-            if 'export_file_name' not in context() or context.export_file_name is None:
-                context.export_file_name = '%s_exported_model_data.hdf5' % \
-                                           datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
-            context.export_file_path = '%s/%s' % (context.data_dir, context.export_file_name)
-
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
-        print('Exporting model seed:',weight_seed)
-
-        export_model_slice_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+        export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
                                 weight_dict, context.num_units_dict, context.activation_function_dict,
                                 context.weight_config_dict, network_activity_dict)
 
-        # export_dynamic_model_data(context.export_file_path, context.description, weight_seed, model_config_dict,
+        # export_dynamic_model_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
         #                           context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
         #                           weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
         #                           channel_conductance_dynamics_dict, net_current_dynamics_dict,
@@ -1644,11 +1555,19 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         sys.stdout.flush()
         context.update(locals())
 
-    if orig_features_dict['fraction_active_patterns'] < context.fraction_active_patterns_threshold:
-        return dict()
-
-    if orig_features_dict['fraction_active_units'] < context.fraction_active_units_threshold:
-        return dict()
+    for pop_name in fraction_active_units_dict:
+        if fraction_active_patterns_dict[pop_name] < context.fraction_active_patterns_threshold:
+            print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                  ' fraction_active_patterns criterion' % (os.getpid(), model_id, context.description, weight_seed,
+                                                           pop_name))
+            sys.stdout.flush()
+            return dict()
+        if fraction_active_units_dict[pop_name] < context.fraction_active_units_threshold:
+            print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                  ' fraction_active_units criterion'  % (os.getpid(), model_id, context.description, weight_seed,
+                                                           pop_name))
+            sys.stdout.flush()
+            return dict()
 
     return orig_features_dict
 

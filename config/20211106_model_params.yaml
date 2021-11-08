@@ -1,0 +1,19 @@
+6:
+  mean_weight;FB_Exc;FB_Exc: 1.443218E-01
+  mean_weight;FB_Exc;Output: 3.100901E-01
+  mean_weight;FB_Inh;FB_Exc: 4.017290E-02
+  mean_weight;FF_Inh;Input: 1.494907E-01
+  mean_weight;Output;FB_Exc: 1.315805E-01
+  mean_weight;Output;FB_Inh: 3.736574E-02
+  mean_weight;Output;FF_Inh: 9.207065E-01
+  mean_weight;Output;Input: 7.675474E-02
+6b:
+  mean_weight;FB_Exc;FB_Exc: 1.194304E-01
+  mean_weight;FB_Exc;FB_Inh: 5.634895E-02
+  mean_weight;FB_Exc;Output: 2.119372E-01
+  mean_weight;FB_Inh;FB_Exc: 2.404033E-01
+  mean_weight;FF_Inh;Input: 1.946668E-01
+  mean_weight;Output;FB_Exc: 8.236635E-01
+  mean_weight;Output;FB_Inh: 3.234235E-01
+  mean_weight;Output;FF_Inh: 8.721440E-01
+  mean_weight;Output;Input: 8.700406E-02

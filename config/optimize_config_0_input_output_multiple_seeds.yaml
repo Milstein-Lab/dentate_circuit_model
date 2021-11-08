@@ -1,4 +1,4 @@
-# python -m nested.analyze --config_file_path=config/optimize_config_0_input_output_multiple_seeds.yaml --framework=serial --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+# python -m nested.analyze --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --disp --framework=serial --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
 
 
 optimization_title: dentate_optimization_0
@@ -60,8 +60,8 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     dt: 0.001 #sec
     time_point: 0.2
     plot_patterns: False
-    fraction_active_patterns_threshold: 0.9
-    fraction_active_units_threshold: 0.9
+    fraction_active_patterns_threshold: 0.8
+    fraction_active_units_threshold: 0.8
 
     num_units_dict:
         Input: 7

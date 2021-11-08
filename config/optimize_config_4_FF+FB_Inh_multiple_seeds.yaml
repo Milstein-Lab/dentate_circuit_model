@@ -1,16 +1,14 @@
-# python -i -m nested.analyze --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
-# python -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
-# mpirun -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=3 --disp --framework=mpi
+# python -i -m nested.analyze --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --disp --plot --interactive --framework=serial
+# python -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_4_FF+FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
 
-optimization_title: dentate_optimization_5
+optimization_title: dentate_optimization_4
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
     - mean_weight;FF_Inh;Input
     - mean_weight;Output;FF_Inh
-    - mean_weight;FB_Exc;Output
-    - mean_weight;FB_Exc;FB_Exc
-    - mean_weight;FB_Inh;FB_Exc
+    - mean_weight;FB_Inh;Output
     - mean_weight;Output;FB_Inh
 
 bounds:
@@ -23,13 +21,7 @@ bounds:
     mean_weight;Output;FF_Inh: !!python/tuple
         - 0.
         - 1.
-    mean_weight;FB_Exc;Output: !!python/tuple
-        - 0.
-        - 1.
-    mean_weight;FB_Exc;FB_Exc: !!python/tuple
-        - 0.
-        - 1.
-    mean_weight;FB_Inh;FB_Exc: !!python/tuple
+    mean_weight;FB_Inh;Output: !!python/tuple
         - 0.
         - 1.
     mean_weight;Output;FB_Inh: !!python/tuple
@@ -45,7 +37,9 @@ feature_names:
 
 get_features_stages:
     - source: optimize_dynamic_model
-      compute_features: compute_features
+      get_args_static: get_weight_seeds
+      compute_features: compute_features_multiple_instances
+      filter_features: filter_features_multiple_instances
 
 objective_names: #loss/error values to minimize
     - sparsity_loss
@@ -54,13 +48,13 @@ objective_names: #loss/error values to minimize
     - fraction_active_patterns_loss
 
 get_objectives:
-    optimize_dynamic_model: get_objectives
+    optimize_dynamic_model: get_objectives_multiple_instances
 
 target_val:
     sparsity: 1. # number of nonzero units for each pattern
-    similarity: 0. #target cosine similarity for each pair of patterns
-    selectivity: 1. #number of nonzero patters for each unit
-    fraction_active_patterns: 1. #fraction of patterns with any nonzero output activity
+    similarity: 0. # target cosine similarity for each pair of patterns
+    selectivity: 1. # number of nonzero patters for each unit
+    fraction_active_patterns: 1. # fraction of patterns with any nonzero output activity
 
 target_range: #scaling factor to determine sensitivity of each objective
     sparsity: 0.1
@@ -72,16 +66,17 @@ x0: #initial parameters
     mean_weight;Output;Input: 0.5
     mean_weight;FF_Inh;Input: 0.5
     mean_weight;Output;FF_Inh: 0.5
-    mean_weight;FB_Exc;Output: 0.5
-    mean_weight;FB_Exc;FB_Exc: 0.5
-    mean_weight;FB_Inh;FB_Exc: 0.5
+    mean_weight;FB_Inh;Output: 0.5
     mean_weight;Output;FB_Inh: 0.5
+
+
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: FF_Inh+indirect_FB_Inh
-    weight_seed: 1234
+    description: FF_Inh+FB_Inh
+    init_weight_seed: 1234
+    num_instances: 5
     duration: 0.2 #sec
     dt: 0.001 #sec
     time_point: 0.2
@@ -94,7 +89,6 @@ kwargs: #All these will become will become dictionaries in Context() once nested
         Output: 128
         FF_Inh: 7
         FB_Inh: 7
-        FB_Exc: 7
 
     activation_function_dict:
         Output:
@@ -110,12 +104,6 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 peak_input: 60.
                 threshold: 10.
         FB_Inh:
-            Name: piecewise_linear_activation
-            Arguments:
-                peak_output: 1.
-                peak_input: 60.
-                threshold: 10.
-        FB_Exc:
             Name: piecewise_linear_activation
             Arguments:
                 peak_output: 1.
@@ -141,17 +129,8 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: uniform
                 mean_magnitude: 0.2
                 connection_type: exc
-        FB_Exc:
-            Output:
-                dist_type: log-normal
-                mean_magnitude: 0.2
-                connection_type: exc
-            FB_Exc:
-                dist_type: log-normal
-                mean_magnitude: 0.2
-                connection_type: exc
         FB_Inh:
-            FB_Exc:
+            Output:
                 dist_type: uniform
                 mean_magnitude: 0.2
                 connection_type: exc
@@ -160,7 +139,6 @@ kwargs: #All these will become will become dictionaries in Context() once nested
         Output: 0.05
         FF_Inh: 0.02
         FB_Inh: 0.02
-        FB_Exc: 0.05
 
     synapse_tau_dict:
         Output:
@@ -177,15 +155,8 @@ kwargs: #All these will become will become dictionaries in Context() once nested
             Input:
                 rise: 0.001
                 decay: 0.01
-        FB_Exc:
-            Output:
-                rise: 0.001
-                decay: 0.01
-            FB_Exc:
-                rise: 0.001
-                decay: 0.01
         FB_Inh:
-            FB_Exc:
+            Output:
                 rise: 0.001
                 decay: 0.01
 

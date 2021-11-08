@@ -1,0 +1,693 @@
+TACC:  Starting up job 3731633 
+TACC:  Starting parallel tasks... 
+numprocs=224
+nested: ParallelContextInterface: process id: 121741; global rank: 26 / 224; local rank: 0 / 1; worker id: 26 / 224
+nested: ParallelContextInterface: process id: 121755; global rank: 40 / 224; local rank: 0 / 1; worker id: 40 / 224
+nested: ParallelContextInterface: process id: 137146; global rank: 71 / 224; local rank: 0 / 1; worker id: 71 / 224
+nested: ParallelContextInterface: process id: 110822; global rank: 143 / 224; local rank: 0 / 1; worker id: 143 / 224
+nested: ParallelContextInterface: process id: 6722; global rank: 210 / 224; local rank: 0 / 1; worker id: 210 / 224
+nested: ParallelContextInterface: process id: 121721; global rank: 6 / 224; local rank: 0 / 1; worker id: 6 / 224
+nested: ParallelContextInterface: process id: 137131; global rank: 56 / 224; local rank: 0 / 1; worker id: 56 / 224
+nested: ParallelContextInterface: process id: 110842; global rank: 163 / 224; local rank: 0 / 1; worker id: 163 / 224
+nested: ParallelContextInterface: process id: 6684; global rank: 172 / 224; local rank: 0 / 1; worker id: 172 / 224
+nested: ParallelContextInterface: process id: 121729; global rank: 14 / 224; local rank: 0 / 1; worker id: 14 / 224
+nested: ParallelContextInterface: process id: 137132; global rank: 57 / 224; local rank: 0 / 1; worker id: 57 / 224
+nested: ParallelContextInterface: process id: 110793; global rank: 114 / 224; local rank: 0 / 1; worker id: 114 / 224
+nested: ParallelContextInterface: process id: 6686; global rank: 174 / 224; local rank: 0 / 1; worker id: 174 / 224
+nested: ParallelContextInterface: process id: 121730; global rank: 15 / 224; local rank: 0 / 1; worker id: 15 / 224
+nested: ParallelContextInterface: process id: 137133; global rank: 58 / 224; local rank: 0 / 1; worker id: 58 / 224
+nested: ParallelContextInterface: process id: 110795; global rank: 116 / 224; local rank: 0 / 1; worker id: 116 / 224
+nested: ParallelContextInterface: process id: 6692; global rank: 180 / 224; local rank: 0 / 1; worker id: 180 / 224
+nested: ParallelContextInterface: process id: 121719; global rank: 4 / 224; local rank: 0 / 1; worker id: 4 / 224
+nested: ParallelContextInterface: process id: 137138; global rank: 63 / 224; local rank: 0 / 1; worker id: 63 / 224
+nested: ParallelContextInterface: process id: 110796; global rank: 117 / 224; local rank: 0 / 1; worker id: 117 / 224
+nested: ParallelContextInterface: process id: 6694; global rank: 182 / 224; local rank: 0 / 1; worker id: 182 / 224
+nested: ParallelContextInterface: process id: 121723; global rank: 8 / 224; local rank: 0 / 1; worker id: 8 / 224
+nested: ParallelContextInterface: process id: 137139; global rank: 64 / 224; local rank: 0 / 1; worker id: 64 / 224
+nested: ParallelContextInterface: process id: 110798; global rank: 119 / 224; local rank: 0 / 1; worker id: 119 / 224
+nested: ParallelContextInterface: process id: 6698; global rank: 186 / 224; local rank: 0 / 1; worker id: 186 / 224
+nested: ParallelContextInterface: process id: 121733; global rank: 18 / 224; local rank: 0 / 1; worker id: 18 / 224
+nested: ParallelContextInterface: process id: 137140; global rank: 65 / 224; local rank: 0 / 1; worker id: 65 / 224
+nested: ParallelContextInterface: process id: 110799; global rank: 120 / 224; local rank: 0 / 1; worker id: 120 / 224
+nested: ParallelContextInterface: process id: 6702; global rank: 190 / 224; local rank: 0 / 1; worker id: 190 / 224
+nested: ParallelContextInterface: process id: 121717; global rank: 2 / 224; local rank: 0 / 1; worker id: 2 / 224
+nested: ParallelContextInterface: process id: 137143; global rank: 68 / 224; local rank: 0 / 1; worker id: 68 / 224
+nested: ParallelContextInterface: process id: 110804; global rank: 125 / 224; local rank: 0 / 1; worker id: 125 / 224
+nested: ParallelContextInterface: process id: 6724; global rank: 212 / 224; local rank: 0 / 1; worker id: 212 / 224
+nested: ParallelContextInterface: process id: 121725; global rank: 10 / 224; local rank: 0 / 1; worker id: 10 / 224
+nested: ParallelContextInterface: process id: 137145; global rank: 70 / 224; local rank: 0 / 1; worker id: 70 / 224
+nested: ParallelContextInterface: process id: 110806; global rank: 127 / 224; local rank: 0 / 1; worker id: 127 / 224
+nested: ParallelContextInterface: process id: 6682; global rank: 170 / 224; local rank: 0 / 1; worker id: 170 / 224
+nested: ParallelContextInterface: process id: 121731; global rank: 16 / 224; local rank: 0 / 1; worker id: 16 / 224
+nested: ParallelContextInterface: process id: 137147; global rank: 72 / 224; local rank: 0 / 1; worker id: 72 / 224
+nested: ParallelContextInterface: process id: 110809; global rank: 130 / 224; local rank: 0 / 1; worker id: 130 / 224
+nested: ParallelContextInterface: process id: 6690; global rank: 178 / 224; local rank: 0 / 1; worker id: 178 / 224
+nested: ParallelContextInterface: process id: 121764; global rank: 49 / 224; local rank: 0 / 1; worker id: 49 / 224
+nested: ParallelContextInterface: process id: 137148; global rank: 73 / 224; local rank: 0 / 1; worker id: 73 / 224
+nested: ParallelContextInterface: process id: 110802; global rank: 123 / 224; local rank: 0 / 1; worker id: 123 / 224
+nested: ParallelContextInterface: process id: 6693; global rank: 181 / 224; local rank: 0 / 1; worker id: 181 / 224
+nested: ParallelContextInterface: process id: 121765; global rank: 50 / 224; local rank: 0 / 1; worker id: 50 / 224
+nested: ParallelContextInterface: process id: 137142; global rank: 67 / 224; local rank: 0 / 1; worker id: 67 / 224
+nested: ParallelContextInterface: process id: 110811; global rank: 132 / 224; local rank: 0 / 1; worker id: 132 / 224
+nested: ParallelContextInterface: process id: 6695; global rank: 183 / 224; local rank: 0 / 1; worker id: 183 / 224
+nested: ParallelContextInterface: process id: 121769; global rank: 54 / 224; local rank: 0 / 1; worker id: 54 / 224
+nested: ParallelContextInterface: process id: 137152; global rank: 77 / 224; local rank: 0 / 1; worker id: 77 / 224
+nested: ParallelContextInterface: process id: 110817; global rank: 138 / 224; local rank: 0 / 1; worker id: 138 / 224
+nested: ParallelContextInterface: process id: 6699; global rank: 187 / 224; local rank: 0 / 1; worker id: 187 / 224
+nested: ParallelContextInterface: process id: 121770; global rank: 55 / 224; local rank: 0 / 1; worker id: 55 / 224
+nested: ParallelContextInterface: process id: 137153; global rank: 78 / 224; local rank: 0 / 1; worker id: 78 / 224
+nested: ParallelContextInterface: process id: 110830; global rank: 151 / 224; local rank: 0 / 1; worker id: 151 / 224
+nested: ParallelContextInterface: process id: 6704; global rank: 192 / 224; local rank: 0 / 1; worker id: 192 / 224
+nested: ParallelContextInterface: process id: 121715; global rank: 0 / 224; local rank: 0 / 1; worker id: 0 / 224
+nested: ParallelContextInterface: process id: 137156; global rank: 81 / 224; local rank: 0 / 1; worker id: 81 / 224
+nested: ParallelContextInterface: process id: 110838; global rank: 159 / 224; local rank: 0 / 1; worker id: 159 / 224
+nested: ParallelContextInterface: process id: 6681; global rank: 169 / 224; local rank: 0 / 1; worker id: 169 / 224
+nested: ParallelContextInterface: process id: 121716; global rank: 1 / 224; local rank: 0 / 1; worker id: 1 / 224
+nested: ParallelContextInterface: process id: 137157; global rank: 82 / 224; local rank: 0 / 1; worker id: 82 / 224
+nested: ParallelContextInterface: process id: 110818; global rank: 139 / 224; local rank: 0 / 1; worker id: 139 / 224
+nested: ParallelContextInterface: process id: 6685; global rank: 173 / 224; local rank: 0 / 1; worker id: 173 / 224
+nested: ParallelContextInterface: process id: 121728; global rank: 13 / 224; local rank: 0 / 1; worker id: 13 / 224
+nested: ParallelContextInterface: process id: 137158; global rank: 83 / 224; local rank: 0 / 1; worker id: 83 / 224
+nested: ParallelContextInterface: process id: 110827; global rank: 148 / 224; local rank: 0 / 1; worker id: 148 / 224
+nested: ParallelContextInterface: process id: 6689; global rank: 177 / 224; local rank: 0 / 1; worker id: 177 / 224
+nested: ParallelContextInterface: process id: 121732; global rank: 17 / 224; local rank: 0 / 1; worker id: 17 / 224
+nested: ParallelContextInterface: process id: 137134; global rank: 59 / 224; local rank: 0 / 1; worker id: 59 / 224
+nested: ParallelContextInterface: process id: 110831; global rank: 152 / 224; local rank: 0 / 1; worker id: 152 / 224
+nested: ParallelContextInterface: process id: 6706; global rank: 194 / 224; local rank: 0 / 1; worker id: 194 / 224
+nested: ParallelContextInterface: process id: 121735; global rank: 20 / 224; local rank: 0 / 1; worker id: 20 / 224
+nested: ParallelContextInterface: process id: 137174; global rank: 99 / 224; local rank: 0 / 1; worker id: 99 / 224
+nested: ParallelContextInterface: process id: 110836; global rank: 157 / 224; local rank: 0 / 1; worker id: 157 / 224
+nested: ParallelContextInterface: process id: 6707; global rank: 195 / 224; local rank: 0 / 1; worker id: 195 / 224
+nested: ParallelContextInterface: process id: 121736; global rank: 21 / 224; local rank: 0 / 1; worker id: 21 / 224
+nested: ParallelContextInterface: process id: 137181; global rank: 106 / 224; local rank: 0 / 1; worker id: 106 / 224
+nested: ParallelContextInterface: process id: 110840; global rank: 161 / 224; local rank: 0 / 1; worker id: 161 / 224
+nested: ParallelContextInterface: process id: 6726; global rank: 214 / 224; local rank: 0 / 1; worker id: 214 / 224
+nested: ParallelContextInterface: process id: 121739; global rank: 24 / 224; local rank: 0 / 1; worker id: 24 / 224
+nested: ParallelContextInterface: process id: 137135; global rank: 60 / 224; local rank: 0 / 1; worker id: 60 / 224
+nested: ParallelContextInterface: process id: 110846; global rank: 167 / 224; local rank: 0 / 1; worker id: 167 / 224
+nested: ParallelContextInterface: process id: 6687; global rank: 175 / 224; local rank: 0 / 1; worker id: 175 / 224
+nested: ParallelContextInterface: process id: 121718; global rank: 3 / 224; local rank: 0 / 1; worker id: 3 / 224
+nested: ParallelContextInterface: process id: 137141; global rank: 66 / 224; local rank: 0 / 1; worker id: 66 / 224
+nested: ParallelContextInterface: process id: 110792; global rank: 113 / 224; local rank: 0 / 1; worker id: 113 / 224
+nested: ParallelContextInterface: process id: 6696; global rank: 184 / 224; local rank: 0 / 1; worker id: 184 / 224
+nested: ParallelContextInterface: process id: 121759; global rank: 44 / 224; local rank: 0 / 1; worker id: 44 / 224
+nested: ParallelContextInterface: process id: 137164; global rank: 89 / 224; local rank: 0 / 1; worker id: 89 / 224
+nested: ParallelContextInterface: process id: 110794; global rank: 115 / 224; local rank: 0 / 1; worker id: 115 / 224
+nested: ParallelContextInterface: process id: 6697; global rank: 185 / 224; local rank: 0 / 1; worker id: 185 / 224
+nested: ParallelContextInterface: process id: 121761; global rank: 46 / 224; local rank: 0 / 1; worker id: 46 / 224
+nested: ParallelContextInterface: process id: 137170; global rank: 95 / 224; local rank: 0 / 1; worker id: 95 / 224
+nested: ParallelContextInterface: process id: 110813; global rank: 134 / 224; local rank: 0 / 1; worker id: 134 / 224
+nested: ParallelContextInterface: process id: 6703; global rank: 191 / 224; local rank: 0 / 1; worker id: 191 / 224
+nested: ParallelContextInterface: process id: 121744; global rank: 29 / 224; local rank: 0 / 1; worker id: 29 / 224
+nested: ParallelContextInterface: process id: 137182; global rank: 107 / 224; local rank: 0 / 1; worker id: 107 / 224
+nested: ParallelContextInterface: process id: 110814; global rank: 135 / 224; local rank: 0 / 1; worker id: 135 / 224
+nested: ParallelContextInterface: process id: 6716; global rank: 204 / 224; local rank: 0 / 1; worker id: 204 / 224
+nested: ParallelContextInterface: process id: 121749; global rank: 34 / 224; local rank: 0 / 1; worker id: 34 / 224
+nested: ParallelContextInterface: process id: 137137; global rank: 62 / 224; local rank: 0 / 1; worker id: 62 / 224
+nested: ParallelContextInterface: process id: 110815; global rank: 136 / 224; local rank: 0 / 1; worker id: 136 / 224
+nested: ParallelContextInterface: process id: 6728; global rank: 216 / 224; local rank: 0 / 1; worker id: 216 / 224
+nested: ParallelContextInterface: process id: 121754; global rank: 39 / 224; local rank: 0 / 1; worker id: 39 / 224
+nested: ParallelContextInterface: process id: 137144; global rank: 69 / 224; local rank: 0 / 1; worker id: 69 / 224
+nested: ParallelContextInterface: process id: 110816; global rank: 137 / 224; local rank: 0 / 1; worker id: 137 / 224
+nested: ParallelContextInterface: process id: 6729; global rank: 217 / 224; local rank: 0 / 1; worker id: 217 / 224
+nested: ParallelContextInterface: process id: 121756; global rank: 41 / 224; local rank: 0 / 1; worker id: 41 / 224
+nested: ParallelContextInterface: process id: 137151; global rank: 76 / 224; local rank: 0 / 1; worker id: 76 / 224
+nested: ParallelContextInterface: process id: 110825; global rank: 146 / 224; local rank: 0 / 1; worker id: 146 / 224
+nested: ParallelContextInterface: process id: 6683; global rank: 171 / 224; local rank: 0 / 1; worker id: 171 / 224
+nested: ParallelContextInterface: process id: 121757; global rank: 42 / 224; local rank: 0 / 1; worker id: 42 / 224
+nested: ParallelContextInterface: process id: 137155; global rank: 80 / 224; local rank: 0 / 1; worker id: 80 / 224
+nested: ParallelContextInterface: process id: 110800; global rank: 121 / 224; local rank: 0 / 1; worker id: 121 / 224
+nested: ParallelContextInterface: process id: 6712; global rank: 200 / 224; local rank: 0 / 1; worker id: 200 / 224
+nested: ParallelContextInterface: process id: 121760; global rank: 45 / 224; local rank: 0 / 1; worker id: 45 / 224
+nested: ParallelContextInterface: process id: 137167; global rank: 92 / 224; local rank: 0 / 1; worker id: 92 / 224
+nested: ParallelContextInterface: process id: 110805; global rank: 126 / 224; local rank: 0 / 1; worker id: 126 / 224
+nested: ParallelContextInterface: process id: 6715; global rank: 203 / 224; local rank: 0 / 1; worker id: 203 / 224
+nested: ParallelContextInterface: process id: 121763; global rank: 48 / 224; local rank: 0 / 1; worker id: 48 / 224
+nested: ParallelContextInterface: process id: 137179; global rank: 104 / 224; local rank: 0 / 1; worker id: 104 / 224
+nested: ParallelContextInterface: process id: 110807; global rank: 128 / 224; local rank: 0 / 1; worker id: 128 / 224
+nested: ParallelContextInterface: process id: 6719; global rank: 207 / 224; local rank: 0 / 1; worker id: 207 / 224
+nested: ParallelContextInterface: process id: 121720; global rank: 5 / 224; local rank: 0 / 1; worker id: 5 / 224
+nested: ParallelContextInterface: process id: 137185; global rank: 110 / 224; local rank: 0 / 1; worker id: 110 / 224
+nested: ParallelContextInterface: process id: 110823; global rank: 144 / 224; local rank: 0 / 1; worker id: 144 / 224
+nested: ParallelContextInterface: process id: 6721; global rank: 209 / 224; local rank: 0 / 1; worker id: 209 / 224
+nested: ParallelContextInterface: process id: 121722; global rank: 7 / 224; local rank: 0 / 1; worker id: 7 / 224
+nested: ParallelContextInterface: process id: 137136; global rank: 61 / 224; local rank: 0 / 1; worker id: 61 / 224
+nested: ParallelContextInterface: process id: 110839; global rank: 160 / 224; local rank: 0 / 1; worker id: 160 / 224
+nested: ParallelContextInterface: process id: 6691; global rank: 179 / 224; local rank: 0 / 1; worker id: 179 / 224
+nested: ParallelContextInterface: process id: 121724; global rank: 9 / 224; local rank: 0 / 1; worker id: 9 / 224
+nested: ParallelContextInterface: process id: 137159; global rank: 84 / 224; local rank: 0 / 1; worker id: 84 / 224
+nested: ParallelContextInterface: process id: 110791; global rank: 112 / 224; local rank: 0 / 1; worker id: 112 / 224
+nested: ParallelContextInterface: process id: 6709; global rank: 197 / 224; local rank: 0 / 1; worker id: 197 / 224
+nested: ParallelContextInterface: process id: 121726; global rank: 11 / 224; local rank: 0 / 1; worker id: 11 / 224
+nested: ParallelContextInterface: process id: 137160; global rank: 85 / 224; local rank: 0 / 1; worker id: 85 / 224
+nested: ParallelContextInterface: process id: 110797; global rank: 118 / 224; local rank: 0 / 1; worker id: 118 / 224
+nested: ParallelContextInterface: process id: 6710; global rank: 198 / 224; local rank: 0 / 1; worker id: 198 / 224
+nested: ParallelContextInterface: process id: 121727; global rank: 12 / 224; local rank: 0 / 1; worker id: 12 / 224
+nested: ParallelContextInterface: process id: 137165; global rank: 90 / 224; local rank: 0 / 1; worker id: 90 / 224
+nested: ParallelContextInterface: process id: 110810; global rank: 131 / 224; local rank: 0 / 1; worker id: 131 / 224
+nested: ParallelContextInterface: process id: 6711; global rank: 199 / 224; local rank: 0 / 1; worker id: 199 / 224
+nested: ParallelContextInterface: process id: 121748; global rank: 33 / 224; local rank: 0 / 1; worker id: 33 / 224
+nested: ParallelContextInterface: process id: 137172; global rank: 97 / 224; local rank: 0 / 1; worker id: 97 / 224
+nested: ParallelContextInterface: process id: 110812; global rank: 133 / 224; local rank: 0 / 1; worker id: 133 / 224
+nested: ParallelContextInterface: process id: 6725; global rank: 213 / 224; local rank: 0 / 1; worker id: 213 / 224
+nested: ParallelContextInterface: process id: 121750; global rank: 35 / 224; local rank: 0 / 1; worker id: 35 / 224
+nested: ParallelContextInterface: process id: 137175; global rank: 100 / 224; local rank: 0 / 1; worker id: 100 / 224
+nested: ParallelContextInterface: process id: 110820; global rank: 141 / 224; local rank: 0 / 1; worker id: 141 / 224
+nested: ParallelContextInterface: process id: 6735; global rank: 223 / 224; local rank: 0 / 1; worker id: 223 / 224
+nested: ParallelContextInterface: process id: 121751; global rank: 36 / 224; local rank: 0 / 1; worker id: 36 / 224
+nested: ParallelContextInterface: process id: 137177; global rank: 102 / 224; local rank: 0 / 1; worker id: 102 / 224
+nested: ParallelContextInterface: process id: 110826; global rank: 147 / 224; local rank: 0 / 1; worker id: 147 / 224
+nested: ParallelContextInterface: process id: 6680; global rank: 168 / 224; local rank: 0 / 1; worker id: 168 / 224
+nested: ParallelContextInterface: process id: 121752; global rank: 37 / 224; local rank: 0 / 1; worker id: 37 / 224
+nested: ParallelContextInterface: process id: 137180; global rank: 105 / 224; local rank: 0 / 1; worker id: 105 / 224
+nested: ParallelContextInterface: process id: 110835; global rank: 156 / 224; local rank: 0 / 1; worker id: 156 / 224
+nested: ParallelContextInterface: process id: 6713; global rank: 201 / 224; local rank: 0 / 1; worker id: 201 / 224
+nested: ParallelContextInterface: process id: 121753; global rank: 38 / 224; local rank: 0 / 1; worker id: 38 / 224
+nested: ParallelContextInterface: process id: 137183; global rank: 108 / 224; local rank: 0 / 1; worker id: 108 / 224
+nested: ParallelContextInterface: process id: 110837; global rank: 158 / 224; local rank: 0 / 1; worker id: 158 / 224
+nested: ParallelContextInterface: process id: 6714; global rank: 202 / 224; local rank: 0 / 1; worker id: 202 / 224
+nested: ParallelContextInterface: process id: 121762; global rank: 47 / 224; local rank: 0 / 1; worker id: 47 / 224
+nested: ParallelContextInterface: process id: 137184; global rank: 109 / 224; local rank: 0 / 1; worker id: 109 / 224
+nested: ParallelContextInterface: process id: 110845; global rank: 166 / 224; local rank: 0 / 1; worker id: 166 / 224
+nested: ParallelContextInterface: process id: 6720; global rank: 208 / 224; local rank: 0 / 1; worker id: 208 / 224
+nested: ParallelContextInterface: process id: 121768; global rank: 53 / 224; local rank: 0 / 1; worker id: 53 / 224
+nested: ParallelContextInterface: process id: 137149; global rank: 74 / 224; local rank: 0 / 1; worker id: 74 / 224
+nested: ParallelContextInterface: process id: 110801; global rank: 122 / 224; local rank: 0 / 1; worker id: 122 / 224
+nested: ParallelContextInterface: process id: 6723; global rank: 211 / 224; local rank: 0 / 1; worker id: 211 / 224
+nested: ParallelContextInterface: process id: 121734; global rank: 19 / 224; local rank: 0 / 1; worker id: 19 / 224
+nested: ParallelContextInterface: process id: 137150; global rank: 75 / 224; local rank: 0 / 1; worker id: 75 / 224
+nested: ParallelContextInterface: process id: 110803; global rank: 124 / 224; local rank: 0 / 1; worker id: 124 / 224
+nested: ParallelContextInterface: process id: 6727; global rank: 215 / 224; local rank: 0 / 1; worker id: 215 / 224
+nested: ParallelContextInterface: process id: 121738; global rank: 23 / 224; local rank: 0 / 1; worker id: 23 / 224
+nested: ParallelContextInterface: process id: 137154; global rank: 79 / 224; local rank: 0 / 1; worker id: 79 / 224
+nested: ParallelContextInterface: process id: 110808; global rank: 129 / 224; local rank: 0 / 1; worker id: 129 / 224
+nested: ParallelContextInterface: process id: 6730; global rank: 218 / 224; local rank: 0 / 1; worker id: 218 / 224
+nested: ParallelContextInterface: process id: 121740; global rank: 25 / 224; local rank: 0 / 1; worker id: 25 / 224
+nested: ParallelContextInterface: process id: 137161; global rank: 86 / 224; local rank: 0 / 1; worker id: 86 / 224
+nested: ParallelContextInterface: process id: 110821; global rank: 142 / 224; local rank: 0 / 1; worker id: 142 / 224
+nested: ParallelContextInterface: process id: 6731; global rank: 219 / 224; local rank: 0 / 1; worker id: 219 / 224
+nested: ParallelContextInterface: process id: 121743; global rank: 28 / 224; local rank: 0 / 1; worker id: 28 / 224
+nested: ParallelContextInterface: process id: 137162; global rank: 87 / 224; local rank: 0 / 1; worker id: 87 / 224
+nested: ParallelContextInterface: process id: 110824; global rank: 145 / 224; local rank: 0 / 1; worker id: 145 / 224
+nested: ParallelContextInterface: process id: 6732; global rank: 220 / 224; local rank: 0 / 1; worker id: 220 / 224
+nested: ParallelContextInterface: process id: 121745; global rank: 30 / 224; local rank: 0 / 1; worker id: 30 / 224
+nested: ParallelContextInterface: process id: 137163; global rank: 88 / 224; local rank: 0 / 1; worker id: 88 / 224
+nested: ParallelContextInterface: process id: 110828; global rank: 149 / 224; local rank: 0 / 1; worker id: 149 / 224
+nested: ParallelContextInterface: process id: 6733; global rank: 221 / 224; local rank: 0 / 1; worker id: 221 / 224
+nested: ParallelContextInterface: process id: 121746; global rank: 31 / 224; local rank: 0 / 1; worker id: 31 / 224
+nested: ParallelContextInterface: process id: 137166; global rank: 91 / 224; local rank: 0 / 1; worker id: 91 / 224
+nested: ParallelContextInterface: process id: 110829; global rank: 150 / 224; local rank: 0 / 1; worker id: 150 / 224
+nested: ParallelContextInterface: process id: 6688; global rank: 176 / 224; local rank: 0 / 1; worker id: 176 / 224
+nested: ParallelContextInterface: process id: 121747; global rank: 32 / 224; local rank: 0 / 1; worker id: 32 / 224
+nested: ParallelContextInterface: process id: 137168; global rank: 93 / 224; local rank: 0 / 1; worker id: 93 / 224
+nested: ParallelContextInterface: process id: 110832; global rank: 153 / 224; local rank: 0 / 1; worker id: 153 / 224
+nested: ParallelContextInterface: process id: 6700; global rank: 188 / 224; local rank: 0 / 1; worker id: 188 / 224
+nested: ParallelContextInterface: process id: 121758; global rank: 43 / 224; local rank: 0 / 1; worker id: 43 / 224
+nested: ParallelContextInterface: process id: 137169; global rank: 94 / 224; local rank: 0 / 1; worker id: 94 / 224
+nested: ParallelContextInterface: process id: 110833; global rank: 154 / 224; local rank: 0 / 1; worker id: 154 / 224
+nested: ParallelContextInterface: process id: 6701; global rank: 189 / 224; local rank: 0 / 1; worker id: 189 / 224
+nested: ParallelContextInterface: process id: 121766; global rank: 51 / 224; local rank: 0 / 1; worker id: 51 / 224
+nested: ParallelContextInterface: process id: 137171; global rank: 96 / 224; local rank: 0 / 1; worker id: 96 / 224
+nested: ParallelContextInterface: process id: 110834; global rank: 155 / 224; local rank: 0 / 1; worker id: 155 / 224
+nested: ParallelContextInterface: process id: 6705; global rank: 193 / 224; local rank: 0 / 1; worker id: 193 / 224
+nested: ParallelContextInterface: process id: 121737; global rank: 22 / 224; local rank: 0 / 1; worker id: 22 / 224
+nested: ParallelContextInterface: process id: 137173; global rank: 98 / 224; local rank: 0 / 1; worker id: 98 / 224
+nested: ParallelContextInterface: process id: 110841; global rank: 162 / 224; local rank: 0 / 1; worker id: 162 / 224
+nested: ParallelContextInterface: process id: 6708; global rank: 196 / 224; local rank: 0 / 1; worker id: 196 / 224
+nested: ParallelContextInterface: process id: 121742; global rank: 27 / 224; local rank: 0 / 1; worker id: 27 / 224
+nested: ParallelContextInterface: process id: 137176; global rank: 101 / 224; local rank: 0 / 1; worker id: 101 / 224
+nested: ParallelContextInterface: process id: 110843; global rank: 164 / 224; local rank: 0 / 1; worker id: 164 / 224
+nested: ParallelContextInterface: process id: 6717; global rank: 205 / 224; local rank: 0 / 1; worker id: 205 / 224
+nested: ParallelContextInterface: process id: 121767; global rank: 52 / 224; local rank: 0 / 1; worker id: 52 / 224
+nested: ParallelContextInterface: process id: 137178; global rank: 103 / 224; local rank: 0 / 1; worker id: 103 / 224
+nested: ParallelContextInterface: process id: 110844; global rank: 165 / 224; local rank: 0 / 1; worker id: 165 / 224
+nested: ParallelContextInterface: process id: 6718; global rank: 206 / 224; local rank: 0 / 1; worker id: 206 / 224
+nested: ParallelContextInterface: process id: 137186; global rank: 111 / 224; local rank: 0 / 1; worker id: 111 / 224
+nested: ParallelContextInterface: process id: 110819; global rank: 140 / 224; local rank: 0 / 1; worker id: 140 / 224
+nested: ParallelContextInterface: process id: 6734; global rank: 222 / 224; local rank: 0 / 1; worker id: 222 / 224
+nested.optimize: worker initialization took 2.03 s
+PopulationAnnealing: Gen 0, yielding parameters for population size 200
+PopulationAnnealing: Gen 0, computing features for population size 116 took 16.46 s; 84 individuals failed
+PopulationAnnealing: Gen 1, yielding parameters for population size 200
+PopulationAnnealing: Gen 1, computing features for population size 174 took 16.67 s; 26 individuals failed
+PopulationAnnealing: Gen 2, yielding parameters for population size 200
+PopulationAnnealing: Gen 2, computing features for population size 185 took 17.02 s; 15 individuals failed
+PopulationAnnealing: Gen 2, evaluating iteration took 1.65 s
+PopulationStorage: saving 3 generations (up to generation 2) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 7.07 s
+PopulationAnnealing: Gen 3, previous step_size: 0.500, new step_size: 0.450
+PopulationAnnealing: Gen 3, yielding parameters for population size 200
+PopulationAnnealing: Gen 3, computing features for population size 156 took 17.85 s; 44 individuals failed
+PopulationAnnealing: Gen 4, yielding parameters for population size 200
+PopulationAnnealing: Gen 4, computing features for population size 182 took 16.31 s; 18 individuals failed
+PopulationAnnealing: Gen 5, yielding parameters for population size 200
+PopulationAnnealing: Gen 5, computing features for population size 181 took 16.15 s; 19 individuals failed
+PopulationAnnealing: Gen 5, evaluating iteration took 2.20 s
+PopulationStorage: saving 3 generations (up to generation 5) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.56 s
+PopulationAnnealing: Gen 6, previous step_size: 0.450, new step_size: 0.405
+PopulationAnnealing: Gen 6, yielding parameters for population size 200
+PopulationAnnealing: Gen 6, computing features for population size 155 took 16.40 s; 45 individuals failed
+PopulationAnnealing: Gen 7, yielding parameters for population size 200
+PopulationAnnealing: Gen 7, computing features for population size 174 took 16.52 s; 26 individuals failed
+PopulationAnnealing: Gen 8, yielding parameters for population size 200
+PopulationAnnealing: Gen 8, computing features for population size 176 took 16.25 s; 24 individuals failed
+PopulationAnnealing: Gen 8, evaluating iteration took 2.07 s
+PopulationStorage: saving 3 generations (up to generation 8) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.53 s
+PopulationAnnealing: Gen 9, previous step_size: 0.405, new step_size: 0.365
+PopulationAnnealing: Gen 9, yielding parameters for population size 200
+PopulationAnnealing: Gen 9, computing features for population size 157 took 16.09 s; 43 individuals failed
+PopulationAnnealing: Gen 10, yielding parameters for population size 200
+PopulationAnnealing: Gen 10, computing features for population size 180 took 16.09 s; 20 individuals failed
+PopulationAnnealing: Gen 11, yielding parameters for population size 200
+PopulationAnnealing: Gen 11, computing features for population size 182 took 15.95 s; 18 individuals failed
+PopulationAnnealing: Gen 11, evaluating iteration took 2.18 s
+PopulationStorage: saving 3 generations (up to generation 11) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.56 s
+PopulationAnnealing: Gen 12, previous step_size: 0.365, new step_size: 0.328
+PopulationAnnealing: Gen 12, yielding parameters for population size 200
+PopulationAnnealing: Gen 12, computing features for population size 158 took 16.30 s; 42 individuals failed
+PopulationAnnealing: Gen 13, yielding parameters for population size 200
+PopulationAnnealing: Gen 13, computing features for population size 154 took 16.61 s; 46 individuals failed
+PopulationAnnealing: Gen 14, yielding parameters for population size 200
+PopulationAnnealing: Gen 14, computing features for population size 173 took 16.28 s; 27 individuals failed
+PopulationAnnealing: Gen 14, evaluating iteration took 1.92 s
+PopulationStorage: saving 3 generations (up to generation 14) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.50 s
+PopulationAnnealing: Gen 15, previous step_size: 0.328, new step_size: 0.295
+PopulationAnnealing: Gen 15, yielding parameters for population size 200
+PopulationAnnealing: Gen 15, computing features for population size 141 took 16.08 s; 59 individuals failed
+PopulationAnnealing: Gen 16, yielding parameters for population size 200
+PopulationAnnealing: Gen 16, computing features for population size 161 took 16.08 s; 39 individuals failed
+PopulationAnnealing: Gen 17, yielding parameters for population size 200
+PopulationAnnealing: Gen 17, computing features for population size 182 took 16.02 s; 18 individuals failed
+PopulationAnnealing: Gen 17, evaluating iteration took 1.91 s
+PopulationStorage: saving 3 generations (up to generation 17) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.50 s
+PopulationAnnealing: Gen 18, previous step_size: 0.295, new step_size: 0.266
+PopulationAnnealing: Gen 18, yielding parameters for population size 200
+PopulationAnnealing: Gen 18, computing features for population size 129 took 15.98 s; 71 individuals failed
+PopulationAnnealing: Gen 19, yielding parameters for population size 200
+PopulationAnnealing: Gen 19, computing features for population size 157 took 16.35 s; 43 individuals failed
+PopulationAnnealing: Gen 20, yielding parameters for population size 200
+PopulationAnnealing: Gen 20, computing features for population size 179 took 16.16 s; 21 individuals failed
+PopulationAnnealing: Gen 20, evaluating iteration took 1.80 s
+PopulationStorage: saving 3 generations (up to generation 20) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 21, previous step_size: 0.266, new step_size: 0.239
+PopulationAnnealing: Gen 21, yielding parameters for population size 200
+PopulationAnnealing: Gen 21, computing features for population size 132 took 16.26 s; 68 individuals failed
+PopulationAnnealing: Gen 22, yielding parameters for population size 200
+PopulationAnnealing: Gen 22, computing features for population size 151 took 16.08 s; 49 individuals failed
+PopulationAnnealing: Gen 23, yielding parameters for population size 200
+PopulationAnnealing: Gen 23, computing features for population size 173 took 16.90 s; 27 individuals failed
+PopulationAnnealing: Gen 23, evaluating iteration took 1.72 s
+PopulationStorage: saving 3 generations (up to generation 23) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.46 s
+PopulationAnnealing: Gen 24, previous step_size: 0.239, new step_size: 0.215
+PopulationAnnealing: Gen 24, yielding parameters for population size 200
+PopulationAnnealing: Gen 24, computing features for population size 144 took 17.51 s; 56 individuals failed
+PopulationAnnealing: Gen 25, yielding parameters for population size 200
+PopulationAnnealing: Gen 25, computing features for population size 164 took 16.24 s; 36 individuals failed
+PopulationAnnealing: Gen 26, yielding parameters for population size 200
+PopulationAnnealing: Gen 26, computing features for population size 161 took 16.31 s; 39 individuals failed
+PopulationAnnealing: Gen 26, evaluating iteration took 1.82 s
+PopulationStorage: saving 3 generations (up to generation 26) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 27, previous step_size: 0.215, new step_size: 0.194
+PopulationAnnealing: Gen 27, yielding parameters for population size 200
+PopulationAnnealing: Gen 27, computing features for population size 134 took 16.21 s; 66 individuals failed
+PopulationAnnealing: Gen 28, yielding parameters for population size 200
+PopulationAnnealing: Gen 28, computing features for population size 153 took 16.27 s; 47 individuals failed
+PopulationAnnealing: Gen 29, yielding parameters for population size 200
+PopulationAnnealing: Gen 29, computing features for population size 172 took 16.45 s; 28 individuals failed
+PopulationAnnealing: Gen 29, evaluating iteration took 1.75 s
+PopulationStorage: saving 3 generations (up to generation 29) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: Gen 30, previous step_size: 0.194, new step_size: 0.174
+PopulationAnnealing: Gen 30, yielding parameters for population size 200
+PopulationAnnealing: Gen 30, computing features for population size 134 took 15.99 s; 66 individuals failed
+PopulationAnnealing: Gen 31, yielding parameters for population size 200
+PopulationAnnealing: Gen 31, computing features for population size 147 took 16.49 s; 53 individuals failed
+PopulationAnnealing: Gen 32, yielding parameters for population size 200
+PopulationAnnealing: Gen 32, computing features for population size 165 took 16.68 s; 35 individuals failed
+PopulationAnnealing: Gen 32, evaluating iteration took 1.66 s
+PopulationStorage: saving 3 generations (up to generation 32) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.53 s
+PopulationAnnealing: Gen 33, previous step_size: 0.174, new step_size: 0.157
+PopulationAnnealing: Gen 33, yielding parameters for population size 200
+PopulationAnnealing: Gen 33, computing features for population size 99 took 17.85 s; 101 individuals failed
+PopulationAnnealing: Gen 34, yielding parameters for population size 200
+PopulationAnnealing: Gen 34, computing features for population size 149 took 16.25 s; 51 individuals failed
+PopulationAnnealing: Gen 35, yielding parameters for population size 200
+PopulationAnnealing: Gen 35, computing features for population size 164 took 16.26 s; 36 individuals failed
+PopulationAnnealing: Gen 35, evaluating iteration took 1.44 s
+PopulationStorage: saving 3 generations (up to generation 35) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.44 s
+PopulationAnnealing: Gen 36, previous step_size: 0.157, new step_size: 0.141
+PopulationAnnealing: Gen 36, yielding parameters for population size 200
+PopulationAnnealing: Gen 36, computing features for population size 101 took 16.49 s; 99 individuals failed
+PopulationAnnealing: Gen 37, yielding parameters for population size 200
+PopulationAnnealing: Gen 37, computing features for population size 158 took 16.39 s; 42 individuals failed
+PopulationAnnealing: Gen 38, yielding parameters for population size 200
+PopulationAnnealing: Gen 38, computing features for population size 154 took 16.00 s; 46 individuals failed
+PopulationAnnealing: Gen 38, evaluating iteration took 1.43 s
+PopulationStorage: saving 3 generations (up to generation 38) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: Gen 39, previous step_size: 0.141, new step_size: 0.127
+PopulationAnnealing: Gen 39, yielding parameters for population size 200
+PopulationAnnealing: Gen 39, computing features for population size 103 took 16.46 s; 97 individuals failed
+PopulationAnnealing: Gen 40, yielding parameters for population size 200
+PopulationAnnealing: Gen 40, computing features for population size 150 took 16.50 s; 50 individuals failed
+PopulationAnnealing: Gen 41, yielding parameters for population size 200
+PopulationAnnealing: Gen 41, computing features for population size 167 took 16.18 s; 33 individuals failed
+PopulationAnnealing: Gen 41, evaluating iteration took 1.49 s
+PopulationStorage: saving 3 generations (up to generation 41) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 42, previous step_size: 0.127, new step_size: 0.114
+PopulationAnnealing: Gen 42, yielding parameters for population size 200
+PopulationAnnealing: Gen 42, computing features for population size 105 took 16.15 s; 95 individuals failed
+PopulationAnnealing: Gen 43, yielding parameters for population size 200
+PopulationAnnealing: Gen 43, computing features for population size 144 took 16.37 s; 56 individuals failed
+PopulationAnnealing: Gen 44, yielding parameters for population size 200
+PopulationAnnealing: Gen 44, computing features for population size 157 took 16.45 s; 43 individuals failed
+PopulationAnnealing: Gen 44, evaluating iteration took 1.39 s
+PopulationStorage: saving 3 generations (up to generation 44) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.44 s
+PopulationAnnealing: Gen 45, previous step_size: 0.114, new step_size: 0.103
+PopulationAnnealing: Gen 45, yielding parameters for population size 200
+PopulationAnnealing: Gen 45, computing features for population size 100 took 16.49 s; 100 individuals failed
+PopulationAnnealing: Gen 46, yielding parameters for population size 200
+PopulationAnnealing: Gen 46, computing features for population size 155 took 16.12 s; 45 individuals failed
+PopulationAnnealing: Gen 47, yielding parameters for population size 200
+PopulationAnnealing: Gen 47, computing features for population size 162 took 16.29 s; 38 individuals failed
+PopulationAnnealing: Gen 47, evaluating iteration took 1.45 s
+PopulationStorage: saving 3 generations (up to generation 47) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.46 s
+PopulationAnnealing: Gen 48, previous step_size: 0.103, new step_size: 0.093
+PopulationAnnealing: Gen 48, yielding parameters for population size 200
+PopulationAnnealing: Gen 48, computing features for population size 102 took 17.05 s; 98 individuals failed
+PopulationAnnealing: Gen 49, yielding parameters for population size 200
+PopulationAnnealing: Gen 49, computing features for population size 154 took 16.14 s; 46 individuals failed
+PopulationAnnealing: Gen 50, yielding parameters for population size 200
+PopulationAnnealing: Gen 50, computing features for population size 169 took 16.16 s; 31 individuals failed
+PopulationAnnealing: Gen 50, evaluating iteration took 1.51 s
+PopulationStorage: saving 3 generations (up to generation 50) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.54 s
+PopulationAnnealing: Gen 51, previous step_size: 0.093, new step_size: 0.083
+PopulationAnnealing: Gen 51, yielding parameters for population size 200
+PopulationAnnealing: Gen 51, computing features for population size 104 took 16.27 s; 96 individuals failed
+PopulationAnnealing: Gen 52, yielding parameters for population size 200
+PopulationAnnealing: Gen 52, computing features for population size 152 took 16.03 s; 48 individuals failed
+PopulationAnnealing: Gen 53, yielding parameters for population size 200
+PopulationAnnealing: Gen 53, computing features for population size 179 took 16.13 s; 21 individuals failed
+PopulationAnnealing: Gen 53, evaluating iteration took 1.57 s
+PopulationStorage: saving 3 generations (up to generation 53) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 2.00 s
+PopulationAnnealing: Gen 54, previous step_size: 0.083, new step_size: 0.075
+PopulationAnnealing: Gen 54, yielding parameters for population size 200
+PopulationAnnealing: Gen 54, computing features for population size 105 took 16.18 s; 95 individuals failed
+PopulationAnnealing: Gen 55, yielding parameters for population size 200
+PopulationAnnealing: Gen 55, computing features for population size 161 took 16.29 s; 39 individuals failed
+PopulationAnnealing: Gen 56, yielding parameters for population size 200
+PopulationAnnealing: Gen 56, computing features for population size 156 took 16.14 s; 44 individuals failed
+PopulationAnnealing: Gen 56, evaluating iteration took 1.50 s
+PopulationStorage: saving 3 generations (up to generation 56) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 57, previous step_size: 0.075, new step_size: 0.068
+PopulationAnnealing: Gen 57, yielding parameters for population size 200
+PopulationAnnealing: Gen 57, computing features for population size 108 took 16.09 s; 92 individuals failed
+PopulationAnnealing: Gen 58, yielding parameters for population size 200
+PopulationAnnealing: Gen 58, computing features for population size 146 took 16.04 s; 54 individuals failed
+PopulationAnnealing: Gen 59, yielding parameters for population size 200
+PopulationAnnealing: Gen 59, computing features for population size 163 took 16.46 s; 37 individuals failed
+PopulationAnnealing: Gen 59, evaluating iteration took 1.46 s
+PopulationStorage: saving 3 generations (up to generation 59) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 60, previous step_size: 0.068, new step_size: 0.061
+PopulationAnnealing: Gen 60, yielding parameters for population size 200
+PopulationAnnealing: Gen 60, computing features for population size 114 took 16.81 s; 86 individuals failed
+PopulationAnnealing: Gen 61, yielding parameters for population size 200
+PopulationAnnealing: Gen 61, computing features for population size 143 took 16.89 s; 57 individuals failed
+PopulationAnnealing: Gen 62, yielding parameters for population size 200
+PopulationAnnealing: Gen 62, computing features for population size 161 took 17.32 s; 39 individuals failed
+PopulationAnnealing: Gen 62, evaluating iteration took 1.46 s
+PopulationStorage: saving 3 generations (up to generation 62) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 63, previous step_size: 0.061, new step_size: 0.055
+PopulationAnnealing: Gen 63, yielding parameters for population size 200
+PopulationAnnealing: Gen 63, computing features for population size 96 took 17.71 s; 104 individuals failed
+PopulationAnnealing: Gen 64, yielding parameters for population size 200
+PopulationAnnealing: Gen 64, computing features for population size 146 took 17.29 s; 54 individuals failed
+PopulationAnnealing: Gen 65, yielding parameters for population size 200
+PopulationAnnealing: Gen 65, computing features for population size 180 took 16.11 s; 20 individuals failed
+PopulationAnnealing: Gen 65, evaluating iteration took 1.49 s
+PopulationStorage: saving 3 generations (up to generation 65) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 66, previous step_size: 0.055, new step_size: 0.049
+PopulationAnnealing: Gen 66, yielding parameters for population size 200
+PopulationAnnealing: Gen 66, computing features for population size 110 took 16.57 s; 90 individuals failed
+PopulationAnnealing: Gen 67, yielding parameters for population size 200
+PopulationAnnealing: Gen 67, computing features for population size 147 took 16.70 s; 53 individuals failed
+PopulationAnnealing: Gen 68, yielding parameters for population size 200
+PopulationAnnealing: Gen 68, computing features for population size 168 took 15.97 s; 32 individuals failed
+PopulationAnnealing: Gen 68, evaluating iteration took 1.51 s
+PopulationStorage: saving 3 generations (up to generation 68) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 69, previous step_size: 0.049, new step_size: 0.044
+PopulationAnnealing: Gen 69, yielding parameters for population size 200
+PopulationAnnealing: Gen 69, computing features for population size 96 took 16.06 s; 104 individuals failed
+PopulationAnnealing: Gen 70, yielding parameters for population size 200
+PopulationAnnealing: Gen 70, computing features for population size 151 took 15.94 s; 49 individuals failed
+PopulationAnnealing: Gen 71, yielding parameters for population size 200
+PopulationAnnealing: Gen 71, computing features for population size 180 took 16.26 s; 20 individuals failed
+PopulationAnnealing: Gen 71, evaluating iteration took 1.53 s
+PopulationStorage: saving 3 generations (up to generation 71) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.49 s
+PopulationAnnealing: Gen 72, previous step_size: 0.044, new step_size: 0.040
+PopulationAnnealing: Gen 72, yielding parameters for population size 200
+PopulationAnnealing: Gen 72, computing features for population size 95 took 16.14 s; 105 individuals failed
+PopulationAnnealing: Gen 73, yielding parameters for population size 200
+PopulationAnnealing: Gen 73, computing features for population size 153 took 16.19 s; 47 individuals failed
+PopulationAnnealing: Gen 74, yielding parameters for population size 200
+PopulationAnnealing: Gen 74, computing features for population size 170 took 16.17 s; 30 individuals failed
+PopulationAnnealing: Gen 74, evaluating iteration took 1.47 s
+PopulationStorage: saving 3 generations (up to generation 74) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 75, previous step_size: 0.040, new step_size: 0.036
+PopulationAnnealing: Gen 75, yielding parameters for population size 200
+PopulationAnnealing: Gen 75, computing features for population size 89 took 16.33 s; 111 individuals failed
+PopulationAnnealing: Gen 76, yielding parameters for population size 200
+PopulationAnnealing: Gen 76, computing features for population size 157 took 16.26 s; 43 individuals failed
+PopulationAnnealing: Gen 77, yielding parameters for population size 200
+PopulationAnnealing: Gen 77, computing features for population size 160 took 16.21 s; 40 individuals failed
+PopulationAnnealing: Gen 77, evaluating iteration took 1.38 s
+PopulationStorage: saving 3 generations (up to generation 77) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: Gen 78, previous step_size: 0.036, new step_size: 0.032
+PopulationAnnealing: Gen 78, yielding parameters for population size 200
+PopulationAnnealing: Gen 78, computing features for population size 105 took 16.52 s; 95 individuals failed
+PopulationAnnealing: Gen 79, yielding parameters for population size 200
+PopulationAnnealing: Gen 79, computing features for population size 147 took 16.28 s; 53 individuals failed
+PopulationAnnealing: Gen 80, yielding parameters for population size 200
+PopulationAnnealing: Gen 80, computing features for population size 166 took 16.09 s; 34 individuals failed
+PopulationAnnealing: Gen 80, evaluating iteration took 1.47 s
+PopulationStorage: saving 3 generations (up to generation 80) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 2.34 s
+PopulationAnnealing: Gen 81, previous step_size: 0.032, new step_size: 0.029
+PopulationAnnealing: Gen 81, yielding parameters for population size 200
+PopulationAnnealing: Gen 81, computing features for population size 99 took 16.31 s; 101 individuals failed
+PopulationAnnealing: Gen 82, yielding parameters for population size 200
+PopulationAnnealing: Gen 82, computing features for population size 150 took 16.70 s; 50 individuals failed
+PopulationAnnealing: Gen 83, yielding parameters for population size 200
+PopulationAnnealing: Gen 83, computing features for population size 161 took 16.56 s; 39 individuals failed
+PopulationAnnealing: Gen 83, evaluating iteration took 1.41 s
+PopulationStorage: saving 3 generations (up to generation 83) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: Gen 84, previous step_size: 0.029, new step_size: 0.026
+PopulationAnnealing: Gen 84, yielding parameters for population size 200
+PopulationAnnealing: Gen 84, computing features for population size 99 took 16.61 s; 101 individuals failed
+PopulationAnnealing: Gen 85, yielding parameters for population size 200
+PopulationAnnealing: Gen 85, computing features for population size 161 took 16.50 s; 39 individuals failed
+PopulationAnnealing: Gen 86, yielding parameters for population size 200
+PopulationAnnealing: Gen 86, computing features for population size 170 took 16.30 s; 30 individuals failed
+PopulationAnnealing: Gen 86, evaluating iteration took 1.54 s
+PopulationStorage: saving 3 generations (up to generation 86) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.51 s
+PopulationAnnealing: Gen 87, previous step_size: 0.026, new step_size: 0.024
+PopulationAnnealing: Gen 87, yielding parameters for population size 200
+PopulationAnnealing: Gen 87, computing features for population size 101 took 16.19 s; 99 individuals failed
+PopulationAnnealing: Gen 88, yielding parameters for population size 200
+PopulationAnnealing: Gen 88, computing features for population size 144 took 16.26 s; 56 individuals failed
+PopulationAnnealing: Gen 89, yielding parameters for population size 200
+PopulationAnnealing: Gen 89, computing features for population size 156 took 16.30 s; 44 individuals failed
+PopulationAnnealing: Gen 89, evaluating iteration took 1.36 s
+PopulationStorage: saving 3 generations (up to generation 89) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.44 s
+PopulationAnnealing: Gen 90, previous step_size: 0.024, new step_size: 0.021
+PopulationAnnealing: Gen 90, yielding parameters for population size 200
+PopulationAnnealing: Gen 90, computing features for population size 112 took 16.46 s; 88 individuals failed
+PopulationAnnealing: Gen 91, yielding parameters for population size 200
+PopulationAnnealing: Gen 91, computing features for population size 155 took 16.30 s; 45 individuals failed
+PopulationAnnealing: Gen 92, yielding parameters for population size 200
+PopulationAnnealing: Gen 92, computing features for population size 166 took 16.28 s; 34 individuals failed
+PopulationAnnealing: Gen 92, evaluating iteration took 1.56 s
+PopulationStorage: saving 3 generations (up to generation 92) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.50 s
+PopulationAnnealing: Gen 93, previous step_size: 0.021, new step_size: 0.019
+PopulationAnnealing: Gen 93, yielding parameters for population size 200
+PopulationAnnealing: Gen 93, computing features for population size 105 took 16.66 s; 95 individuals failed
+PopulationAnnealing: Gen 94, yielding parameters for population size 200
+PopulationAnnealing: Gen 94, computing features for population size 147 took 16.48 s; 53 individuals failed
+PopulationAnnealing: Gen 95, yielding parameters for population size 200
+PopulationAnnealing: Gen 95, computing features for population size 176 took 16.18 s; 24 individuals failed
+PopulationAnnealing: Gen 95, evaluating iteration took 1.53 s
+PopulationStorage: saving 3 generations (up to generation 95) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.49 s
+PopulationAnnealing: Gen 96, previous step_size: 0.019, new step_size: 0.017
+PopulationAnnealing: Gen 96, yielding parameters for population size 200
+PopulationAnnealing: Gen 96, computing features for population size 108 took 16.56 s; 92 individuals failed
+PopulationAnnealing: Gen 97, yielding parameters for population size 200
+PopulationAnnealing: Gen 97, computing features for population size 143 took 16.39 s; 57 individuals failed
+PopulationAnnealing: Gen 98, yielding parameters for population size 200
+PopulationAnnealing: Gen 98, computing features for population size 168 took 16.01 s; 32 individuals failed
+PopulationAnnealing: Gen 98, evaluating iteration took 1.47 s
+PopulationStorage: saving 3 generations (up to generation 98) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 99, previous step_size: 0.017, new step_size: 0.015
+PopulationAnnealing: Gen 99, yielding parameters for population size 200
+PopulationAnnealing: Gen 99, computing features for population size 104 took 16.22 s; 96 individuals failed
+PopulationAnnealing: Gen 100, yielding parameters for population size 200
+PopulationAnnealing: Gen 100, computing features for population size 140 took 16.26 s; 60 individuals failed
+PopulationAnnealing: Gen 101, yielding parameters for population size 200
+PopulationAnnealing: Gen 101, computing features for population size 161 took 16.14 s; 39 individuals failed
+PopulationAnnealing: Gen 101, evaluating iteration took 1.38 s
+PopulationStorage: saving 3 generations (up to generation 101) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.43 s
+PopulationAnnealing: Gen 102, previous step_size: 0.015, new step_size: 0.014
+PopulationAnnealing: Gen 102, yielding parameters for population size 200
+PopulationAnnealing: Gen 102, computing features for population size 97 took 16.28 s; 103 individuals failed
+PopulationAnnealing: Gen 103, yielding parameters for population size 200
+PopulationAnnealing: Gen 103, computing features for population size 155 took 16.12 s; 45 individuals failed
+PopulationAnnealing: Gen 104, yielding parameters for population size 200
+PopulationAnnealing: Gen 104, computing features for population size 167 took 16.08 s; 33 individuals failed
+PopulationAnnealing: Gen 104, evaluating iteration took 1.45 s
+PopulationStorage: saving 3 generations (up to generation 104) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 105, previous step_size: 0.014, new step_size: 0.013
+PopulationAnnealing: Gen 105, yielding parameters for population size 200
+PopulationAnnealing: Gen 105, computing features for population size 106 took 16.26 s; 94 individuals failed
+PopulationAnnealing: Gen 106, yielding parameters for population size 200
+PopulationAnnealing: Gen 106, computing features for population size 148 took 15.96 s; 52 individuals failed
+PopulationAnnealing: Gen 107, yielding parameters for population size 200
+PopulationAnnealing: Gen 107, computing features for population size 174 took 16.23 s; 26 individuals failed
+PopulationAnnealing: Gen 107, evaluating iteration took 1.53 s
+PopulationStorage: saving 3 generations (up to generation 107) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.50 s
+PopulationAnnealing: Gen 108, previous step_size: 0.013, new step_size: 0.011
+PopulationAnnealing: Gen 108, yielding parameters for population size 200
+PopulationAnnealing: Gen 108, computing features for population size 101 took 16.27 s; 99 individuals failed
+PopulationAnnealing: Gen 109, yielding parameters for population size 200
+PopulationAnnealing: Gen 109, computing features for population size 151 took 16.05 s; 49 individuals failed
+PopulationAnnealing: Gen 110, yielding parameters for population size 200
+PopulationAnnealing: Gen 110, computing features for population size 169 took 16.27 s; 31 individuals failed
+PopulationAnnealing: Gen 110, evaluating iteration took 1.48 s
+PopulationStorage: saving 3 generations (up to generation 110) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.52 s
+PopulationAnnealing: Gen 111, previous step_size: 0.011, new step_size: 0.010
+PopulationAnnealing: Gen 111, yielding parameters for population size 200
+PopulationAnnealing: Gen 111, computing features for population size 112 took 16.12 s; 88 individuals failed
+PopulationAnnealing: Gen 112, yielding parameters for population size 200
+PopulationAnnealing: Gen 112, computing features for population size 145 took 16.26 s; 55 individuals failed
+PopulationAnnealing: Gen 113, yielding parameters for population size 200
+PopulationAnnealing: Gen 113, computing features for population size 159 took 16.03 s; 41 individuals failed
+PopulationAnnealing: Gen 113, evaluating iteration took 1.45 s
+PopulationStorage: saving 3 generations (up to generation 113) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 114, previous step_size: 0.010, new step_size: 0.009
+PopulationAnnealing: Gen 114, yielding parameters for population size 200
+PopulationAnnealing: Gen 114, computing features for population size 103 took 16.25 s; 97 individuals failed
+PopulationAnnealing: Gen 115, yielding parameters for population size 200
+PopulationAnnealing: Gen 115, computing features for population size 144 took 16.24 s; 56 individuals failed
+PopulationAnnealing: Gen 116, yielding parameters for population size 200
+PopulationAnnealing: Gen 116, computing features for population size 162 took 16.25 s; 38 individuals failed
+PopulationAnnealing: Gen 116, evaluating iteration took 1.40 s
+PopulationStorage: saving 3 generations (up to generation 116) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.44 s
+PopulationAnnealing: Gen 117, previous step_size: 0.009, new step_size: 0.008
+PopulationAnnealing: Gen 117, yielding parameters for population size 200
+PopulationAnnealing: Gen 117, computing features for population size 89 took 16.05 s; 111 individuals failed
+PopulationAnnealing: Gen 118, yielding parameters for population size 200
+PopulationAnnealing: Gen 118, computing features for population size 144 took 16.03 s; 56 individuals failed
+PopulationAnnealing: Gen 119, yielding parameters for population size 200
+PopulationAnnealing: Gen 119, computing features for population size 176 took 16.28 s; 24 individuals failed
+PopulationAnnealing: Gen 119, evaluating iteration took 1.40 s
+PopulationStorage: saving 3 generations (up to generation 119) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.46 s
+PopulationAnnealing: Gen 120, previous step_size: 0.008, new step_size: 0.007
+PopulationAnnealing: Gen 120, yielding parameters for population size 200
+PopulationAnnealing: Gen 120, computing features for population size 110 took 16.10 s; 90 individuals failed
+PopulationAnnealing: Gen 121, yielding parameters for population size 200
+PopulationAnnealing: Gen 121, computing features for population size 141 took 16.25 s; 59 individuals failed
+PopulationAnnealing: Gen 122, yielding parameters for population size 200
+PopulationAnnealing: Gen 122, computing features for population size 178 took 16.11 s; 22 individuals failed
+PopulationAnnealing: Gen 122, evaluating iteration took 1.53 s
+PopulationStorage: saving 3 generations (up to generation 122) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.55 s
+PopulationAnnealing: Gen 123, previous step_size: 0.007, new step_size: 0.007
+PopulationAnnealing: Gen 123, yielding parameters for population size 200
+PopulationAnnealing: Gen 123, computing features for population size 97 took 16.11 s; 103 individuals failed
+PopulationAnnealing: Gen 124, yielding parameters for population size 200
+PopulationAnnealing: Gen 124, computing features for population size 141 took 16.16 s; 59 individuals failed
+PopulationAnnealing: Gen 125, yielding parameters for population size 200
+PopulationAnnealing: Gen 125, computing features for population size 183 took 16.31 s; 17 individuals failed
+PopulationAnnealing: Gen 125, evaluating iteration took 1.48 s
+PopulationStorage: saving 3 generations (up to generation 125) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 126, previous step_size: 0.007, new step_size: 0.006
+PopulationAnnealing: Gen 126, yielding parameters for population size 200
+PopulationAnnealing: Gen 126, computing features for population size 100 took 16.11 s; 100 individuals failed
+PopulationAnnealing: Gen 127, yielding parameters for population size 200
+PopulationAnnealing: Gen 127, computing features for population size 143 took 16.30 s; 57 individuals failed
+PopulationAnnealing: Gen 128, yielding parameters for population size 200
+PopulationAnnealing: Gen 128, computing features for population size 174 took 16.17 s; 26 individuals failed
+PopulationAnnealing: Gen 128, evaluating iteration took 1.46 s
+PopulationStorage: saving 3 generations (up to generation 128) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.48 s
+PopulationAnnealing: Gen 129, previous step_size: 0.006, new step_size: 0.005
+PopulationAnnealing: Gen 129, yielding parameters for population size 200
+PopulationAnnealing: Gen 129, computing features for population size 97 took 16.27 s; 103 individuals failed
+PopulationAnnealing: Gen 130, yielding parameters for population size 200
+PopulationAnnealing: Gen 130, computing features for population size 153 took 16.77 s; 47 individuals failed
+PopulationAnnealing: Gen 131, yielding parameters for population size 200
+PopulationAnnealing: Gen 131, computing features for population size 154 took 16.19 s; 46 individuals failed
+PopulationAnnealing: Gen 131, evaluating iteration took 1.38 s
+PopulationStorage: saving 3 generations (up to generation 131) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.46 s
+PopulationAnnealing: Gen 132, previous step_size: 0.005, new step_size: 0.005
+PopulationAnnealing: Gen 132, yielding parameters for population size 200
+PopulationAnnealing: Gen 132, computing features for population size 98 took 16.68 s; 102 individuals failed
+PopulationAnnealing: Gen 133, yielding parameters for population size 200
+PopulationAnnealing: Gen 133, computing features for population size 150 took 16.94 s; 50 individuals failed
+PopulationAnnealing: Gen 134, yielding parameters for population size 200
+PopulationAnnealing: Gen 134, computing features for population size 167 took 17.43 s; 33 individuals failed
+PopulationAnnealing: Gen 134, evaluating iteration took 1.45 s
+PopulationStorage: saving 3 generations (up to generation 134) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 135, previous step_size: 0.005, new step_size: 0.004
+PopulationAnnealing: Gen 135, yielding parameters for population size 200
+PopulationAnnealing: Gen 135, computing features for population size 87 took 17.40 s; 113 individuals failed
+PopulationAnnealing: Gen 136, yielding parameters for population size 200
+PopulationAnnealing: Gen 136, computing features for population size 142 took 17.26 s; 58 individuals failed
+PopulationAnnealing: Gen 137, yielding parameters for population size 200
+PopulationAnnealing: Gen 137, computing features for population size 173 took 17.54 s; 27 individuals failed
+PopulationAnnealing: Gen 137, evaluating iteration took 1.36 s
+PopulationStorage: saving 3 generations (up to generation 137) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: Gen 138, previous step_size: 0.004, new step_size: 0.004
+PopulationAnnealing: Gen 138, yielding parameters for population size 200
+PopulationAnnealing: Gen 138, computing features for population size 100 took 16.62 s; 100 individuals failed
+PopulationAnnealing: Gen 139, yielding parameters for population size 200
+PopulationAnnealing: Gen 139, computing features for population size 153 took 16.21 s; 47 individuals failed
+PopulationAnnealing: Gen 140, yielding parameters for population size 200
+PopulationAnnealing: Gen 140, computing features for population size 168 took 16.22 s; 32 individuals failed
+PopulationAnnealing: Gen 140, evaluating iteration took 1.48 s
+PopulationStorage: saving 3 generations (up to generation 140) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.49 s
+PopulationAnnealing: Gen 141, previous step_size: 0.004, new step_size: 0.004
+PopulationAnnealing: Gen 141, yielding parameters for population size 200
+PopulationAnnealing: Gen 141, computing features for population size 96 took 16.53 s; 104 individuals failed
+PopulationAnnealing: Gen 142, yielding parameters for population size 200
+PopulationAnnealing: Gen 142, computing features for population size 161 took 16.52 s; 39 individuals failed
+PopulationAnnealing: Gen 143, yielding parameters for population size 200
+PopulationAnnealing: Gen 143, computing features for population size 165 took 16.28 s; 35 individuals failed
+PopulationAnnealing: Gen 143, evaluating iteration took 1.49 s
+PopulationStorage: saving 3 generations (up to generation 143) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.49 s
+PopulationAnnealing: Gen 144, previous step_size: 0.004, new step_size: 0.003
+PopulationAnnealing: Gen 144, yielding parameters for population size 200
+PopulationAnnealing: Gen 144, computing features for population size 111 took 16.55 s; 89 individuals failed
+PopulationAnnealing: Gen 145, yielding parameters for population size 200
+PopulationAnnealing: Gen 145, computing features for population size 149 took 16.48 s; 51 individuals failed
+PopulationAnnealing: Gen 146, yielding parameters for population size 200
+PopulationAnnealing: Gen 146, computing features for population size 156 took 16.25 s; 44 individuals failed
+PopulationAnnealing: Gen 146, evaluating iteration took 1.46 s
+PopulationStorage: saving 3 generations (up to generation 146) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.47 s
+PopulationAnnealing: Gen 147, previous step_size: 0.003, new step_size: 0.003
+PopulationAnnealing: Gen 147, yielding parameters for population size 200
+PopulationAnnealing: Gen 147, computing features for population size 95 took 16.37 s; 105 individuals failed
+PopulationAnnealing: Gen 148, yielding parameters for population size 200
+PopulationAnnealing: Gen 148, computing features for population size 145 took 16.75 s; 55 individuals failed
+PopulationAnnealing: Gen 149, yielding parameters for population size 200
+PopulationAnnealing: Gen 149, computing features for population size 162 took 16.55 s; 38 individuals failed
+PopulationAnnealing: Gen 149, evaluating iteration took 1.36 s
+PopulationStorage: saving 3 generations (up to generation 149) to file: /scratch1/06441/aaronmil/data/optimize_dentate_circuit_model/20211105_170351_dentate_optimization_1_No_Inh_PopulationAnnealing_optimization_history.hdf5 took 1.45 s
+PopulationAnnealing: 150 generations took 2617.50 s
+best model_id: 26702
+params:
+{'mean_weight;Output;Input': 0.06017929414544726}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.90625,
+ 'selectivity': 46.46875,
+ 'similarity': 0.5105779327206785,
+ 'sparsity': 46.46875}
+objectives:
+{'discriminability_loss': 256865.29712400492,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'selectivity_loss': 39589000.0,
+ 'sparsity_loss': 35864000.0}
+TACC:  Shutdown complete. Exiting. 

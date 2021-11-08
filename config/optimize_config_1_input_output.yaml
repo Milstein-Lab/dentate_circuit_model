@@ -1,5 +1,5 @@
-# python -i -m nested.analyze --config_file_path=config/optimize_config_1_Input_Output.yaml --framework=serial --plot --interactive
-# python -m nested.optimize --config-file-path=config/optimize_config_1_Input_Output.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -i -m nested.analyze --config-file-path=config/optimize_config_1_Input_Output.yaml --framework=serial --plot --interactive --disp
+# python -i -m nested.optimize --config-file-path=config/optimize_config_1_Input_Output.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 
 optimization_title: dentate_optimization_1
 
@@ -52,14 +52,13 @@ param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
     description: Input-Output-lognormal
-    init_weight_seed: 1234
-    num_instances: 5
+    weight_seed: 1234
     duration: 0.2 #sec
     dt: 0.001 #sec
     time_point: 0.2
     plot_patterns: False
-    fraction_active_patterns_threshold: 0.9
-    fraction_active_units_threshold: 0.9
+    fraction_active_patterns_threshold: 0.8
+    fraction_active_units_threshold: 0.8
 
     num_units_dict:
         Input: 7
