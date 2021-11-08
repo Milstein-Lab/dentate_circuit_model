@@ -298,7 +298,6 @@ def plot_cumulative_selectivity(selectivity_history_dict):
     cumulative_selectivity = []
     n_bins = 100
     cdf_prob_bins = np.arange(1., n_bins + 1.) / n_bins
-
     for model_seed in selectivity_history_dict:
         selectivity = selectivity_history_dict[model_seed]['Output']
 
@@ -349,49 +348,41 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
     #Middle row: activity heatmap for FF, FB, FF+FB
 
     #Bottom left: cumulative distribution for selectivity
-    mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict['FF_Inh'])
-    axes[2,0].plot(mean_selectivity, cdf_prob_bins, color='red', label='description')
-    error_min = mean_selectivity - SD
-    error_max = mean_selectivity + SD
-    axes[2,0].fill_betweenx(cdf_prob_bins, error_min, error_max,
-                      facecolor="gray",  # The fill color
-                      color='gray',  # The outline color
-                      alpha=0.2)  # Transparency of the fill
+    description_list = ['Input-Output-lognormal','FF_Inh']
 
-    axes[2,0].legend(loc='best')
+    for description in description_list:
+        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
+            selectivity_history_dict[description])
+        axes[2, 0].plot(mean_selectivity, cdf_prob_bins, label=description)
+        error_min = mean_selectivity - SD
+        error_max = mean_selectivity + SD
+        axes[2, 0].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2)
     axes[2,0].set_title('Selectivity')
     axes[2,0].set_xlabel('# active patterns per unit')
     axes[2,0].set_ylabel('cumulative probability')
 
     #Bottom middle: cumulative distribution for similarity
-    mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict['FF_Inh'])
-    axes[2,1].plot(mean_similarity, cdf_prob_bins, color='red', label='description')
-    error_min = mean_similarity - SD
-    error_max = mean_similarity + SD
-    axes[2,1].fill_betweenx(cdf_prob_bins, error_min, error_max,
-                      facecolor="gray",  # The fill color
-                      color='gray',  # The outline color
-                      alpha=0.2)  # Transparency of the fill
-    axes[2,1].legend(loc='best')
+    for description in description_list:
+        mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict[description])
+        axes[2,1].plot(mean_similarity, cdf_prob_bins, label=description)
+        error_min = mean_similarity - SD
+        error_max = mean_similarity + SD
+        axes[2,1].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2)
     axes[2,1].set_title('Pattern discriminability')
     axes[2,1].set_xlabel('cosine similarity')
     axes[2,1].set_ylabel('cumulative probability')
 
     #Bottom right: cumulative distribution for sparsity/fraction active
-    mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict['FF_Inh'])
-    axes[2,2].plot(mean_sparsity, cdf_prob_bins, color='red', label='description')
-    error_min = mean_sparsity - SD
-    error_max = mean_sparsity + SD
-    axes[2,2].fill_betweenx(cdf_prob_bins, error_min, error_max,
-                      facecolor="gray",  # The fill color
-                      color='gray',  # The outline color
-                      alpha=0.2)  # Transparency of the fill
+    for description in description_list:
+        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        axes[2,2].plot(mean_sparsity, cdf_prob_bins, label=description)
+        error_min = mean_sparsity - SD
+        error_max = mean_sparsity + SD
+        axes[2,2].fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2)
     axes[2,2].legend(loc='best')
     axes[2,2].set_title('Sparsity')
     axes[2,2].set_xlabel('# active units per pattern')
     axes[2,2].set_ylabel('cumulative probability')
-
-
 
     sns.despine()
     plt.show()
