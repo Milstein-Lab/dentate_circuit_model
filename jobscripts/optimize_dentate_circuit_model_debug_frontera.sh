@@ -1,7 +1,7 @@
 #!/bin/bash -l
 export DATE=$(date +%Y%m%d_%H%M%S)
 export LABEL="$2"
-export JOB_NAME=optimize_dentate_circuit_model_"$LABEL"_"$DATE"
+export JOB_NAME=optimize_dentate_circuit_model_debug_"$LABEL"_"$DATE"
 export CONFIG_FILE_PATH="$1"
 export SEED="$3"
 sbatch <<EOT
