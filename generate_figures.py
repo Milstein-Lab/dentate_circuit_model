@@ -1,7 +1,7 @@
 # from nested.analyze import PopulationStorage
 # storage = PopulationStorage()
 
-# python Figure1.py --data_file_path='data/20211104_000741_dentate_optimization_2_exported_output_slice.hdf5'
+# python generate_figures.py --data_file_path='data/20211104_000741_dentate_optimization_2_exported_output_slice.hdf5'
 
 import click
 import numpy as np
@@ -148,6 +148,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     # Top middle: simple input-output network diagram
     axes[0, 1].axis('off')
+
     # Top right: ideal output (identity matrix)
     num_output_units = num_units_history_dict['Input-Output-lognormal'][model_seed]['Output']
     im2 = axes[0, 2].imshow(np.eye(num_output_units), aspect='auto', cmap='viridis')
@@ -313,19 +314,41 @@ def plot_cumulative_selectivity(selectivity_history_dict):
 
     return mean_selectivity, cdf_prob_bins, SD
 
+
+def plot_cumulative_sparsity(sparsity_history_dict):
+    cumulative_sparsity = []
+    n_bins = 100
+    cdf_prob_bins = np.arange(1., n_bins + 1.) / n_bins
+
+    for model_seed in sparsity_history_dict:
+        sparsity = sparsity_history_dict[model_seed]['Output']
+
+        sparsity = np.sort(sparsity[:])
+        quantiles = [np.quantile(sparsity, pi) for pi in cdf_prob_bins]
+        cumulative_sparsity.append(quantiles)
+
+    cumulative_sparsity = np.array(cumulative_sparsity)
+    mean_sparsity = np.mean(cumulative_sparsity, axis=0)
+
+    SD = np.std(cumulative_sparsity, axis=0)
+    SEM = SD / np.sqrt(cumulative_sparsity.shape[0])
+
+    return  mean_sparsity, cdf_prob_bins, SD
+
+
 def plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 fraction_active_patterns_history_dict):
-    #Make 3x3 figure
-
-    #Top row: network diagrams for FF, FB, FF+FB
-
-    #Middle row: activity heatmap for FF, FB, FF+FB
-
-    #Bottom row: cumulative distributions for selectivity, similarity, fraction active
+                 sparsity_history_dict):
 
     fig, axes = plt.subplots(3, 3, figsize=(6, 6))
 
+    #Top row: network diagrams for FF, FB, FF+FB
+    axes[0,0].axis('off')
+    axes[0,1].axis('off')
+    axes[0,2].axis('off')
 
+    #Middle row: activity heatmap for FF, FB, FF+FB
+
+    #Bottom left: cumulative distribution for selectivity
     mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict['FF_Inh'])
     axes[2,0].plot(mean_selectivity, cdf_prob_bins, color='red', label='description')
     error_min = mean_selectivity - SD
@@ -336,11 +359,11 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
                       alpha=0.2)  # Transparency of the fill
 
     axes[2,0].legend(loc='best')
-    axes[2,0].set_title('Cumulative histograms')
-    axes[2,0].set_xlabel('selectivity')
-    axes[2,0].set_ylabel('probability')
+    axes[2,0].set_title('Selectivity')
+    axes[2,0].set_xlabel('# active patterns per unit')
+    axes[2,0].set_ylabel('cumulative probability')
 
-
+    #Bottom middle: cumulative distribution for similarity
     mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict['FF_Inh'])
     axes[2,1].plot(mean_similarity, cdf_prob_bins, color='red', label='description')
     error_min = mean_similarity - SD
@@ -350,9 +373,24 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
                       color='gray',  # The outline color
                       alpha=0.2)  # Transparency of the fill
     axes[2,1].legend(loc='best')
-    axes[2,1].set_title('Cumulative histograms')
+    axes[2,1].set_title('Pattern discriminability')
     axes[2,1].set_xlabel('cosine similarity')
-    axes[2,1].set_ylabel('probability')
+    axes[2,1].set_ylabel('cumulative probability')
+
+    #Bottom right: cumulative distribution for sparsity/fraction active
+    mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict['FF_Inh'])
+    axes[2,2].plot(mean_sparsity, cdf_prob_bins, color='red', label='description')
+    error_min = mean_sparsity - SD
+    error_max = mean_sparsity + SD
+    axes[2,2].fill_betweenx(cdf_prob_bins, error_min, error_max,
+                      facecolor="gray",  # The fill color
+                      color='gray',  # The outline color
+                      alpha=0.2)  # Transparency of the fill
+    axes[2,2].legend(loc='best')
+    axes[2,2].set_title('Sparsity')
+    axes[2,2].set_xlabel('# active units per pattern')
+    axes[2,2].set_ylabel('cumulative probability')
+
 
 
     sns.despine()
@@ -382,11 +420,11 @@ def main(data_file_path,model_seed):
 
     globals().update(locals())
 
-    # plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              weight_history_dict, network_activity_history_dict)
+    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 weight_history_dict, network_activity_history_dict)
 
     plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 fraction_active_patterns_history_dict)
+                 sparsity_history_dict)
 
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
     #                        selectivity_dict, description)
