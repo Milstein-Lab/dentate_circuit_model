@@ -185,11 +185,6 @@ def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, cell_scalar
     return d_cell_voltage_dt_array
 
 
-def get_d_syn_weights_dt_array(learn_scalar, pre_activity, post_activity, weights):
-    d_syn_weights_dt_array = (learn_scalar * pre_activity[:, None] * post_activity[:, None]) - (weights * post_activity[:, None])
-    return d_syn_weights_dt_array
-
-
 def get_d_conductance_dt_array(channel_conductance, pre_activity, rise_tau, decay_tau):
     d_conductance_dt_array = -channel_conductance / decay_tau + np.maximum(0., pre_activity[:, None] - channel_conductance) / rise_tau
     return d_conductance_dt_array
@@ -617,9 +612,18 @@ def slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t, time
         }
     """
     network_activity_dict = {}
-    t_index = np.where(t >= time_point)[0][0]
-    for population in network_activity_dynamics_dict:
-        network_activity_dict[population] = network_activity_dynamics_dict[population][:, :, t_index]
+
+    if type(time_point) == float:
+        t_index = np.where(t >= time_point)[0][0]
+        for population in network_activity_dynamics_dict:
+            network_activity_dict[population] = network_activity_dynamics_dict[population][:, :, t_index]
+    elif len(time_point)==2:
+        t_start = np.where(t >= time_point[0])[0][0]
+        t_end = np.where(t >= time_point[1])[0][0]
+        for population in network_activity_dynamics_dict:
+            network_activity_dict[population] = np.mean(network_activity_dynamics_dict[population][:, :, t_start:t_end], axis=2)
+    else:
+        raise AssertionError("time_point must be float or list of [start_time, end_time]")
 
     return network_activity_dict
 
@@ -1507,6 +1511,8 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
 
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
+
+    print('TEST: ',network_activity_dict['Output'].shape)
 
     sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
     fraction_active_units_dict = analyze_slice(network_activity_dict)

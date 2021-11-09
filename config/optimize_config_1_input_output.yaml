@@ -55,7 +55,9 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     weight_seed: 1234
     duration: 0.2 #sec
     dt: 0.001 #sec
-    time_point: 0.2
+    time_point: #specify either single float or list of start & end time to average
+        - 0.1
+        - 0.2
     plot_patterns: False
     fraction_active_patterns_threshold: 0.8
     fraction_active_units_threshold: 0.8

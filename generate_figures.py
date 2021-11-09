@@ -353,10 +353,10 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
     for description in description_list:
         mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
             selectivity_history_dict[description])
-        axes[2, 0].plot(mean_selectivity, cdf_prob_bins, label=description)
+        axes[2,0].plot(mean_selectivity, cdf_prob_bins, label=description)
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
-        axes[2, 0].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2)
+        axes[2,0].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2)
     axes[2,0].set_title('Selectivity')
     axes[2,0].set_xlabel('# active patterns per unit')
     axes[2,0].set_ylabel('cumulative probability')
@@ -383,6 +383,8 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
     axes[2,2].set_title('Sparsity')
     axes[2,2].set_xlabel('# active units per pattern')
     axes[2,2].set_ylabel('cumulative probability')
+
+
 
     sns.despine()
     plt.show()
@@ -411,8 +413,8 @@ def main(data_file_path,model_seed):
 
     globals().update(locals())
 
-    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 weight_history_dict, network_activity_history_dict)
+    # plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              weight_history_dict, network_activity_history_dict)
 
     plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict)
