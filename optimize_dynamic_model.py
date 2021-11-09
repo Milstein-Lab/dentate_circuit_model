@@ -1408,6 +1408,8 @@ def config_worker():
     # generate all possible binary input patterns with specified number units in the input layer
     sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True, plot=context.plot_patterns)
 
+    context.duration = float(context.duration)
+
     t = np.arange(0., context.duration + context.dt / 2., context.dt)
 
     if 'plot' not in context():

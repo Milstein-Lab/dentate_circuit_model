@@ -1,3 +1,6 @@
+# fraction_active_patterns_threshold = 0.9 for Output population only
+# fraction_active_units_threshold = 0.9 for Output population only
+# Problem: FB_Inh and FB_Exc populations rarely utilized
 6:
   mean_weight;FB_Exc;FB_Exc: 1.443218E-01
   mean_weight;FB_Exc;Output: 3.100901E-01
