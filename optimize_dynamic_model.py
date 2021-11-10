@@ -1538,9 +1538,13 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
-        export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
+        export_model_slice_data(context.export_file_path, context.description, weight_seed, model_config_dict,
                                 weight_dict, context.num_units_dict, context.activation_function_dict,
                                 context.weight_config_dict, network_activity_dict)
+
+        # export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
+        #                         weight_dict, context.num_units_dict, context.activation_function_dict,
+        #                         context.weight_config_dict, network_activity_dict)
 
         # export_dynamic_model_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
         #                           context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
