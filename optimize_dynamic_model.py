@@ -1602,7 +1602,8 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
                            'sparsity': [],
                            'similarity': [],
                            'selectivity': [],
-                           'fraction_active_patterns': []}
+                           'fraction_active_patterns': [],
+                           'fraction_active_units': []}
 
     for orig_features_dict in features_dict_list:
         sparsity_errors = (context.target_val['sparsity'] -
