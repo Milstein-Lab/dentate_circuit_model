@@ -1,6 +1,8 @@
 # python -i -m nested.analyze --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
 # python -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 # mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
+#python -m nested.analyze --config_file_path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --param-file-path=config/20211102_model_params.yaml --model-key=5 --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+#python -m nested.analyze --config_file_path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
 
 optimization_title: dentate_optimization_5
 
