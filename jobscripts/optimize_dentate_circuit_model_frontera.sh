@@ -12,7 +12,7 @@ sbatch <<EOT
 #SBATCH -p normal
 #SBATCH -N 4
 #SBATCH -n 224
-#SBATCH -t 6:00:00
+#SBATCH -t 10:00:00
 #SBATCH --mail-user=neurosutras@gmail.com
 #SBATCH --mail-type=BEGIN,END,FAIL
 
