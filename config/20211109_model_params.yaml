@@ -1,0 +1,66 @@
+# fraction_active_patterns_threshold = 0.8 for all populations
+# fraction_active_units_threshold = 0.8 for all populations
+# Problem: dynamics not at equilibrium during final time point
+# Problem: some weights reach upper bound
+0:
+  mean_weight;Output;Input: 6.171700E-02
+1:
+  mean_weight;Output;Input: 5.020898E-02
+2:
+  mean_weight;FF_Inh;Input: 1.283240E-01
+  # at upper bound
+  mean_weight;Output;FF_Inh: 9.984920E-01
+  mean_weight;Output;Input: 1.285938E-01
+3:
+  mean_weight;FB_Inh;Output: 7.982788E-01
+  # way too low
+  mean_weight;Output;FB_Inh: 9.592090E-05
+  mean_weight;Output;Input: 5.030388E-02
+4:
+  mean_weight;FB_Inh;Output: 9.965448E-02
+  mean_weight;FF_Inh;Input: 1.141348E-01
+  # way too low
+  mean_weight;Output;FB_Inh: 4.341662E-04
+  # at upper bound
+  mean_weight;Output;FF_Inh: 9.995425E-01
+  mean_weight;Output;Input: 1.214270E-01
+5:
+  mean_weight;FB_Exc;FB_Exc: 6.112605E-01
+  mean_weight;FB_Exc;Output: 4.848149E-02
+  mean_weight;FB_Inh;FB_Exc: 7.891610E-01
+  mean_weight;FF_Inh;Input: 3.499864E-01
+  mean_weight;Output;FB_Inh: 9.035189E-01
+  mean_weight;Output;FF_Inh: 9.651658E-02
+  mean_weight;Output;Input: 1.856155E-01
+5b:
+  mean_weight;FB_Exc;FB_Exc: 6.532733E-01
+  mean_weight;FB_Exc;FB_Inh: 2.403087E-01
+  mean_weight;FB_Exc;Output: 1.154173E-01
+  mean_weight;FB_Inh;FB_Exc: 8.026988E-01
+  mean_weight;FF_Inh;Input: 6.997994E-02
+  # at upper bound
+  mean_weight;Output;FB_Inh: 9.949132E-01
+  mean_weight;Output;FF_Inh: 6.340851E-01
+  mean_weight;Output;Input: 1.316567E-01
+6:
+  mean_weight;FB_Exc;FB_Exc: 2.510075E-01
+  mean_weight;FB_Exc;Output: 9.737222E-01
+  mean_weight;FB_Inh;FB_Exc: 5.444528E-01
+  mean_weight;FF_Inh;Input: 1.226289E-01
+  mean_weight;Output;FB_Exc: 3.997258E-02
+  mean_weight;Output;FB_Inh: 2.313060E-02
+  # at upper bound
+  mean_weight;Output;FF_Inh: 9.925202E-01
+  mean_weight;Output;Input: 7.741881E-02
+6b:
+  mean_weight;FB_Exc;FB_Exc: 1.464237E-01
+  mean_weight;FB_Exc;FB_Inh: 4.762966E-01
+  # at upper bound
+  mean_weight;FB_Exc;Output: 9.988676E-01
+  # at upper bound
+  mean_weight;FB_Inh;FB_Exc: 9.999002E-01
+  mean_weight;FF_Inh;Input: 6.480794E-01
+  mean_weight;Output;FB_Exc: 6.525811E-01
+  mean_weight;Output;FB_Inh: 7.452665E-01
+  mean_weight;Output;FF_Inh: 8.687763E-01
+  mean_weight;Output;Input: 1.888760E-01

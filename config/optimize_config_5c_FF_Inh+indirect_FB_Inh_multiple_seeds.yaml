@@ -1,17 +1,14 @@
-# python -i -m nested.analyze --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
-# python -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
-# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
-#python -m nested.analyze --config_file_path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --param-file-path=config/20211102_model_params.yaml --model-key=5 --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
-#python -m nested.analyze --config_file_path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+# python -i -m nested.analyze --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
+# python -m nested.optimize --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
 
-optimization_title: dentate_optimization_5
+optimization_title: dentate_optimization_5c
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
     - mean_weight;FF_Inh;Input
     - mean_weight;Output;FF_Inh
     - mean_weight;FB_Exc;Output
-    - mean_weight;FB_Exc;FB_Exc
     - mean_weight;FB_Inh;FB_Exc
     - mean_weight;Output;FB_Inh
 
@@ -26,9 +23,6 @@ bounds:
         - 0.01
         - 2.
     mean_weight;FB_Exc;Output: !!python/tuple
-        - 0.01
-        - 2.
-    mean_weight;FB_Exc;FB_Exc: !!python/tuple
         - 0.01
         - 2.
     mean_weight;FB_Inh;FB_Exc: !!python/tuple
@@ -80,14 +74,13 @@ x0: #initial parameters
     mean_weight;FF_Inh;Input: 0.5
     mean_weight;Output;FF_Inh: 0.5
     mean_weight;FB_Exc;Output: 0.5
-    mean_weight;FB_Exc;FB_Exc: 0.5
     mean_weight;FB_Inh;FB_Exc: 0.5
     mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: FF_Inh+indirect_FB_Inh
+    description: FF_Inh+indirect_FB_Inh_c
     init_weight_seed: 1234
     num_instances: 5
     duration: 0.35 #sec
@@ -156,10 +149,6 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: log-normal
                 mean_magnitude: 0.2
                 connection_type: exc
-            FB_Exc:
-                dist_type: log-normal
-                mean_magnitude: 0.2
-                connection_type: exc
         FB_Inh:
             FB_Exc:
                 dist_type: uniform
@@ -189,9 +178,6 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 decay: 0.01
         FB_Exc:
             Output:
-                rise: 0.001
-                decay: 0.01
-            FB_Exc:
                 rise: 0.001
                 decay: 0.01
         FB_Inh:

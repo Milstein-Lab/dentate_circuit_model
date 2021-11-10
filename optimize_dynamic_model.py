@@ -613,17 +613,19 @@ def slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t, time
     """
     network_activity_dict = {}
 
-    if type(time_point) == float:
-        t_index = np.where(t >= time_point)[0][0]
+    if isinstance(time_point, (tuple, list)) and len(time_point) == 2:
+        t_start_index = np.where(t >= time_point[0])[0][0]
+        t_end_index = np.where(t >= time_point[1])[0][0]
+        for population in network_activity_dynamics_dict:
+            network_activity_dict[population] = \
+                np.mean(network_activity_dynamics_dict[population][:, :, t_start_index:t_end_index], axis=2)
+    elif isinstance(time_point, (str, int, float)):
+        time_point = max(float(time_point), t[-1])
+        t_index = np.where(t >= float(time_point))[0][0]
         for population in network_activity_dynamics_dict:
             network_activity_dict[population] = network_activity_dynamics_dict[population][:, :, t_index]
-    elif len(time_point)==2:
-        t_start = np.where(t >= time_point[0])[0][0]
-        t_end = np.where(t >= time_point[1])[0][0]
-        for population in network_activity_dynamics_dict:
-            network_activity_dict[population] = np.mean(network_activity_dynamics_dict[population][:, :, t_start:t_end], axis=2)
     else:
-        raise AssertionError("time_point must be float or list of [start_time, end_time]")
+        raise AssertionError('time_point must be float or length 2 list or tuple')
 
     return network_activity_dict
 
@@ -1412,6 +1414,8 @@ def config_worker():
     # generate all possible binary input patterns with specified number units in the input layer
     sorted_input_patterns = get_binary_input_patterns(num_input_units, sort=True, plot=context.plot_patterns)
 
+    context.duration = float(context.duration)
+
     t = np.arange(0., context.duration + context.dt / 2., context.dt)
 
     if 'plot' not in context():
@@ -1459,19 +1463,24 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
                                orig_features_dict['similarity_array'])/context.target_range['similarity']
     selectivity_errors = (context.target_val['selectivity'] -
                           orig_features_dict['selectivity_array'])/context.target_range['selectivity']
-    fraction_active_error = (context.target_val['fraction_active_patterns'] -
+    fraction_active_patterns_error = (context.target_val['fraction_active_patterns'] -
                               orig_features_dict['fraction_active_patterns']) / \
                             context.target_range['fraction_active_patterns']
+    fraction_active_units_error = (context.target_val['fraction_active_units'] -
+                             orig_features_dict['fraction_active_units']) / \
+                            context.target_range['fraction_active_units']
 
     objectives_dict = {'sparsity_loss': np.sum(sparsity_errors**2),
                        'discriminability_loss': np.nansum(discriminability_errors**2),
                        'selectivity_loss': np.sum(selectivity_errors**2),
-                       'fraction_active_patterns_loss': fraction_active_error**2}
+                       'fraction_active_patterns_loss': fraction_active_patterns_error**2,
+                       'fraction_active_units_loss': fraction_active_units_error**2}
 
     summary_features_dict = {'sparsity': np.mean(orig_features_dict['sparsity_array']),
                              'similarity': np.nanmean(orig_features_dict['similarity_array']),
                              'selectivity': np.mean(orig_features_dict['selectivity_array']),
-                             'fraction_active_patterns': orig_features_dict['fraction_active_patterns']}
+                             'fraction_active_patterns': orig_features_dict['fraction_active_patterns'],
+                             'fraction_active_units': orig_features_dict['fraction_active_units']}
 
     return summary_features_dict, objectives_dict
 
@@ -1593,6 +1602,7 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
                            'discriminability_loss': [],
                            'selectivity_loss': [],
                            'fraction_active_patterns_loss': [],
+                           'fraction_active_units_loss': [],
                            'sparsity': [],
                            'similarity': [],
                            'selectivity': [],
@@ -1605,18 +1615,23 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
                                    orig_features_dict['similarity_array']) / context.target_range['similarity']
         selectivity_errors = (context.target_val['selectivity'] -
                               orig_features_dict['selectivity_array']) / context.target_range['selectivity']
-        fraction_active_error = (context.target_val['fraction_active_patterns'] -
+        fraction_active_patterns_error = (context.target_val['fraction_active_patterns'] -
                                  orig_features_dict['fraction_active_patterns']) / \
                                 context.target_range['fraction_active_patterns']
+        fraction_active_units_error = (context.target_val['fraction_active_units'] -
+                                          orig_features_dict['fraction_active_units']) / \
+                                         context.target_range['fraction_active_units']
 
         final_features_dict['sparsity_loss'].append(np.sum(sparsity_errors ** 2))
         final_features_dict['discriminability_loss'].append(np.nansum(discriminability_errors ** 2))
         final_features_dict['selectivity_loss'].append(np.sum(selectivity_errors ** 2))
-        final_features_dict['fraction_active_patterns_loss'].append(fraction_active_error ** 2)
+        final_features_dict['fraction_active_patterns_loss'].append(fraction_active_patterns_error ** 2)
+        final_features_dict['fraction_active_units_loss'].append(fraction_active_units_error ** 2)
         final_features_dict['sparsity'].append(np.mean(orig_features_dict['sparsity_array']))
         final_features_dict['similarity'].append(np.nanmean(orig_features_dict['similarity_array']))
         final_features_dict['selectivity'].append(np.mean(orig_features_dict['selectivity_array']))
         final_features_dict['fraction_active_patterns'].append(orig_features_dict['fraction_active_patterns'])
+        final_features_dict['fraction_active_units'].append(orig_features_dict['fraction_active_units'])
 
     if context.debug:
         print(final_features_dict)
