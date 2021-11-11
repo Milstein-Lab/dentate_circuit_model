@@ -9,7 +9,7 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
 bounds:
     mean_weight;Output;Input: !!python/tuple
         - 0.01
-        - 2.
+        - 3.
 
 feature_names:
     - sparsity
