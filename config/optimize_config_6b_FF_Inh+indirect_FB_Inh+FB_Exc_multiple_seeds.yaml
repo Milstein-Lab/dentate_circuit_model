@@ -105,7 +105,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
         - 0.15
         - 0.35
     plot_patterns: False
-    fraction_active_patterns_threshold: 0.8
+    fraction_active_patterns_threshold: 0.6
     fraction_active_units_threshold: 0.8
 
     num_units_dict:
