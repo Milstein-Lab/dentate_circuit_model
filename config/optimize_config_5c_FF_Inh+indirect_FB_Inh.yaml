@@ -1,19 +1,31 @@
-# python -i -m nested.analyze --config-file-path=config/optimize_config_3_FB_Inh.yaml --disp --plot --interactive --framework=serial
-# python -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
-# mpirun -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=3 --disp --framework=mpi
+# python -i -m nested.analyze --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
+# python -m nested.optimize --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# mpirun -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh.yaml --path_length=2 --max_iter=2 --pop_size=3 --disp --framework=mpi
 
-optimization_title: dentate_optimization_3
+optimization_title: dentate_optimization_5c
 
 param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
     - mean_weight;Output;Input
-    - mean_weight;FB_Inh;Output
+    - mean_weight;FF_Inh;Input
+    - mean_weight;Output;FF_Inh
+    - mean_weight;FB_Exc;Output
+    - mean_weight;FB_Inh;FB_Exc
     - mean_weight;Output;FB_Inh
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
         - 0.01
         - 3.
-    mean_weight;FB_Inh;Output: !!python/tuple
+    mean_weight;FF_Inh;Input: !!python/tuple
+        - 0.01
+        - 3.
+    mean_weight;Output;FF_Inh: !!python/tuple
+        - 0.01
+        - 3.
+    mean_weight;FB_Exc;Output: !!python/tuple
+        - 0.01
+        - 3.
+    mean_weight;FB_Inh;FB_Exc: !!python/tuple
         - 0.01
         - 3.
     mean_weight;Output;FB_Inh: !!python/tuple
@@ -57,13 +69,16 @@ target_range: #scaling factor to determine sensitivity of each objective
 
 x0: #initial parameters
     mean_weight;Output;Input: 0.5
-    mean_weight;FB_Inh;Output: 0.5
+    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
+    mean_weight;FB_Exc;Output: 0.5
+    mean_weight;FB_Inh;FB_Exc: 0.5
     mean_weight;Output;FB_Inh: 0.5
 
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: FB_Inh
+    description: FF_Inh+indirect_FB_Inh_c
     weight_seed: 1234
     duration: 0.35 #sec
     dt: 0.001 #sec
@@ -77,7 +92,9 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     num_units_dict:
         Input: 7
         Output: 128
+        FF_Inh: 7
         FB_Inh: 7
+        FB_Exc: 7
 
     activation_function_dict:
         Output:
@@ -86,7 +103,19 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 peak_output: 1.
                 peak_input: 60.
                 threshold: 10.
+        FF_Inh:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
         FB_Inh:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+        FB_Exc:
             Name: piecewise_linear_activation
             Arguments:
                 peak_output: 1.
@@ -99,30 +128,57 @@ kwargs: #All these will become will become dictionaries in Context() once nested
                 dist_type: log-normal
                 mean_magnitude: 0.5
                 connection_type: exc
+            FF_Inh:
+                dist_type: uniform
+                mean_magnitude: 0.5
+                connection_type: inh
             FB_Inh:
                 dist_type: uniform
                 mean_magnitude: 0.5
                 connection_type: inh
-        FB_Inh:
+        FF_Inh:
+            Input:
+                dist_type: uniform
+                mean_magnitude: 0.2
+                connection_type: exc
+        FB_Exc:
             Output:
+                dist_type: log-normal
+                mean_magnitude: 0.2
+                connection_type: exc
+        FB_Inh:
+            FB_Exc:
                 dist_type: uniform
                 mean_magnitude: 0.2
                 connection_type: exc
 
     cell_tau_dict:
         Output: 0.05
+        FF_Inh: 0.02
         FB_Inh: 0.02
+        FB_Exc: 0.05
 
     synapse_tau_dict:
         Output:
             Input:
                 rise: 0.001
                 decay: 0.01
+            FF_Inh:
+                rise: 0.001
+                decay: 0.02
             FB_Inh:
                 rise: 0.001
                 decay: 0.02
-        FB_Inh:
+        FF_Inh:
+            Input:
+                rise: 0.001
+                decay: 0.01
+        FB_Exc:
             Output:
+                rise: 0.001
+                decay: 0.01
+        FB_Inh:
+            FB_Exc:
                 rise: 0.001
                 decay: 0.01
 

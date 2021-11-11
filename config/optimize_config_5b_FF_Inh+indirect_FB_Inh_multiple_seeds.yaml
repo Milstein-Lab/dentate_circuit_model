@@ -1,6 +1,7 @@
 # python -i -m nested.analyze --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh.yaml --disp --plot --interactive --framework=serial
 # python -m nested.optimize --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
 # mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --disp --framework=mpi --export
+#python -m nested.analyze --config_file_path=config/optimize_config_5b_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
 
 optimization_title: dentate_optimization_5b
 
@@ -16,29 +17,29 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
 
 bounds:
     mean_weight;Output;Input: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;FF_Inh;Input: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;Output;FF_Inh: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;FB_Exc;Output: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;FB_Exc;FB_Exc: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;FB_Exc;FB_Inh: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;FB_Inh;FB_Exc: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
     mean_weight;Output;FB_Inh: !!python/tuple
-        - 0.
-        - 1.
+        - 0.01
+        - 3.
 
 feature_names:
     - sparsity
@@ -58,6 +59,7 @@ objective_names: #loss/error values to minimize
     - discriminability_loss
     - selectivity_loss
     - fraction_active_patterns_loss
+    - fraction_active_units_loss
 
 get_objectives:
     optimize_dynamic_model: get_objectives_multiple_instances
@@ -67,12 +69,14 @@ target_val:
     similarity: 0. # target cosine similarity for each pair of patterns
     selectivity: 1. # number of nonzero patters for each unit
     fraction_active_patterns: 1. # fraction of patterns with any nonzero output activity
+    fraction_active_units: 1. # fraction of output units with any nonzero activity
 
 target_range: #scaling factor to determine sensitivity of each objective
     sparsity: 0.1
     similarity: 0.1
     selectivity: 0.1
     fraction_active_patterns: 0.001
+    fraction_active_units: 0.001
 
 x0: #initial parameters
     mean_weight;Output;Input: 0.5
@@ -90,11 +94,13 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     description: FF_Inh+indirect_FB_Inh_b
     init_weight_seed: 1234
     num_instances: 5
-    duration: 0.2 #sec
+    duration: 0.35 #sec
     dt: 0.001 #sec
-    time_point: 0.2
+    time_point: !!python/tuple
+        - 0.15
+        - 0.35
     plot_patterns: False
-    fraction_active_patterns_threshold: 0.8
+    fraction_active_patterns_threshold: 0.6
     fraction_active_units_threshold: 0.8
 
     num_units_dict:
