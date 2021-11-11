@@ -140,4 +140,3 @@ def plot_model_summary(network_activity_dict, similarity_matrix_dict, model_seed
         fig.suptitle(model_seed)
     fig.tight_layout(w_pad=3, h_pad=3, rect=(0., 0., 1., 0.98))
     fig.show()
-

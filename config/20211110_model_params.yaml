@@ -1,0 +1,7 @@
+# fraction_active_patterns_threshold = 0.8 for all populations
+# fraction_active_units_threshold = 0.8 for all populations
+# Sim duration = 0.35 s, activity computed as mean in range 0.15 - 0.35 s
+# Weight bounds 0.01 - 2.
+# Added separate objective for fraction_active_units (Output population)
+0:
+  mean_weight;Output;Input: 1.113028E-01

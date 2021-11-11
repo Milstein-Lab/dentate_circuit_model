@@ -22,6 +22,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 from scipy.integrate import solve_ivp
 from nested.utils import read_from_yaml, Context, param_array_to_dict
+from distutils.util import strtobool
 import os, time
 
 import warnings
@@ -171,17 +172,17 @@ def get_d_syn_current_dt_array(syn_current, pre_activity, weights, synapse_tau, 
     return d_syn_current_dt_array
 
 
-def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, cell_scalar=1.):
+def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, input_resistance=1.):
     """
     Computes the rates of change of cellular voltage in all units of a single population. Initial cell voltages are
     provided as a 1D array. The summed initial synaptic currents are provided as a 1D array.
     :param cell_voltage: array of float (num units in population)
     :param net_current: array of float (num units in population)
     :param cell_tau: float (seconds)
-    :param cell_scalar: float
+    :param input_resistance: float
     :return: array of float (num units in population)
     """
-    d_cell_voltage_dt_array = (-cell_voltage + cell_scalar * net_current) / cell_tau
+    d_cell_voltage_dt_array = (-cell_voltage + input_resistance * net_current) / cell_tau
     return d_cell_voltage_dt_array
 
 
@@ -1138,7 +1139,6 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
                            'model configuration)')
 
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
-    export_file_path = export_file_path[:-5] + "_slice.hdf5"
     with h5py.File(export_file_path, 'a') as f:
         if description in f:
             model_group = f[description]
@@ -1424,6 +1424,16 @@ def config_worker():
     if 'debug' not in context():
         context.debug = False
 
+    if 'export_dynamics' not in context():
+        context.export_dynamics = False
+    elif isinstance(context.export_dynamics, str):
+        context.export_dynamics = bool(strtobool(context.export_dynamics))
+
+    if 'allow_fail' not in context():
+        context.allow_fail = True
+    elif isinstance(context.allow_fail, str):
+        context.allow_fail = bool(strtobool(context.allow_fail))
+
     context.update(locals())
 
 
@@ -1538,15 +1548,17 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         model_config_dict = {'duration': context.duration,
                              'dt': context.dt}
 
-        export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
-                                weight_dict, context.num_units_dict, context.activation_function_dict,
-                                context.weight_config_dict, network_activity_dict)
-
-        # export_dynamic_model_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
-        #                           context.num_units_dict, context.activation_function_dict, context.weight_config_dict,
-        #                           weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
-        #                           channel_conductance_dynamics_dict, net_current_dynamics_dict,
-        #                           cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+        if context.export_dynamics:
+            export_dynamic_model_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
+                                      context.num_units_dict, context.activation_function_dict,
+                                      context.weight_config_dict,
+                                      weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
+                                      channel_conductance_dynamics_dict, net_current_dynamics_dict,
+                                      cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+        else:
+            export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
+                                    weight_dict, context.num_units_dict, context.activation_function_dict,
+                                    context.weight_config_dict, network_activity_dict)
 
     if context.plot:
         plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
@@ -1568,19 +1580,20 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         sys.stdout.flush()
         context.update(locals())
 
-    for pop_name in fraction_active_units_dict:
-        if fraction_active_patterns_dict[pop_name] < context.fraction_active_patterns_threshold:
-            print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
-                  ' fraction_active_patterns criterion' % (os.getpid(), model_id, context.description, weight_seed,
-                                                           pop_name))
-            sys.stdout.flush()
-            return dict()
-        if fraction_active_units_dict[pop_name] < context.fraction_active_units_threshold:
-            print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
-                  ' fraction_active_units criterion'  % (os.getpid(), model_id, context.description, weight_seed,
-                                                           pop_name))
-            sys.stdout.flush()
-            return dict()
+    if context.allow_fail:
+        for pop_name in fraction_active_units_dict:
+            if fraction_active_patterns_dict[pop_name] < context.fraction_active_patterns_threshold:
+                print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                      ' fraction_active_patterns criterion' % (os.getpid(), model_id, context.description, weight_seed,
+                                                               pop_name))
+                sys.stdout.flush()
+                return dict()
+            if fraction_active_units_dict[pop_name] < context.fraction_active_units_threshold:
+                print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                      ' fraction_active_units criterion'  % (os.getpid(), model_id, context.description, weight_seed,
+                                                               pop_name))
+                sys.stdout.flush()
+                return dict()
 
     return orig_features_dict
 
@@ -1602,7 +1615,8 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
                            'sparsity': [],
                            'similarity': [],
                            'selectivity': [],
-                           'fraction_active_patterns': []}
+                           'fraction_active_patterns': [],
+                           'fraction_active_units': []}
 
     for orig_features_dict in features_dict_list:
         sparsity_errors = (context.target_val['sparsity'] -
