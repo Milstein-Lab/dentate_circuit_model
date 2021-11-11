@@ -172,17 +172,17 @@ def get_d_syn_current_dt_array(syn_current, pre_activity, weights, synapse_tau, 
     return d_syn_current_dt_array
 
 
-def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, cell_scalar=1.):
+def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, input_resistance=1.):
     """
     Computes the rates of change of cellular voltage in all units of a single population. Initial cell voltages are
     provided as a 1D array. The summed initial synaptic currents are provided as a 1D array.
     :param cell_voltage: array of float (num units in population)
     :param net_current: array of float (num units in population)
     :param cell_tau: float (seconds)
-    :param cell_scalar: float
+    :param input_resistance: float
     :return: array of float (num units in population)
     """
-    d_cell_voltage_dt_array = (-cell_voltage + cell_scalar * net_current) / cell_tau
+    d_cell_voltage_dt_array = (-cell_voltage + input_resistance * net_current) / cell_tau
     return d_cell_voltage_dt_array
 
 
