@@ -190,11 +190,14 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     cbar = plt.colorbar(im5, ax=axes[1, 1])
 
     # Middle right: output activity log-normal
-    output_activity_lognormal_dict = network_activity_history_dict['Input-Output-lognormal'][model_seed]['Output']
-    im6 = axes[1, 2].imshow(output_activity_lognormal_dict.transpose(), aspect = 'auto', cmap='viridis')
+    output_activity_lognormal = network_activity_history_dict['Input-Output-lognormal'][model_seed]['Output']
+    output_activity_lognormal = output_activity_lognormal.transpose()
+    argmax_indices = np.argmax(output_activity_lognormal, axis=1) #sort output units according to argmax
+    sorted_indices = np.argsort(argmax_indices)
+    im6 = axes[1, 2].imshow(output_activity_lognormal[sorted_indices,:], aspect = 'auto', cmap='binary')
     axes[1, 2].set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
     axes[1, 2].set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
-    axes[1, 2].set_xlabel('Output Pattern ID')
+    axes[1, 2].set_xlabel('Pattern ID')
     axes[1, 2].set_ylabel('Output Unit ID')
     axes[1, 2].set_title('Output Activity (log-normal)')
     cbar = plt.colorbar(im6, ax=axes[1, 2])
@@ -264,7 +267,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     plt.show()
     # plt.savefig(data/fig1.png, edgecolor='black', dpi=400, facecolor='black', transparent=True)
 
-    #TODO: 2)edit top-left 3)save fig1 & edit dimensions/spacing etc
+    #TODO: 2)edit top-left 3)save fig1 & edit dimensions/spacing etc, model seed error in Fig 2
 
 def plot_cumulative_similarity(similarity_matrix_history_dict):
     cumulative_similarity = []
@@ -345,7 +348,40 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
     axes[0,1].axis('off')
     axes[0,2].axis('off')
 
-    #Middle row: activity heatmap for FF, FB, FF+FB
+    #Middle left: activity heatmap for FF
+    num_output_units_FF = num_units_history_dict['FF_Inh']['seed:1234']['Output']
+    output_activity_FF_Inh = network_activity_history_dict['FF_Inh']['seed:1234']['Output']
+    argmax_indices = np.argmax(output_activity_FF_Inh, axis=1)
+    sorted_indices = np.argsort(argmax_indices)
+    im7 = axes[1, 0].imshow(output_activity_FF_Inh.transpose()[sorted_indices,:], aspect = 'auto', cmap='binary')
+    axes[1, 0].set_xticks(np.arange(0, num_output_units_FF+1, num_output_units_FF / 4))
+    axes[1, 0].set_yticks(np.arange(0, num_output_units_FF + 1, num_output_units_FF / 4))
+    axes[1, 0].set_xlabel('Pattern ID')
+    axes[1, 0].set_ylabel('Output Unit ID')
+    axes[1, 0].set_title('FF Inhibition Output Activity')
+    cbar = plt.colorbar(im7, ax=axes[1, 0])
+
+    #Middle middle: activity heatmap for FB
+    num_output_units_FB = num_units_history_dict['FB_Inh']['seed:1234']['Output']
+    output_activity_FB_Inh_dict = network_activity_history_dict['FB_Inh']['seed:1234']['Output']
+    im8 = axes[1, 1].imshow(output_activity_FB_Inh_dict.transpose(), aspect = 'auto', cmap='viridis')
+    axes[1, 1].set_xticks(np.arange(0, num_output_units_FB+1, num_output_units_FB / 4))
+    axes[1, 1].set_yticks(np.arange(0, num_output_units_FB + 1, num_output_units_FB / 4))
+    axes[1, 1].set_xlabel('Output Pattern ID')
+    axes[1, 1].set_ylabel('Output Unit ID')
+    axes[1, 1].set_title('FB Inhibition Output Activity')
+    cbar = plt.colorbar(im8, ax=axes[1, 1])
+
+    #Middle right: activity heatmap for FF+FB
+    num_output_units_FF_FB = num_units_history_dict['FF+FB_Inh']['seed:1234']['Output']
+    output_activity_FF_FB_Inh_dict = network_activity_history_dict['FF+FB_Inh']['seed:1234']['Output']
+    im9 = axes[1, 2].imshow(output_activity_FF_FB_Inh_dict.transpose(), aspect = 'auto', cmap='viridis')
+    axes[1, 2].set_xticks(np.arange(0, num_output_units_FF_FB+1, num_output_units_FF_FB / 4))
+    axes[1, 2].set_yticks(np.arange(0, num_output_units_FF_FB + 1, num_output_units_FF_FB / 4))
+    axes[1, 2].set_xlabel('Output Pattern ID')
+    axes[1, 2].set_ylabel('Output Unit ID')
+    axes[1, 2].set_title('FF+FB Output Activity')
+    cbar = plt.colorbar(im9, ax=axes[1, 2])
 
     #Bottom left: cumulative distribution for selectivity
     description_list = ['Input-Output-lognormal','FF_Inh']
@@ -384,7 +420,7 @@ def plot_figure2(network_activity_history_dict, selectivity_history_dict, simila
     axes[2,2].set_xlabel('# active units per pattern')
     axes[2,2].set_ylabel('cumulative probability')
 
-
+    fig.tight_layout(w_pad=1.0, h_pad=2.0, rect=(0., 0., 1., 0.98))
 
     sns.despine()
     plt.show()
@@ -413,8 +449,8 @@ def main(data_file_path,model_seed):
 
     globals().update(locals())
 
-    # plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              weight_history_dict, network_activity_history_dict)
+    plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                  weight_history_dict, network_activity_history_dict)
 
     plot_figure2(network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict)
