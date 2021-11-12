@@ -93,7 +93,7 @@ x0: #initial parameters
 param_gen: PopulationAnnealing
 
 kwargs: #All these will become will become dictionaries in Context() once nested.optimize is called
-    description: FF_Inh+indirect_FB_inh+FB_Exc(b)
+    description: FF_Inh+indirect_FB_Inh+FB_Exc_b
     weight_seed: 1234
     duration: 0.35 #sec
     dt: 0.001 #sec
