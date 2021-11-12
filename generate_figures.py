@@ -209,7 +209,8 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     mm = 1 / 25.4  # millimeters in inches
     fig = plt.figure(figsize=(180 * mm, 200 * mm))
-    axes = gs.GridSpec(4,6,left=0.08,right=0.98,
+    axes = gs.GridSpec(nrows=4, ncols=6,
+                       left=0.08,right=0.98,
                        top = 0.96, bottom = 0.06,
                        wspace=1, hspace=0.6)
 
@@ -223,9 +224,6 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.set_ylabel('input unit ID')
     ax.set_title('Input Patterns')
     cbar = plt.colorbar(im1, ax=ax)
-
-    # # Top middle: simple input-output network diagram
-    # axes[0, 1].axis('off')
 
     # # Top right: ideal output (identity matrix)
     ax = fig.add_subplot(axes[0,4:6])
@@ -351,143 +349,198 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.set_xlabel('frac. active patterns per unit')
     ax.set_ylabel('cumulative probability')
 
-    # #Bottom middle: cumulative distribution for similarity
-    # ax = fig.add_subplot(axes[3, 3:6])
-    # for description in description_list:
-    #     mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict[description])
-    #     ax.plot(mean_similarity, cdf_prob_bins, label=description,color=color_dict[description])
-    #     error_min = mean_similarity - SD
-    #     error_max = mean_similarity + SD
-    #     ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.4,color=color_dict[description])
-    # ax.set_title('Pattern discriminability')
-    # ax.set_xlabel('cosine similarity')
-    # ax.set_ylabel('cumulative probability')
-
-    # # # Middle2 right: discriminability (cosine similarity)
-    # # output_similarity_lognormal = similarity_matrix_history_dict['Input-Output-lognormal'][model_seed]['Output']
-    # # output_similarity_uniform = similarity_matrix_history_dict['Input-Output-uniform'][model_seed]['Output']
-    # # bin_width = 0.05
-    # # invalid_indexes_lognormal = np.isnan(output_similarity_lognormal)
-    # # hist, edges = np.histogram(output_similarity_lognormal[~invalid_indexes_lognormal],
-    # #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-    # # axes[2, 2].plot(edges[:-1] + bin_width / 2., hist * bin_width,label='log-normal',
-    # #                 color=color_dict['Input-Output-lognormal'])
-    # #
-    # # invalid_indexes_uniform = np.isnan(output_similarity_uniform)
-    # # hist, edges = np.histogram(output_similarity_uniform[~invalid_indexes_uniform],
-    # #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-    # # axes[2, 2].plot(edges[:-1] + bin_width / 2., hist * bin_width,label='uniform',
-    # #                 color=color_dict['Input-Output-uniform'])
-    # # x = [0, 0]
-    # # y = [0, ceil(np.max(hist*bin_width)*10)/10] #set ideal line to same height as other distributions, rounded up
-    # # axes[2, 2].plot(x, y, color='red', label='Ideal')
-    # # axes[2, 2].set_xticks(np.arange(0, 1.25, 1 / 4))
-    # # axes[2, 2].set_xlabel('pattern cosine similarity')
-    # # axes[2, 2].set_title('Discriminability')
-    # # axes[2, 2].legend(loc='best', frameon=False)
-
-    # axes[2, 0].axis('off')
-    # axes[2, 1].axis('off')
-    # axes[2, 2].axis('off')
-    # axes[3, 0].axis('off')
-    # axes[3, 1].axis('off')
-    # axes[3, 2].axis('off')
 
     sns.despine()
     plt.show()
     # plt.savefig(data/fig1.png, edgecolor='black', dpi=400, facecolor='black', transparent=True)
 
-    #TODO: 2)edit top-left 3)save fig1 & edit dimensions/spacing etc
+def plot_figure2(similarity_matrix_history_dict,model_seed='seed:1234'):
 
+    mm = 1 / 25.4  # millimeters in inches
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
+    axes = gs.GridSpec(nrows=2, ncols=6,
+                       left=0.08,right=0.95,
+                       top = 0.94, bottom = 0.1,
+                       wspace=1.2, hspace=0.6)
 
-def plot_figure2():
+    #Similarity matrix
+    ax = fig.add_subplot(axes[0, 0:2])
+    similarity_matrix = similarity_matrix_history_dict['Input-Output-lognormal'][model_seed]['Input']
+    im1 = ax.imshow(similarity_matrix, aspect = 'auto', cmap='viridis')
+    cbar = plt.colorbar(im1, ax=ax)
+    # ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    # ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('output unit ID')
+    ax.set_ylabel('output unit ID')
+    ax.set_title('Cosine similarity: input')
+
+    ax = fig.add_subplot(axes[0, 2:4])
+    similarity_matrix = similarity_matrix_history_dict['Input-Output-lognormal'][model_seed]['Output']
+    im2 = ax.imshow(similarity_matrix, aspect = 'auto', cmap='viridis')
+    cbar = plt.colorbar(im2, ax=ax)
+    # ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    # ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('output unit ID')
+    ax.set_title('Cosine similarity: log-normal')
+
+    ax = fig.add_subplot(axes[0, 4:6])
+    similarity_matrix = similarity_matrix_history_dict['Input-Output-uniform'][model_seed]['Output']
+    im2 = ax.imshow(similarity_matrix, aspect = 'auto', cmap='viridis')
+    cbar = plt.colorbar(im2, ax=ax)
+    # ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    # ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('output unit ID')
+    ax.set_title('Cosine similarity: uniform')
+
+    #Discriminability (cosine similarity)
+    ax = fig.add_subplot(axes[1, 0:3])
+    input_similarity = similarity_matrix_history_dict['Input-Output-lognormal'][model_seed]['Input']
+    output_similarity_lognormal = similarity_matrix_history_dict['Input-Output-lognormal'][model_seed]['Output']
+    output_similarity_uniform = similarity_matrix_history_dict['Input-Output-uniform'][model_seed]['Output']
+    bin_width = 0.04
+
+    invalid_indexes = np.isnan(input_similarity)
+    hist, edges = np.histogram(input_similarity[~invalid_indexes],
+                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label='input',
+            color=color_dict['Input'])
+
+    invalid_indexes_lognormal = np.isnan(output_similarity_lognormal)
+    hist, edges = np.histogram(output_similarity_lognormal[~invalid_indexes_lognormal],
+                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label='log-normal',
+                    color=color_dict['Input-Output-lognormal'])
+
+    invalid_indexes_uniform = np.isnan(output_similarity_uniform)
+    hist, edges = np.histogram(output_similarity_uniform[~invalid_indexes_uniform],
+                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label='uniform',
+                    color=color_dict['Input-Output-uniform'])
+    x = [0, 0]
+    y = [0, ceil(np.max(hist*bin_width)*10)/10] #set ideal line to same height as other distributions, rounded up
+    ax.plot(x, y, color='red', label='Ideal')
+    ax.set_xticks(np.arange(0, 1.25, 1 / 4))
+    ax.set_xlabel('cosine similarity')
+    ax.set_ylabel('probability')
+    ax.set_title('Discriminability')
+    ax.legend(loc='best', frameon=False)
+
+    #Bottom middle: cumulative distribution for similarity
+    ax = fig.add_subplot(axes[1, 3:6])
+
+    description_list = ['Input-Output-uniform','Input-Output-lognormal']
+    for description in description_list:
+        mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict[description])
+        ax.plot(mean_similarity, cdf_prob_bins, label=description,color=color_dict[description])
+        error_min = mean_similarity - SD
+        error_max = mean_similarity + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.4,color=color_dict[description])
+
+    input_similarity_matrix = similarity_matrix_history_dict['Input-Output-uniform'][model_seed]['Input']
+    below_diagonal_idx = np.tril_indices_from(input_similarity_matrix, -1)
+    input_similarity = input_similarity_matrix[below_diagonal_idx]
+    invalid_idx = np.isnan(input_similarity)
+    input_similarity = np.sort(input_similarity[~invalid_idx])
+    cumulative_input_similarity = [np.quantile(input_similarity, pi) for pi in cdf_prob_bins]
+    ax.plot(cumulative_input_similarity, cdf_prob_bins, label=description, color=color_dict['Input'])
+
+    ax.set_title('Cumulative discriminability')
+    ax.set_xlabel('cosine similarity')
+    ax.set_ylabel('cumulative probability')
+
+    sns.despine()
+    plt.show()
+
     return
 
 
 def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,model_seed='seed:1234'):
 
-    fig, axes = plt.subplots(3, 3, figsize=(6, 6))
+    mm = 1 / 25.4  # millimeters in inches
+    fig = plt.figure(figsize=(180 * mm, 180 * mm))
+    axes = gs.GridSpec(nrows=3, ncols=3,
+                       left=0.08,right=0.95,
+                       top = 0.94, bottom = 0.1,
+                       wspace=1.2, hspace=0.6)
 
     #Top row: network diagrams for FF, FB, FF+FB
-    axes[0,0].axis('off')
-    axes[0,1].axis('off')
-    axes[0,2].axis('off')
 
     #Middle left: activity heatmap for FF
-    num_output_units_FF = num_units_history_dict['FF_Inh']['seed:1234']['Output']
-    output_activity_FF_Inh = network_activity_history_dict['FF_Inh']['seed:1234']['Output']
-    argmax_indices = np.argmax(output_activity_FF_Inh, axis=1)
+    ax = fig.add_subplot(axes[1, 0])
+    num_output_units = num_units_history_dict['FF_Inh']['seed:1234']['Output']
+    output_activity = network_activity_history_dict['FF_Inh']['seed:1234']['Output']
+    argmax_indices = np.argmax(output_activity, axis=1)
     sorted_indices = np.argsort(argmax_indices)
-    im7 = axes[1, 0].imshow(output_activity_FF_Inh.transpose()[sorted_indices,:], aspect = 'auto', cmap='binary')
-    axes[1, 0].set_xticks(np.arange(0, num_output_units_FF+1, num_output_units_FF / 4))
-    axes[1, 0].set_yticks(np.arange(0, num_output_units_FF + 1, num_output_units_FF / 4))
-    axes[1, 0].set_xlabel('Pattern ID')
-    axes[1, 0].set_ylabel('Output Unit ID')
-    axes[1, 0].set_title('FF Inhibition Output Activity')
-    cbar = plt.colorbar(im7, ax=axes[1, 0])
+    im1 = ax.imshow(output_activity.transpose()[sorted_indices,:], aspect = 'auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output Unit ID')
+    ax.set_title('FF Inhibition Output Activity')
+    cbar = plt.colorbar(im1, ax=ax)
 
     #Middle middle: activity heatmap for FB
-    num_output_units_FB = num_units_history_dict['FB_Inh']['seed:1234']['Output']
-    output_activity_FB_Inh_dict = network_activity_history_dict['FB_Inh']['seed:1234']['Output']
-    im8 = axes[1, 1].imshow(output_activity_FB_Inh_dict.transpose(), aspect = 'auto', cmap='binary')
-    axes[1, 1].set_xticks(np.arange(0, num_output_units_FB+1, num_output_units_FB / 4))
-    axes[1, 1].set_yticks(np.arange(0, num_output_units_FB + 1, num_output_units_FB / 4))
-    axes[1, 1].set_xlabel('Output Pattern ID')
-    axes[1, 1].set_ylabel('Output Unit ID')
-    axes[1, 1].set_title('FB Inhibition Output Activity')
-    cbar = plt.colorbar(im8, ax=axes[1, 1])
+    ax = fig.add_subplot(axes[1, 1])
+    output_activity = network_activity_history_dict['FB_Inh']['seed:1234']['Output']
+    im2 = ax.imshow(output_activity.transpose(), aspect = 'auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output Unit ID')
+    ax.set_title('FB Inhibition Output Activity')
+    cbar = plt.colorbar(im2, ax=ax)
 
     #Middle right: activity heatmap for FF+FB
-    num_output_units_FF_FB = num_units_history_dict['FF+FB_Inh']['seed:1234']['Output']
-    output_activity_FF_FB_Inh_dict = network_activity_history_dict['FF+FB_Inh']['seed:1234']['Output']
-    im9 = axes[1, 2].imshow(output_activity_FF_FB_Inh_dict.transpose(), aspect = 'auto', cmap='binary')
-    axes[1, 2].set_xticks(np.arange(0, num_output_units_FF_FB+1, num_output_units_FF_FB / 4))
-    axes[1, 2].set_yticks(np.arange(0, num_output_units_FF_FB + 1, num_output_units_FF_FB / 4))
-    axes[1, 2].set_xlabel('Output Pattern ID')
-    axes[1, 2].set_ylabel('Output Unit ID')
-    axes[1, 2].set_title('FF+FB Output Activity')
-    cbar = plt.colorbar(im9, ax=axes[1, 2])
+    ax = fig.add_subplot(axes[1, 2])
+    output_activity = network_activity_history_dict['FF_Inh+FB_Inh']['seed:1234']['Output']
+    im3 = ax.imshow(output_activity.transpose(), aspect = 'auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
+    ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output Unit ID')
+    ax.set_title('FF+FB Output Activity')
+    cbar = plt.colorbar(im3, ax=ax)
 
     #Bottom left: cumulative distribution for selectivity
+    ax = fig.add_subplot(axes[2, 0])
     description_list = ['Input-Output-lognormal','FF_Inh','FB_Inh','FF_Inh+FB_Inh']
-
     for description in description_list:
         mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
             selectivity_history_dict[description])
-        axes[2,0].plot(mean_selectivity, cdf_prob_bins, label=description,color=color_dict[description])
+        ax.plot(mean_selectivity, cdf_prob_bins, label=description,color=color_dict[description])
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
-        axes[2,0].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
-    axes[2,0].set_title('Selectivity')
-    axes[2,0].set_xlabel('# active patterns per unit')
-    axes[2,0].set_ylabel('cumulative probability')
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_title('Selectivity')
+    ax.set_xlabel('# active patterns per unit')
+    ax.set_ylabel('cumulative probability')
 
     #Bottom middle: cumulative distribution for similarity
+    ax = fig.add_subplot(axes[2, 1])
     for description in description_list:
         mean_similarity, cdf_prob_bins, SD = plot_cumulative_similarity(similarity_matrix_history_dict[description])
-        axes[2,1].plot(mean_similarity, cdf_prob_bins, label=description,color=color_dict[description])
+        ax.plot(mean_similarity, cdf_prob_bins, label=description,color=color_dict[description])
         error_min = mean_similarity - SD
         error_max = mean_similarity + SD
-        axes[2,1].fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2)
-    axes[2,1].set_title('Pattern discriminability')
-    axes[2,1].set_xlabel('cosine similarity')
-    axes[2,1].set_ylabel('cumulative probability')
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_title('Pattern discriminability')
+    ax.set_xlabel('cosine similarity')
+    ax.set_ylabel('cumulative probability')
 
     #Bottom right: cumulative distribution for sparsity/fraction active
+    ax = fig.add_subplot(axes[2, 2])
     for description in description_list:
         mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
-        axes[2,2].plot(mean_sparsity, cdf_prob_bins, label=description,color=color_dict[description])
+        ax.plot(mean_sparsity, cdf_prob_bins, label=description,color=color_dict[description])
         error_min = mean_sparsity - SD
         error_max = mean_sparsity + SD
-        axes[2,2].fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2)
-    axes[2,2].legend(loc='best')
-    axes[2,2].set_title('Sparsity')
-    axes[2,2].set_xlabel('# active units per pattern')
-    axes[2,2].set_ylabel('cumulative probability')
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2,color=color_dict[description])
+    ax.legend(loc='best')
+    ax.set_title('Sparsity')
+    ax.set_xlabel('# active units per pattern')
+    ax.set_ylabel('cumulative probability')
 
-    fig.suptitle('Figure 2')
-    fig.tight_layout(w_pad=1.0, h_pad=2.0, rect=(0., 0., 1., 0.98))
     sns.despine()
     plt.show()
 
@@ -590,7 +643,8 @@ def main(data_file_path,model_seed):
 
     colorbrewer_list = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
                         '#fdbf6f','#ff7f00','#cab2d6']
-    color_dict = {'Input-Output-uniform': colorbrewer_list[0],
+    color_dict = {'Input': 'magenta',
+                  'Input-Output-uniform': colorbrewer_list[0],
                   'Input-Output-lognormal': colorbrewer_list[1],
                   'FF_Inh': colorbrewer_list[2],
                   'FB_Inh': colorbrewer_list[3],
@@ -605,9 +659,11 @@ def main(data_file_path,model_seed):
     plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  weight_history_dict, network_activity_history_dict,color_dict)
 
-    # plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-    #              sparsity_history_dict,color_dict)
-    #
+    plot_figure2(similarity_matrix_history_dict)
+
+    plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 sparsity_history_dict,color_dict)
+
     # plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
     #              sparsity_history_dict,color_dict)
     # plot_average_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
