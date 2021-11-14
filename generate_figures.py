@@ -264,8 +264,11 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     # Middle1 middle: output activity uniform
     ax = fig1.add_subplot(axes[1, 2:4])
-    output_activity_uniform_dict = network_activity_history_dict['Input-Output-uniform'][model_seed]['Output']
-    im5 = ax.imshow(output_activity_uniform_dict.transpose(), aspect = 'auto', cmap='binary')
+    output_activity_uniform = network_activity_history_dict['Input-Output-uniform'][model_seed]['Output']
+    output_activity_uniform = output_activity_uniform.transpose()
+    argmax_indices1 = np.argmax(output_activity_uniform, axis=1)
+    sorted_indices1 = np.argsort(argmax_indices1)
+    im5 = axes[1, 1].imshow(output_activity_uniform[sorted_indices1, :], aspect = 'auto', cmap='binary')
     ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
     ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
     ax.set_xlabel('Pattern ID')
@@ -277,9 +280,9 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax = fig1.add_subplot(axes[1, 4:6])
     output_activity_lognormal = network_activity_history_dict['Input-Output-lognormal'][model_seed]['Output']
     output_activity_lognormal = output_activity_lognormal.transpose()
-    argmax_indices = np.argmax(output_activity_lognormal, axis=1) #sort output units according to argmax
-    sorted_indices = np.argsort(argmax_indices)
-    im6 = ax.imshow(output_activity_lognormal[sorted_indices,:], aspect = 'auto', cmap='binary')
+    argmax_indices2 = np.argmax(output_activity_lognormal, axis=1) #sort output units according to argmax
+    sorted_indices2 = np.argsort(argmax_indices2)
+    im6 = ax.imshow(output_activity_lognormal[sorted_indices2,:], aspect = 'auto', cmap='binary')
     ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
     ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
     ax.set_xlabel('Pattern ID')
@@ -504,9 +507,9 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax = fig3.add_subplot(axes[1, 0])
     num_output_units = num_units_history_dict['FF_Inh']['seed:1234']['Output']
     output_activity = network_activity_history_dict['FF_Inh']['seed:1234']['Output']
-    argmax_indices = np.argmax(output_activity, axis=1)
-    sorted_indices = np.argsort(argmax_indices)
-    im1 = ax.imshow(output_activity.transpose()[sorted_indices,:], aspect = 'auto', cmap='binary')
+    argmax_indices3 = np.argmax(output_activity, axis=1)
+    sorted_indices3 = np.argsort(argmax_indices3)
+    im1 = ax.imshow(output_activity.transpose()[sorted_indices3,:], aspect = 'auto', cmap='binary')
     cbar = plt.colorbar(im1, ax=ax)
     ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
     ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
@@ -517,7 +520,10 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     #Middle middle: activity heatmap for FB
     ax = fig3.add_subplot(axes[1, 1])
     output_activity = network_activity_history_dict['FB_Inh']['seed:1234']['Output']
-    im2 = ax.imshow(output_activity.transpose(), aspect = 'auto', cmap='binary')
+    output_activity = output_activity.transpose()
+    argmax_indices = np.argmax(output_activity, axis=1)
+    sorted_indices = np.argsort(argmax_indices)
+    im2 = ax.imshow(output_activity[sorted_indices, :], aspect = 'auto', cmap='binary')
     cbar = plt.colorbar(im2, ax=ax)
     ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
     ax.set_yticks(np.arange(0, num_output_units + 1, num_output_units / 4))
@@ -527,7 +533,10 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     #Middle right: activity heatmap for FF+FB
     ax = fig3.add_subplot(axes[1, 2])
     output_activity = network_activity_history_dict['FF_Inh+FB_Inh']['seed:1234']['Output']
-    im3 = ax.imshow(output_activity.transpose(), aspect = 'auto', cmap='binary')
+    output_activity = output_activity.transpose()
+    argmax_indices = np.argmax(output_activity, axis=1)
+    sorted_indices = np.argsort(argmax_indices)
+    im3 = ax.imshow(output_activity[sorted_indices, :], aspect = 'auto', cmap='binary')
     cbar = plt.colorbar(im3, ax=ax)
     cbar.set_label('Output activity', rotation=270, labelpad=10)
     ax.set_xticks(np.arange(0, num_output_units+1, num_output_units / 4))
