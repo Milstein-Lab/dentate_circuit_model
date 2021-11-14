@@ -501,7 +501,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
                        top = 0.94, bottom = 0.1,
                        wspace=0.5, hspace=0.6)
 
-    #Top row: network diagrams for FF, FB, FF+FB
+    #Top row:network diagrams for FF, FB, FF+FB
 
     #Middle left: activity heatmap for FF
     ax = fig3.add_subplot(axes[1, 0])
