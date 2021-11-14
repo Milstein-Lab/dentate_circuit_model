@@ -232,7 +232,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.set_title('Input Patterns')
     cbar = plt.colorbar(im1, ax=ax)
 
-    # Ideal output (identity matrix)
+    # Ideal output
     ax = fig1.add_subplot(axes[0,4:6])
     num_output_units = num_units_history_dict['Input-Output-lognormal'][model_seed]['Output']
     im2 = ax.imshow(np.eye(num_output_units), aspect='auto', cmap='binary')
