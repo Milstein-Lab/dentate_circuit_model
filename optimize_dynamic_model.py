@@ -187,7 +187,8 @@ def get_d_cell_voltage_dt_array(cell_voltage, net_current, cell_tau, input_resis
 
 
 def get_d_conductance_dt_array(channel_conductance, pre_activity, rise_tau, decay_tau):
-    d_conductance_dt_array = -channel_conductance / decay_tau + np.maximum(0., pre_activity[:, None] - channel_conductance) / rise_tau
+    d_conductance_dt_array = -channel_conductance / decay_tau + \
+                             np.maximum(0., pre_activity[:, None] - channel_conductance) / rise_tau
     return d_conductance_dt_array
 
 
@@ -197,8 +198,8 @@ def get_net_current(weights, channel_conductances, cell_voltage, reversal_potent
     return net_current_array
 
 
-def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
-                                         synaptic_reversal_dict, channel_conductance_dict,
+def get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
+                                         weight_config_dict, synaptic_reversal_dict, channel_conductance_dict,
                                          cell_voltage_dict, network_activity_dict):
     """
     Computes rates of change of all synaptic currents and all cell voltages for all populations in a network.
@@ -385,15 +386,10 @@ def simulate_network_dynamics(t, state_list, legend, input_pattern, num_units_di
         network_activity_dict[population] = this_activation_function(cell_voltage_dict[population],
                                                                      **this_kwargs)
 
-    d_conductance_dt_dict, d_cell_voltage_dt_dict = get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict,
-                                                                                         cell_tau_dict, weight_dict,
-                                                                                         weight_config_dict, synaptic_reversal_dict,
-                                                                                         channel_conductance_dict,
-                                                                                         cell_voltage_dict, network_activity_dict)
-
-
-
-
+    d_conductance_dt_dict, d_cell_voltage_dt_dict = \
+        get_d_network_intermediates_dt_dicts(num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
+                                             weight_config_dict, synaptic_reversal_dict, channel_conductance_dict,
+                                             cell_voltage_dict, network_activity_dict)
 
     d_state_dt_list, legend = nested_dicts_to_flat_state_list(d_conductance_dt_dict, d_cell_voltage_dt_dict)
 
@@ -401,8 +397,8 @@ def simulate_network_dynamics(t, state_list, legend, input_pattern, num_units_di
 
 
 
-def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_units_dict, activation_function_dict, weight_dict, cell_voltage_dict,
-                                   weight_config_dict, synaptic_reversal_dict):
+def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_units_dict, activation_function_dict,
+                                   weight_dict, cell_voltage_dict, weight_config_dict, synaptic_reversal_dict):
     """
     The output of scipy.integrate.solve_ivp is a 2D array containing the values of all network state variables (rows)
     over time (columns). This function uses the provided legend to construct nested dictionaries of network
@@ -515,8 +511,9 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
 
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict = state_dynamics_to_nested_dicts(sol.y, legend, input_pattern, num_units_dict,
-                                                                    activation_function_dict, weight_dict, cell_voltage_dict,
-                                                                    weight_config_dict, synaptic_reversal_dict)
+                                                                    activation_function_dict, weight_dict,
+                                                                    cell_voltage_dict, weight_config_dict,
+                                                                    synaptic_reversal_dict)
 
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
         network_activity_dynamics_dict
@@ -1174,9 +1171,12 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
             group[post_pop].attrs['num_units'] = num_units_dict[post_pop]
             if post_pop in activation_function_dict:
                 group[post_pop].attrs['activation_func_name'] = activation_function_dict[post_pop]['Name']
-                group[post_pop].attrs['activation_func_thresh'] = activation_function_dict[post_pop]['Arguments']['threshold']
-                group[post_pop].attrs['activation_func_peak_in'] = activation_function_dict[post_pop]['Arguments']['peak_input']
-                group[post_pop].attrs['activation_func_peak_out'] = activation_function_dict[post_pop]['Arguments']['peak_output']
+                group[post_pop].attrs['activation_func_thresh'] = \
+                    activation_function_dict[post_pop]['Arguments']['threshold']
+                group[post_pop].attrs['activation_func_peak_in'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_input']
+                group[post_pop].attrs['activation_func_peak_out'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_output']
 
 
 def export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
@@ -1263,9 +1263,12 @@ def export_dynamic_model_data(export_file_path, description, weight_seed, model_
             group[post_pop].attrs['num_units'] = num_units_dict[post_pop]
             if post_pop in activation_function_dict:
                 group[post_pop].attrs['activation_func_name'] = activation_function_dict[post_pop]['Name']
-                group[post_pop].attrs['activation_func_thresh'] = activation_function_dict[post_pop]['Arguments']['threshold']
-                group[post_pop].attrs['activation_func_peak_in'] = activation_function_dict[post_pop]['Arguments']['peak_input']
-                group[post_pop].attrs['activation_func_peak_out'] = activation_function_dict[post_pop]['Arguments']['peak_output']
+                group[post_pop].attrs['activation_func_thresh'] = \
+                    activation_function_dict[post_pop]['Arguments']['threshold']
+                group[post_pop].attrs['activation_func_peak_in'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_input']
+                group[post_pop].attrs['activation_func_peak_out'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_output']
 
     print('export_dynamic_model_data: saved data for model %s to %s' % (description, export_file_path))
 
@@ -1404,11 +1407,11 @@ def read_from_yaml(file_path, Loader=None):
 # Configure model for nested optimization
 
 # Example command to run from terminal:
-# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --kmax_iter=1 --pop_size=10 --disp --framework=serial --interactive
+# python -m nested.analyze --config_file_path=$PATH_TO_CONFIG_YAML --disp --framework=serial --plot \
+#    --param-file-path=$PATH_TO_PARAM_YAML --model-key=$KEY_TO_PARAM_YAML
 
-# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh.yaml
-
-# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=1 --disp --framework=serial --interactive
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 \
+#   --pop_size=1 --disp --framework=serial --interactive
 
 def config_worker():
     num_input_units = context.num_units_dict['Input']
@@ -1584,16 +1587,27 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
 
     if context.allow_fail:
         for pop_name in fraction_active_units_dict:
-            if fraction_active_patterns_dict[pop_name] < context.fraction_active_patterns_threshold:
+            if pop_name in context.fraction_active_patterns_threshold:
+                this_fraction_active_patterns_threshold = context.fraction_active_patterns_threshold[pop_name]
+            else:
+                this_fraction_active_patterns_threshold = context.fraction_active_patterns_threshold['default']
+            if fraction_active_patterns_dict[pop_name] < this_fraction_active_patterns_threshold:
                 print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
-                      ' fraction_active_patterns criterion' % (os.getpid(), model_id, context.description, weight_seed,
-                                                               pop_name))
+                      ' fraction_active_patterns_threshold: %.2f' %
+                      (os.getpid(), model_id, context.description, weight_seed, pop_name,
+                       this_fraction_active_patterns_threshold))
                 sys.stdout.flush()
                 return dict()
-            if fraction_active_units_dict[pop_name] < context.fraction_active_units_threshold:
+
+            if pop_name in context.fraction_active_units_threshold:
+                this_fraction_active_units_threshold = context.fraction_active_units_threshold[pop_name]
+            else:
+                this_fraction_active_units_threshold = context.fraction_active_units_threshold['default']
+            if fraction_active_units_dict[pop_name] < this_fraction_active_units_threshold:
                 print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
-                      ' fraction_active_units criterion'  % (os.getpid(), model_id, context.description, weight_seed,
-                                                               pop_name))
+                      ' fraction_active_units_threshold: %.2f'  %
+                      (os.getpid(), model_id, context.description, weight_seed, pop_name,
+                       this_fraction_active_units_threshold))
                 sys.stdout.flush()
                 return dict()
 
@@ -1731,7 +1745,8 @@ def main(config_file_path, dt, duration, time_point, weight_seed, description, e
 
     t = np.arange(0., duration + dt / 2., dt)
 
-    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, network_activity_dynamics_dict = \
+    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    network_activity_dynamics_dict = \
         get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
                                    weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict)
 
