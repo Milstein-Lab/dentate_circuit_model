@@ -1637,8 +1637,13 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
     for orig_features_dict in features_dict_list:
         sparsity_errors = (context.target_val['sparsity'] -
                            orig_features_dict['sparsity_array']) / context.target_range['sparsity']
+
+        # penalize discriminability of silent patterns
+        bad_indexes = np.where(np.isnan(orig_features_dict['similarity_array']))
+        orig_features_dict['similarity_array'][bad_indexes] = 1.
         discriminability_errors = (context.target_val['similarity'] -
                                    orig_features_dict['similarity_array']) / context.target_range['similarity']
+
         selectivity_errors = (context.target_val['selectivity'] -
                               orig_features_dict['selectivity_array']) / context.target_range['selectivity']
         fraction_active_patterns_error = (context.target_val['fraction_active_patterns'] -
