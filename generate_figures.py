@@ -1,8 +1,4 @@
-# from nested.analyze import PopulationStorage
-# storage = PopulationStorage()
-
-# python generate_figures.py --data_file_path='data/20211104_000741_dentate_optimization_2_exported_output_slice.hdf5'
-# python generate_figures.py --data_file_path='data/dentate_optimization.hdf5'
+# python generate_figures.py --data_file_path=data/20211115_exported_dentate_model_data.hdf5 --dynamics_file_path=data/20211115_exported_dentate_model_data_dynamics.hdf5
 
 import click
 import numpy as np
@@ -152,10 +148,9 @@ def plot_cumulative_discriminability(similarity_matrix_history_dict):
         similarity = similarity_matrix[similarity_matrix_idx]
 
         #remove nan values
-
-        #TODO: click option for setting nans to similarity of 1
         invalid_idx = np.isnan(similarity)
-        similarity = similarity[~invalid_idx]
+        similarity[invalid_idx] = 1
+        # similarity = similarity[~invalid_idx]
 
         discriminability = 1 - similarity
 
@@ -177,6 +172,10 @@ def plot_cumulative_selectivity(selectivity_history_dict):
     cdf_prob_bins = np.arange(1., n_bins + 1.) / n_bins
     for model_seed in selectivity_history_dict:
         selectivity = selectivity_history_dict[model_seed]['Output']
+
+        nonresponsive_idx = np.where(selectivity==0)[0]
+        selectivity[nonresponsive_idx] = 128 #penalize units that are silent across all patterns
+
         selectivity =1 - selectivity / 128  # convert selectivity to fraction active patterns (per unit)
 
         selectivity = np.sort(selectivity[:])
@@ -199,6 +198,10 @@ def plot_cumulative_sparsity(sparsity_history_dict):
 
     for model_seed in sparsity_history_dict:
         sparsity = sparsity_history_dict[model_seed]['Output']
+
+        nonresponsive_idx = np.where(sparsity==0)[0]
+        sparsity[nonresponsive_idx[1:]] = 128 # penalize silent patterns (except for the first one, where input is also 0)
+
         sparsity = 1 - sparsity / 128 # convert sparsity to fraction active units (per pattern)
 
         sparsity = np.sort(sparsity[:])
@@ -215,7 +218,7 @@ def plot_cumulative_sparsity(sparsity_history_dict):
 
 
 def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 weight_history_dict, network_activity_history_dict, color_dict, label_dict, model_seed='seed:1234'):
+                 weight_history_dict, network_activity_history_dict, color_dict, label_dict, model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters in inches
     fig1 = plt.figure(figsize=(180 * mm, 200 * mm))
@@ -399,7 +402,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     fig1.savefig('figures/Figure1.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
-def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters in inches
     fig2 = plt.figure(figsize=(180 * mm, 110 * mm))
@@ -489,7 +492,7 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
 
 
 def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
     fig3 = plt.figure(figsize=(180 * mm, 180 * mm))
@@ -571,7 +574,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     fig3.savefig('figures/Figure3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
-def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
     'S1, related to Figure 3'
 
     mm = 1 / 25.4  # millimeters to inches
@@ -630,7 +633,7 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
 
 def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
     fig4 = plt.figure(figsize=(180 * mm, 180 * mm))
@@ -709,7 +712,7 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
     fig4.savefig('figures/Figure4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
-def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
     'S1, related to Figure 3'
 
     mm = 1 / 25.4  # millimeters to inches
@@ -745,7 +748,7 @@ def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
 
 def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
     fig5 = plt.figure(figsize=(180 * mm, 180 * mm))
@@ -824,7 +827,7 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     fig5.savefig('figures/Figure5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
-def plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='seed:1234'):
+def plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
     'S3, related to Figure 5'
 
     mm = 1 / 25.4  # millimeters to inches
@@ -895,16 +898,20 @@ def plotS4(network_activity_dynamics_history_dict,color_dict,label_dict,model_se
 
 @click.command()
 @click.option("--data_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.option("--model_seed", type=str, default='seed:1234')
+@click.option("--dynamics_file_path", type=click.Path(exists=True, file_okay=True, dir_okay=False))
+@click.option("--model_seed", type=str, default='1234')
 
-def main(data_file_path,model_seed):
+def main(data_file_path, dynamics_file_path, model_seed):
+
+    # Import data
     _,num_units_history_dict,_,_,weight_history_dict, network_activity_history_dict, sparsity_history_dict, \
         similarity_matrix_history_dict, selectivity_history_dict,fraction_active_patterns_history_dict,\
         _ = import_slice_data(data_file_path)
+    network_activity_dynamics_history_dict =  import_dynamic_activity(dynamics_file_path)
 
+    # Specify figure parameters (colors & labels)
     colorbrewer_list = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
                         '#fdbf6f','#ff7f00','#cab2d6']
-
     color_dict = {'Ideal':'red',
                   'Input': 'magenta',
                   'Input-Output-uniform': colorbrewer_list[0],
@@ -929,25 +936,25 @@ def main(data_file_path,model_seed):
                   'FF_Inh+indirect_FB_Inh+FB_Exc': 'Mossy cells: FB excitation',
                   'FF_Inh+indirect_FB_Inh+FB_Exc_b': 'Mossy cells: \n FB excitation + inhibition'}
 
-    network_activity_dynamics_history_dict =  import_dynamic_activity('data/dentate_optimization_dynamics.hdf5')
-    plotS4(network_activity_dynamics_history_dict,color_dict,label_dict)
-
-    plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
-
-    plot_figure5(num_units_history_dict, network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict, color_dict, label_dict, model_seed='seed:1234')
-
-    plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
-
-    plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed)
-
-    plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
-
-    plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed)
-
-    plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed)
+    # # Generate figures
+    # plotS4(network_activity_dynamics_history_dict,color_dict,label_dict)
+    #
+    # plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
+    #
+    # plot_figure5(num_units_history_dict, network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              sparsity_history_dict, color_dict, label_dict, model_seed='1234')
+    #
+    # plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
+    #
+    # plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              sparsity_history_dict,color_dict,label_dict,model_seed)
+    #
+    # plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
+    #
+    # plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    #              sparsity_history_dict,color_dict,label_dict,model_seed)
+    #
+    # plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed)
 
     plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  weight_history_dict, network_activity_history_dict,color_dict,label_dict,model_seed)
