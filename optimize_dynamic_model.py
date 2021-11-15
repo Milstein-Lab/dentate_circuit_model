@@ -1217,7 +1217,6 @@ def export_dynamic_model_data(export_file_path, description, weight_seed, model_
     # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
     with h5py.File(export_file_path, 'a') as f:
 
-        description = 'description:'+description
         if description in f:
             model_group = f[description]
         else:
@@ -1227,7 +1226,7 @@ def export_dynamic_model_data(export_file_path, description, weight_seed, model_
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
 
-        model_seed_group = model_group.create_group('seed:'+str(weight_seed))
+        model_seed_group = model_group.create_group(str(weight_seed))
 
         group = model_seed_group.create_group('weights')
         for post_pop in weight_dict:
