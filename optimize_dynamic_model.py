@@ -1149,7 +1149,7 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
         for key, value in model_config_dict.items():
             model_group.attrs[key] = value
 
-        seed_group_name = 'seed:'+str(weight_seed)
+        seed_group_name = str(weight_seed)
         if seed_group_name in f[description]: #don't export if the data already exists
             print("ERROR: Data already exists, new values not saved")
             return
