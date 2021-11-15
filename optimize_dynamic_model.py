@@ -11,6 +11,9 @@
 # 2) Plot mean sparsity over time
 
 
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_6b_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml --param-file-path=config/20211114_model_params.yaml --model-key=6b --framework=mpi --export --export_dynamics_light --export-file-path=data/20211115_exported_dentate_model_data_dynamics.hdf5 --allow_fail=False
+
+
 import click
 import datetime
 import h5py
@@ -1179,6 +1182,55 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
                     activation_function_dict[post_pop]['Arguments']['peak_output']
 
 
+def export_dynamic_activity_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
+                              activation_function_dict, network_activity_dynamics_dict):
+    """
+    Exports data from a single model configuration to hdf5.
+    :param export_file_path: str (path); path to hdf5 file
+    :param description: str; unique identifier for model configuration, used as key in hdf5 file
+    :param weight_seed: int
+    :param model_config_dict: nested dict
+    :param num_units_dict: dict of int
+    :param activation_function_dict: dict of str
+    :param network_activity_dynamics_dict: dict of 3d array of float;
+        {'population label':
+            3d array of float (number of input patterns, number of units in this population, number of time points)
+        }
+    """
+    if description is None:
+        raise RuntimeError('export_dynamic_model_data: missing required description (unique string identifier for '
+                           'model configuration)')
+
+    # This clause evokes a "Context Manager" and takes care of opening and closing the file so we don't forget
+    with h5py.File(export_file_path, 'a') as f:
+
+        if description in f:
+            model_group = f[description]
+        else:
+            model_group = f.create_group(description)
+
+        # save the meta data for this model configuration
+        for key, value in model_config_dict.items():
+            model_group.attrs[key] = value
+
+        model_seed_group = model_group.create_group(str(weight_seed))
+
+        group = model_seed_group.create_group('activity')
+        for post_pop in network_activity_dynamics_dict:
+            group.create_dataset(post_pop, data=network_activity_dynamics_dict[post_pop])
+            group[post_pop].attrs['num_units'] = num_units_dict[post_pop]
+            if post_pop in activation_function_dict:
+                group[post_pop].attrs['activation_func_name'] = activation_function_dict[post_pop]['Name']
+                group[post_pop].attrs['activation_func_thresh'] = \
+                    activation_function_dict[post_pop]['Arguments']['threshold']
+                group[post_pop].attrs['activation_func_peak_in'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_input']
+                group[post_pop].attrs['activation_func_peak_out'] = \
+                    activation_function_dict[post_pop]['Arguments']['peak_output']
+
+    print('export_dynamic_model_data: saved data for model %s to %s' % (description, export_file_path))
+
+
 def export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
                               activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
                               synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
@@ -1555,11 +1607,14 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
 
         if context.export_dynamics:
             export_dynamic_model_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
-                                      context.num_units_dict, context.activation_function_dict,
-                                      context.weight_config_dict,
-                                      weight_dict, context.cell_tau_dict, context.synapse_tau_dict,
-                                      channel_conductance_dynamics_dict, net_current_dynamics_dict,
-                                      cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+                                      context.num_units_dict, context.activation_function_dict,context.weight_config_dict,
+                                      weight_dict, context.cell_tau_dict,context.synapse_tau_dict,channel_conductance_dynamics_dict,
+                                      net_current_dynamics_dict,cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+
+        elif context.export_dynamics_light:
+            export_dynamic_activity_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
+                                         context.num_units_dict, context.activation_function_dict,network_activity_dynamics_dict)
+
         else:
             export_model_slice_data(context.temp_output_path, context.description, weight_seed, model_config_dict,
                                     weight_dict, context.num_units_dict, context.activation_function_dict,
