@@ -810,6 +810,9 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
            mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
+# def plot_model_summary_single():
+    # copy of plot model summary but makes only 1 figure for each population
+
 def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description=None):
     """
     Generate a panel of plots summarizing the activity of each layer.

@@ -238,7 +238,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.set_title('Input Patterns')
     cbar = plt.colorbar(im, ax=ax)
 
-    # Ideal output (identity matrix)
+    # Ideal output
     ax = fig1.add_subplot(axes[0,4:6])
     num_output_units = num_units_history_dict['Input-Output-lognormal'][model_seed]['Output']
     im = ax.imshow(np.eye(num_output_units), aspect='auto', cmap='binary')
@@ -498,6 +498,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
                        top = 0.94, bottom = 0.1,
                        wspace=0.7, hspace=0.6)
 
+    #Top row:network diagrams for FF, FB, FF+FB
 
     # Output activity for FF, FB, FF+FB
     description_list = ['FF_Inh','FB_Inh','FF_Inh+FB_Inh']
