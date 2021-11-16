@@ -1,0 +1,58 @@
+# fraction_active_patterns_threshold = 0.6 for all populations, 0.9 for Output
+# fraction_active_units_threshold = 0.8 for all populations, 0.9 for Output
+# Sim duration = 0.35 s, activity computed as mean in range 0.15 - 0.35 s
+# Weight bounds 0.01 - 1.
+# Penalized silent patterns by setting pairwise similarity values to 1.
+# Separate objective for fraction_active_units (Output population)
+0:
+  mean_weight;Output;Input: 1.135254E-01
+1:
+  mean_weight;Output;Input: 6.807313E-02
+2:
+  mean_weight;FF_Inh;Input: 1.336012E-01
+  mean_weight;Output;FF_Inh: 9.996123E-01
+  mean_weight;Output;Input: 1.905018E-01
+3:
+  mean_weight;FB_Inh;Output: 9.963785E-01
+  mean_weight;Output;FB_Inh: 1.003959E-02
+  mean_weight;Output;Input: 7.022656E-02
+4:
+  mean_weight;FB_Inh;Output: 9.920389E-01
+  mean_weight;FF_Inh;Input: 9.183691E-01
+  mean_weight;Output;FB_Inh: 1.006211E-02
+  mean_weight;Output;FF_Inh: 1.259264E-02
+  mean_weight;Output;Input: 7.753736E-02
+5:
+  mean_weight;FB_Exc;FB_Exc: 7.891835E-01
+  mean_weight;FB_Exc;Output: 1.677150E-02
+  mean_weight;FB_Inh;FB_Exc: 8.583403E-01
+  mean_weight;FF_Inh;Input: 1.640408E-01
+  mean_weight;Output;FB_Inh: 9.994808E-01
+  mean_weight;Output;FF_Inh: 3.011067E-01
+  mean_weight;Output;Input: 3.891419E-01
+5c:
+  mean_weight;FB_Exc;Output: 2.776824E-02
+  mean_weight;FB_Inh;FB_Exc: 1.392199E+00
+  mean_weight;FF_Inh;Input: 2.222708E-01
+  mean_weight;Output;FB_Inh: 1.886058E+00
+  mean_weight;Output;FF_Inh: 6.444543E-01
+  mean_weight;Output;Input: 6.517970E-01
+6:
+  mean_weight;FB_Exc;FB_Exc: 9.333823E-01
+  mean_weight;FB_Exc;Output: 1.589863E-02
+  mean_weight;FB_Inh;FB_Exc: 7.726987E-01
+  mean_weight;FF_Inh;Input: 4.825204E-01
+  mean_weight;Output;FB_Exc: 4.237103E-02
+  mean_weight;Output;FB_Inh: 9.983056E-01
+  mean_weight;Output;FF_Inh: 1.106076E-02
+  mean_weight;Output;Input: 2.090454E-01
+6b:
+  mean_weight;FB_Exc;FB_Exc: 6.812685E-02
+  mean_weight;FB_Exc;FB_Inh: 6.033654E-01
+  mean_weight;FB_Exc;Output: 2.015100E-01
+  mean_weight;FB_Inh;FB_Exc: 9.789131E-01
+  mean_weight;FF_Inh;Input: 9.651422E-01
+  mean_weight;Output;FB_Exc: 2.640925E-01
+  mean_weight;Output;FB_Inh: 1.595327E-02
+  mean_weight;Output;FF_Inh: 1.395174E-01
+  mean_weight;Output;Input: 8.686739E-02
