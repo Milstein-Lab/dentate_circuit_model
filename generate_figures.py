@@ -224,10 +224,9 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     mm = 1 / 25.4  # millimeters in inches
     fig1 = plt.figure(figsize=(180 * mm, 200 * mm))
     axes = gs.GridSpec(nrows=4, ncols=6,
-                       left=0.08,right=0.94,
+                       left=0.08,right=0.96,
                        top = 0.96, bottom = 0.06,
-                       wspace=1.1, hspace=0.6)
-
+                       wspace=3, hspace=1)
 
     # Input patterns
     ax = fig1.add_subplot(axes[0,0:2])
@@ -254,7 +253,6 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label('Output activity', rotation=270, labelpad=10)
 
-
     # Weight distribution
     ax = fig1.add_subplot(axes[1,0:2])
     weight_dict_uniform = weight_history_dict['Input-Output-uniform'][model_seed]['Output']['Input']
@@ -270,8 +268,8 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input-Output-lognormal'],
                     color=color_dict['Input-Output-lognormal'])
     ax.set_xlabel('Synaptic weights')
+    ax.set_ylabel('Proportion of weights')
     ax.legend(loc='best', frameon=False)
-
 
     # Output activity: uniform
     ax = fig1.add_subplot(axes[1, 2:4])
@@ -306,61 +304,81 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     point_size = 20
     active_unit_count_input = sparsity_history_dict['Input-Output-lognormal'][model_seed]['Input']
     sparsity_input = active_unit_count_input / num_input_units
-    ax.scatter((np.arange(0, num_output_units)), sparsity_input,s=point_size, label = label_dict['Input'],
+    ax.scatter(np.arange(0, num_output_units), sparsity_input,s=point_size, label = label_dict['Input'],
                       color=color_dict['Input'],alpha=scatter_alpha)
 
     active_unit_count_lognormal = sparsity_history_dict['Input-Output-lognormal'][model_seed]['Output']
     sparsity_lognormal = active_unit_count_lognormal / num_output_units
-    ax.scatter((np.arange(0, num_output_units)), sparsity_lognormal,s=point_size, label=label_dict['Input-Output-lognormal'],
+    ax.scatter(np.arange(0, num_output_units), sparsity_lognormal,s=point_size, label='Log-normal weights',
                       color=color_dict['Input-Output-lognormal'],alpha=scatter_alpha)
 
     active_unit_count_uniform = sparsity_history_dict['Input-Output-uniform'][model_seed]['Output']
     sparsity_uniform = active_unit_count_uniform / num_output_units
-    ax.scatter((np.arange(0, num_output_units)), sparsity_uniform,s=point_size, label=label_dict['Input-Output-uniform'],
+    ax.scatter(np.arange(0, num_output_units), sparsity_uniform,s=point_size, label='Uniform weights',
                        color=color_dict['Input-Output-uniform'],alpha=scatter_alpha)
-    x = [0,num_output_units]
-    y = [1,1]
+    x = [0, num_patterns]
+    y = [1/num_output_units, 1/num_output_units]
     ax.plot(x,y,'--',color=color_dict['Ideal'],label=label_dict['Ideal'])
-    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_ylim([-0.05, 1.05])
+
+    ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
     ax.set_xlabel('Pattern ID')
     ax.set_ylabel('Fraction active units') #active output neurons count
-    ax.set_title('Sparsity')
     ax.legend(loc='best', frameon=False)
 
     # Selectivity
     ax = fig1.add_subplot(axes[2, 3:6])
-    bin_width = 1 / 30
 
-    # num_patterns_selected_input = selectivity_history_dict['Input-Output-lognormal'][model_seed]['Input']
-    # selectivity_input = num_patterns_selected_input / 2**num_input_units
-    # hist, edges = np.histogram(selectivity_input,
-    #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-    # ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input'],
-    #                 color=color_dict['Input'])
+    active_pattern_count = selectivity_history_dict['Input-Output-lognormal'][model_seed]['Output']
+    fraction_active = active_pattern_count / num_patterns
+    fraction_active = np.sort(fraction_active)
+    ax.scatter(np.arange(0, num_patterns), fraction_active,s=point_size, label='Log-normal weights',
+                      color=color_dict['Input-Output-lognormal'],alpha=scatter_alpha)
 
-    num_patterns_selected_lognormal = selectivity_history_dict['Input-Output-lognormal'][model_seed]['Output']
-    selectivity_lognormal = num_patterns_selected_lognormal / 2**num_input_units
-    hist, edges = np.histogram(selectivity_lognormal,
-                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-    ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input-Output-lognormal'],
-                    color=color_dict['Input-Output-lognormal'])
+    active_pattern_count = selectivity_history_dict['Input-Output-uniform'][model_seed]['Output']
+    fraction_active = active_pattern_count / num_patterns
+    fraction_active = np.sort(fraction_active)
+    ax.scatter(np.arange(0, num_patterns), fraction_active, s=point_size, label='Uniform weights',
+               color=color_dict['Input-Output-uniform'], alpha=scatter_alpha)
 
-    num_patterns_selected_uniform = selectivity_history_dict['Input-Output-uniform'][model_seed]['Output']
-    selectivity_uniform = num_patterns_selected_uniform / 2**num_input_units
-    hist, edges = np.histogram(selectivity_uniform,
-                               bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-    ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input-Output-uniform'],
-                    color=color_dict['Input-Output-uniform'])
-    x = [1/num_patterns, 1/num_patterns]
-    y = [0, np.max(hist*bin_width)*1.1] #set ideal line to same height as other distributions
-    ax.plot(x,y,'--',linewidth=2,color=color_dict['Ideal'], label=label_dict['Ideal'])
-    ax.plot([0.5,0.5],y,linewidth=2,color=color_dict['Input'], label=label_dict['Input'])
+    x = [0, num_output_units]
+    y = [1/num_patterns, 1/num_patterns]
+    ax.plot(x,y,'--',color=color_dict['Ideal'],label=label_dict['Ideal'])
 
-    ax.set_xlim([0, 1])
-    ax.set_xlabel('Fraction patterns selected')
-    ax.set_ylabel('Proportion output units')
-    ax.set_title('Selectivity')
+    x = [0, num_output_units]
+    y = [0.5, 0.5]
+    ax.plot(x,y,'--',color=color_dict['Input'],label=label_dict['Input'])
+
+    ax.set_ylim([-0.05, 1.05])
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_xlabel('Output unit ID (sorted)')
+    ax.set_ylabel('Fraction patterns \n selected') #active output neurons count
     ax.legend(loc='best', frameon=False)
+
+    # # Selectivity Historgram
+    # bin_width = 1 / 30
+    # num_patterns_selected_lognormal = selectivity_history_dict['Input-Output-lognormal'][model_seed]['Output']
+    # selectivity_lognormal = num_patterns_selected_lognormal / 2**num_input_units
+    # hist, edges = np.histogram(selectivity_lognormal,
+    #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    # ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input-Output-lognormal'],
+    #                 color=color_dict['Input-Output-lognormal'])
+    #
+    # num_patterns_selected_uniform = selectivity_history_dict['Input-Output-uniform'][model_seed]['Output']
+    # selectivity_uniform = num_patterns_selected_uniform / 2**num_input_units
+    # hist, edges = np.histogram(selectivity_uniform,
+    #                            bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
+    # ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label=label_dict['Input-Output-uniform'],
+    #                 color=color_dict['Input-Output-uniform'])
+    # x = [1/num_patterns, 1/num_patterns]
+    # y = [0, np.max(hist*bin_width)*1.1] #set ideal line to same height as other distributions
+    # ax.plot(x,y,'--',linewidth=2,color=color_dict['Ideal'], label=label_dict['Ideal'])
+    # ax.plot([0.5,0.5],y,linewidth=2,color=color_dict['Input'], label=label_dict['Input'])
+    #
+    # ax.set_xlim([0, 1])
+    # ax.set_xlabel('Fraction patterns selected')
+    # ax.set_ylabel('Proportion output units')
+    # ax.legend(loc='best', frameon=False)
 
     # Cumulative sparsity
     ax = fig1.add_subplot(axes[3, 0:3])
@@ -379,6 +397,8 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax.plot(cumulative_sparsity_input, cdf_prob_bins, label=label_dict['Input'], color=color_dict['Input'])
     ax.set_xlabel('Sparsity')
     ax.set_ylabel('Cumulative probability')
+    ax.set_xlim([-0.05, 1.05])
+    ax.set_ylim([-0.05, 1.05])
 
     # Cumulative selectivity
     ax = fig1.add_subplot(axes[3, 3:6])
@@ -397,10 +417,12 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     ax.set_xlabel('Selectivity')
     ax.set_ylabel('Cumulative probability')
-    ax.set_xlim([0,1])
+    ax.set_xlim([-0.05, 1.05])
+    ax.set_ylim([-0.05, 1.05])
 
     sns.despine()
     fig1.savefig('figures/Figure1.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig1.savefig('figures/Figure1.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -455,8 +477,8 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
     ax.plot(edges[:-1] + bin_width / 2., hist * bin_width,label='uniform',
                     color=color_dict['Input-Output-uniform'])
     x = [0, 0]
-    y = [0, ceil(np.max(hist*bin_width)*10)/10] #set ideal line to same height as other distributions, rounded up
-    ax.plot(x, y, color='red', label='Ideal')
+    y = [0, np.max(hist*bin_width)] #set ideal line to same height as other distributions, rounded up
+    ax.plot(x,y,'--', color='red', label='Ideal')
     ax.set_xticks(np.arange(0, 1.25, 1 / 4))
     ax.set_xlabel('Cosine similarity')
     ax.set_ylabel('Probability')
@@ -488,6 +510,7 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
 
     sns.despine()
     fig2.savefig('figures/Figure2.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig2.savefig('figures/Figure2.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
     return
 
@@ -497,18 +520,16 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
 
     mm = 1 / 25.4  # millimeters to inches
     fig3 = plt.figure(figsize=(180 * mm, 180 * mm))
-    axes = gs.GridSpec(nrows=4, ncols=3,
-                       left=0.08,right=0.93,
-                       top = 0.94, bottom = 0.1,
-                       wspace=0.7, hspace=0.6)
-
-    #Top row:network diagrams for FF, FB, FF+FB
+    axes = gs.GridSpec(nrows=4, ncols=6,
+                       left=0.08,right=0.95,
+                       top = 0.96, bottom = 0.08,
+                       wspace=2, hspace=0.8)
 
     # Output activity for FF, FB, FF+FB
     description_list = ['FF_Inh','FB_Inh','FF_Inh+FB_Inh']
     num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
     for i,description in enumerate(description_list):
-        ax = fig3.add_subplot(axes[1, i])
+        ax = fig3.add_subplot(axes[i, 2:4])
         output_activity = network_activity_history_dict[description][model_seed]['Output']
         argmax_indices = np.argmax(output_activity, axis=0)
         sorted_indices = np.argsort(argmax_indices)
@@ -525,7 +546,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     description_list = ['FF_Inh','FB_Inh','FF_Inh+FB_Inh']
     num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
     for i,description in enumerate(description_list):
-        ax = fig3.add_subplot(axes[2, i])
+        ax = fig3.add_subplot(axes[i, 4:6])
         similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
         im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
         ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
@@ -537,7 +558,9 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
 
     #Cumulative distribution for sparsity (1 - fraction active)
     description_list = ['Input-Output-lognormal','FF_Inh','FB_Inh','FF_Inh+FB_Inh']
-    ax = fig3.add_subplot(axes[3, 0])
+    label_dict['FF_Inh+FB_Inh'] = 'Inhibition: FF + FB'
+
+    ax = fig3.add_subplot(axes[3, 0:2])
     for description in description_list:
         mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
@@ -548,7 +571,117 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative probability')
 
     #Cumulative distribution for selectivity
-    ax = fig3.add_subplot(axes[3, 1])
+    ax = fig3.add_subplot(axes[3, 2:4])
+    for description in description_list:
+        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
+            selectivity_history_dict[description])
+        ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_selectivity - SD
+        error_max = mean_selectivity + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Selectivity')
+    ax.set_ylabel('Cumulative probability')
+    ax.legend(loc='best',frameon=False)
+
+    #Cumulative distribution for discriminability
+    ax = fig3.add_subplot(axes[3, 4:6])
+    for description in description_list:
+        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_discriminability - SD
+        error_max = mean_discriminability + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Discriminability')
+    ax.set_ylabel('Cumulative probability')
+
+    sns.despine()
+    fig3.savefig('figures/Figure3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig3.savefig('figures/Figure3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+
+
+def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
+
+    mm = 1 / 25.4  # millimeters to inches
+    fig4 = plt.figure(figsize=(180 * mm, 180 * mm))
+    axes = gs.GridSpec(nrows=4, ncols=6,
+                       left=0.08,right=0.95,
+                       top = 0.96, bottom = 0.08,
+                       wspace=2, hspace=0.8)
+
+    # Output activity for FF, FB, FF+FB
+    num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
+
+    ax = fig4.add_subplot(axes[0,2:4])
+    description = 'FF_Inh+indirect_FB_Inh'
+    output_activity = network_activity_history_dict[description][model_seed]['Output']
+    argmax_indices = np.argmax(output_activity, axis=0)
+    sorted_indices = np.argsort(argmax_indices)
+    im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output unit ID')
+    ax.set_title(label_dict[description])
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Output activity', rotation=270, labelpad=10)
+
+    ax = fig4.add_subplot(axes[1,2:4])
+    description = 'FF_Inh+indirect_FB_Inh_c'
+    output_activity = network_activity_history_dict[description][model_seed]['Output']
+    argmax_indices = np.argmax(output_activity, axis=0)
+    sorted_indices = np.argsort(argmax_indices)
+    im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output unit ID')
+    ax.set_title(label_dict[description])
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Output activity', rotation=270, labelpad=10)
+
+
+    #Similarity matrix
+    num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
+
+    ax = fig4.add_subplot(axes[0, 4:6])
+    description = 'FF_Inh+indirect_FB_Inh'
+    similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
+    im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
+    ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_yticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Pattern ID',labelpad=-2)
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
+
+    ax = fig4.add_subplot(axes[1, 4:6])
+    description = 'FF_Inh+indirect_FB_Inh_c'
+    similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
+    im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis', vmin=0, vmax=1)
+    ax.set_xticks(np.arange(0, num_patterns + 1, num_patterns / 4))
+    ax.set_yticks(np.arange(0, num_patterns + 1, num_patterns / 4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Pattern ID', labelpad=-2)
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
+
+    #Cumulative distribution for sparsity (1 - fraction active)
+    description_list = ['FF_Inh+FB_Inh','FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh_c']
+    label_dict['FF_Inh+FB_Inh'] = 'Inhibition: FF + direct FB'
+
+    ax = fig4.add_subplot(axes[2, 0:2])
+    for description in description_list:
+        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_sparsity - SD
+        error_max = mean_sparsity + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Sparsity')
+    ax.set_ylabel('Cumulative probability')
+
+    #Cumulative distribution for selectivity
+    ax = fig4.add_subplot(axes[2, 2:4])
     for description in description_list:
         mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
             selectivity_history_dict[description])
@@ -560,7 +693,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative probability')
 
     #Cumulative distribution for discriminability
-    ax = fig3.add_subplot(axes[3, 2])
+    ax = fig4.add_subplot(axes[2, 4:6])
     for description in description_list:
         mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
         ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
@@ -572,17 +705,126 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.legend(loc='best',frameon=False)
 
     sns.despine()
-    fig3.savefig('figures/Figure3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig4.savefig('figures/Figure4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig4.savefig('figures/Figure4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+
+
+def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
+
+    mm = 1 / 25.4  # millimeters to inches
+    fig5 = plt.figure(figsize=(180 * mm, 180 * mm))
+
+    axes = gs.GridSpec(nrows=4, ncols=6,
+                       left=0.08,right=0.95,
+                       top = 0.96, bottom = 0.08,
+                       wspace=2, hspace=0.8)
+
+    # Output activity for FF, FB, FF+FB
+    num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
+
+    ax = fig5.add_subplot(axes[0, 2:4])
+    description = 'FF_Inh+indirect_FB_Inh+FB_Exc'
+    output_activity = network_activity_history_dict[description][model_seed]['Output']
+    argmax_indices = np.argmax(output_activity, axis=0)
+    sorted_indices = np.argsort(argmax_indices)
+    im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output unit ID')
+    ax.set_title(label_dict[description])
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Output activity', rotation=270, labelpad=10)
+
+    ax = fig5.add_subplot(axes[1, 2:4])
+    description = 'FF_Inh+indirect_FB_Inh+FB_Exc_b'
+    output_activity = network_activity_history_dict[description][model_seed]['Output']
+    argmax_indices = np.argmax(output_activity, axis=0)
+    sorted_indices = np.argsort(argmax_indices)
+    im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+    ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Output unit ID')
+    ax.set_title(label_dict[description])
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Output activity', rotation=270, labelpad=10)
+
+    #Similarity matrix
+    num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
+
+    ax = fig5.add_subplot(axes[0, 4:6])
+    description = 'FF_Inh+indirect_FB_Inh+FB_Exc'
+    similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
+    im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
+    ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_yticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Pattern ID',labelpad=-2)
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
+
+    ax = fig5.add_subplot(axes[1, 4:6])
+    description = 'FF_Inh+indirect_FB_Inh+FB_Exc_b'
+    similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
+    im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
+    ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_yticks(np.arange(0, num_patterns+1, num_patterns/4))
+    ax.set_xlabel('Pattern ID')
+    ax.set_ylabel('Pattern ID',labelpad=-2)
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
+
+    #Cumulative distribution for sparsity (1 - fraction active)
+    description_list = ['FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh+FB_Exc','FF_Inh+indirect_FB_Inh+FB_Exc_b']
+    ax = fig5.add_subplot(axes[2, 0:2])
+    for description in description_list:
+        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_sparsity - SD
+        error_max = mean_sparsity + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Sparsity')
+    ax.set_ylabel('Cumulative probability')
+
+    #Cumulative distribution for selectivity
+    ax = fig5.add_subplot(axes[2, 2:4])
+    for description in description_list:
+        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
+            selectivity_history_dict[description])
+        ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_selectivity - SD
+        error_max = mean_selectivity + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Selectivity')
+    ax.set_ylabel('Cumulative probability')
+
+    #Cumulative distribution for discriminability
+    ax = fig5.add_subplot(axes[2, 4:6])
+    for description in description_list:
+        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
+        error_min = mean_discriminability - SD
+        error_max = mean_discriminability + SD
+        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
+    ax.set_xlabel('Discriminability')
+    ax.set_ylabel('Cumulative probability')
+    ax.legend(loc='best',frameon=False)
+
+    sns.despine()
+    fig5.savefig('figures/Figure5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig5.savefig('figures/Figure5.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
     'S1, related to Figure 3'
 
     mm = 1 / 25.4  # millimeters to inches
-    figS1 = plt.figure(figsize=(180 * mm, 110 * mm))
+    figS1 = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=2, ncols=2,
                        left=0.1,right=0.90,
-                       top = 0.94, bottom = 0.1,
+                       top = 0.90, bottom = 0.1,
                        wspace=0.7, hspace=0.6)
 
     # Output activity for FF and FB units
@@ -597,7 +839,7 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
     ax.set_yticks(np.arange(0, 7))
     ax.set_xlabel('Pattern ID')
     ax.set_ylabel('Output unit ID')
-    ax.set_title(label_dict['FF_Inh'])
+    ax.set_title('Model - '+label_dict['FF_Inh']+'\nPopulation - FF Inh',loc='left')
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label('Output activity', rotation=270, labelpad=10)
 
@@ -610,7 +852,7 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
     ax.set_yticks(np.arange(0, 7))
     ax.set_xlabel('Pattern ID')
     ax.set_ylabel('Output unit ID')
-    ax.set_title(label_dict['FB_Inh'])
+    ax.set_title('Model - '+label_dict['FB_Inh']+'\nPopulation - FB Inh',loc='left')
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label('Output activity', rotation=270, labelpad=10)
 
@@ -625,92 +867,13 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
         ax.set_yticks(np.arange(0, 7))
         ax.set_xlabel('Pattern ID')
         ax.set_ylabel('Output unit ID')
-        ax.set_title(label_dict['FF_Inh+FB_Inh']+': '+population)
+        ax.set_title('Model - ' + label_dict['FF_Inh+FB_Inh'] + '\nPopulation - '+population,loc='left')
         cbar = plt.colorbar(im, ax=ax)
         cbar.set_label('Output activity', rotation=270, labelpad=10)
 
     sns.despine()
     figS1.savefig('figures/S1_F3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-
-
-def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
-
-    mm = 1 / 25.4  # millimeters to inches
-    fig4 = plt.figure(figsize=(180 * mm, 180 * mm))
-    axes = gs.GridSpec(nrows=4, ncols=6,
-                       left=0.08,right=0.96,
-                       top = 0.94, bottom = 0.1,
-                       wspace=2, hspace=0.6)
-
-    # Output activity for FF, FB, FF+FB
-    description_list = ['FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh_c']
-    num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
-    for i,description in enumerate(description_list):
-        ax = fig4.add_subplot(axes[1, i*3:i*3+3])
-        output_activity = network_activity_history_dict[description][model_seed]['Output']
-        argmax_indices = np.argmax(output_activity, axis=0)
-        sorted_indices = np.argsort(argmax_indices)
-        im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
-        ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
-        ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
-        ax.set_xlabel('Pattern ID')
-        ax.set_ylabel('Output unit ID')
-        ax.set_title(label_dict[description])
-        cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label('Output activity', rotation=270, labelpad=10)
-
-    #Similarity matrix
-    num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
-    for i,description in enumerate(description_list):
-        ax = fig4.add_subplot(axes[2, i*3:i*3+3])
-        similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
-        im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
-        ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
-        ax.set_yticks(np.arange(0, num_patterns+1, num_patterns/4))
-        ax.set_xlabel('Pattern ID')
-        ax.set_ylabel('Pattern ID',labelpad=-2)
-        cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
-
-    #Cumulative distribution for sparsity (1 - fraction active)
-    description_list = ['FF_Inh','FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh_c']
-    ax = fig4.add_subplot(axes[3, 0:2])
-    for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
-        ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_sparsity - SD
-        error_max = mean_sparsity + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Sparsity')
-    ax.set_ylabel('Cumulative probability')
-
-    #Cumulative distribution for selectivity
-    ax = fig4.add_subplot(axes[3, 2:4])
-    for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
-        ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_selectivity - SD
-        error_max = mean_selectivity + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Selectivity')
-    ax.set_ylabel('Cumulative probability')
-
-    #Cumulative distribution for discriminability
-    ax = fig4.add_subplot(axes[3, 4:6])
-    for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
-        ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_discriminability - SD
-        error_max = mean_discriminability + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Discriminability')
-    ax.set_ylabel('Cumulative probability')
-    ax.legend(loc='best',frameon=False)
-
-    sns.despine()
-    fig4.savefig('figures/Figure4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    figS1.savefig('figures/S1_F3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -746,86 +909,7 @@ def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
     sns.despine()
     figS2.savefig('figures/S2_F4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-
-
-def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
-                 sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
-
-    mm = 1 / 25.4  # millimeters to inches
-    fig5 = plt.figure(figsize=(180 * mm, 180 * mm))
-    axes = gs.GridSpec(nrows=4, ncols=6,
-                       left=0.08,right=0.96,
-                       top = 0.94, bottom = 0.1,
-                       wspace=2, hspace=0.6)
-
-    # Output activity for FF, FB, FF+FB
-    description_list = ['FF_Inh+indirect_FB_Inh+FB_Exc','FF_Inh+indirect_FB_Inh+FB_Exc_b']
-    num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
-    for i,description in enumerate(description_list):
-        ax = fig5.add_subplot(axes[1, i*3:i*3+3])
-        output_activity = network_activity_history_dict[description][model_seed]['Output']
-        argmax_indices = np.argmax(output_activity, axis=0)
-        sorted_indices = np.argsort(argmax_indices)
-        im = ax.imshow(output_activity[:, sorted_indices].transpose(), aspect='auto', cmap='binary')
-        ax.set_xticks(np.arange(0, num_output_units+1, num_output_units/4))
-        ax.set_yticks(np.arange(0, num_output_units+1, num_output_units/4))
-        ax.set_xlabel('Pattern ID')
-        ax.set_ylabel('Output unit ID')
-        ax.set_title(label_dict[description])
-        cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label('Output activity', rotation=270, labelpad=10)
-
-    #Similarity matrix
-    num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
-    for i,description in enumerate(description_list):
-        ax = fig5.add_subplot(axes[2, i*3:i*3+3])
-        similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
-        im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
-        ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
-        ax.set_yticks(np.arange(0, num_patterns+1, num_patterns/4))
-        ax.set_xlabel('Pattern ID')
-        ax.set_ylabel('Pattern ID',labelpad=-2)
-        cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label('Cosine similarity', rotation=270, labelpad=10)
-
-    #Cumulative distribution for sparsity (1 - fraction active)
-    description_list = ['FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh+FB_Exc','FF_Inh+indirect_FB_Inh+FB_Exc_b']
-    ax = fig5.add_subplot(axes[3, 0:2])
-    for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
-        ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_sparsity - SD
-        error_max = mean_sparsity + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max, alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Sparsity')
-    ax.set_ylabel('Cumulative probability')
-
-    #Cumulative distribution for selectivity
-    ax = fig5.add_subplot(axes[3, 2:4])
-    for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
-        ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_selectivity - SD
-        error_max = mean_selectivity + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Selectivity')
-    ax.set_ylabel('Cumulative probability')
-
-    #Cumulative distribution for discriminability
-    ax = fig5.add_subplot(axes[3, 4:6])
-    for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
-        ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
-        error_min = mean_discriminability - SD
-        error_max = mean_discriminability + SD
-        ax.fill_betweenx(cdf_prob_bins, error_min, error_max,alpha=0.2,color=color_dict[description])
-    ax.set_xlabel('Discriminability')
-    ax.set_ylabel('Cumulative probability')
-    ax.legend(loc='best',frameon=False)
-
-    sns.despine()
-    fig5.savefig('figures/Figure5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    figS2.savefig('figures/S2_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -861,6 +945,7 @@ def plot_S3(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
     sns.despine()
     figS3.savefig('figures/S3_F5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    figS3.savefig('figures/S3_F5.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plotS4(network_activity_dynamics_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -876,16 +961,25 @@ def plotS4(network_activity_dynamics_history_dict,color_dict,label_dict,model_se
     description = 'FF_Inh+indirect_FB_Inh+FB_Exc_b'
 
     for i,population in enumerate(population_list):
-        mean_across_patterns = np.mean(network_activity_dynamics_history_dict[description][model_seed][population],axis=0)
-        mean_activity = np.mean(mean_across_patterns,axis=0)
-
         col = i%2
         if i<2:
             row = 0
         else:
             row = 1
         ax = figS4.add_subplot(axes[row, col])
-        ax.plot(mean_activity)
+
+        mean_activity_array = []
+        for model_seed in network_activity_dynamics_history_dict[description].keys():
+            mean_across_patterns = np.mean(network_activity_dynamics_history_dict[description][model_seed][population],axis=0)
+            mean_activity = np.mean(mean_across_patterns,axis=0)
+            mean_activity_array.append(mean_activity)
+
+            ax.plot(mean_activity, color=[0.8,0.8,0.8])
+
+        mean_activity_array = np.array(mean_activity_array)
+        mean_across_seeds = np.mean(mean_activity_array, axis=0)
+        ax.plot(mean_across_seeds, color='red')
+
         ax.set_xlabel('Time (ms)')
         ax.set_ylabel('Mean activity')
         ax.set_title(population)
@@ -893,6 +987,7 @@ def plotS4(network_activity_dynamics_history_dict,color_dict,label_dict,model_se
         ax.spines["right"].set_visible(False)
 
     figS4.savefig('figures/S4_F5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    figS4.savefig('figures/S4_F5.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 #############################################################################
@@ -924,18 +1019,18 @@ def main(data_file_path, dynamics_file_path, model_seed):
                   'FF_Inh+indirect_FB_Inh_c': colorbrewer_list[6],
                   'FF_Inh+indirect_FB_Inh+FB_Exc': colorbrewer_list[7],
                   'FF_Inh+indirect_FB_Inh+FB_Exc_b': colorbrewer_list[8]}
-    label_dict = {'Ideal':'Ideal',
+    label_dict = {'Ideal':'Ideal output',
                   'Input': 'Input',
                   'Input-Output-uniform': 'No inhibition \n (uniform exc)',
                   'Input-Output-lognormal': 'No inhibition \n (log-normal exc)',
-                  'FF_Inh': 'Feedforward inhibition',
-                  'FB_Inh': 'Feedback inhibition',
-                  'FF_Inh+FB_Inh': 'FF+FB Inhibition',
+                  'FF_Inh': 'Inhibition: FF',
+                  'FB_Inh': 'Inhibition: FB',
+                  'FF_Inh+FB_Inh': 'Inhibition: FF + FB',
                   'FF_Inh+indirect_FB_Inh': 'Inhibition: FF + indirect FB',
                   'FF_Inh+indirect_FB_Inh_b': 'FF_Inh+indirect_FB_Inh_b',
                   'FF_Inh+indirect_FB_Inh_c': 'No recurrent connection',
-                  'FF_Inh+indirect_FB_Inh+FB_Exc': 'Mossy cells: FB excitation',
-                  'FF_Inh+indirect_FB_Inh+FB_Exc_b': 'Mossy cells: \n FB excitation + inhibition'}
+                  'FF_Inh+indirect_FB_Inh+FB_Exc': 'FB Exc -> Output',
+                  'FF_Inh+indirect_FB_Inh+FB_Exc_b': 'FB Exc -> Output +\n FB Inh  -> FB Exc'}
 
     # # Generate figures
     plotS4(network_activity_dynamics_history_dict,color_dict,label_dict)
