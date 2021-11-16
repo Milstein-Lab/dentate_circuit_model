@@ -1,4 +1,8 @@
 #!/bin/bash -l
+
+# To run script:
+#sh export_model_data.sh config/20211116_model_params.yaml data/20211116_exported_dentate_model_data
+
 export PARAM_FILE_PATH=$1
 export EXPORT_FILE_PATH_BASE=$2
 
@@ -12,7 +16,7 @@ declare -a config_file_names=(optimize_config_0_input_output_multiple_seeds.yaml
   optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml
   optimize_config_6b_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml)
 
-declare -a model_keys=(0 1 2 3 4 5 5c 6 6b)
+declare -a model_keys=(0 1 2 3 4 5 5c 6)
 
 arraylength=${#config_file_names[@]}
 
@@ -25,7 +29,7 @@ do
 done
 
 mpirun -n 6 python -m mpi4py.futures -m nested.analyze \
-  --config-file-path=config/optimize_config_6b_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml \
-  --param-file-path=$PARAM_FILE_PATH --model-key=6b --framework=mpi --export --export_dynamics \
+  --config-file-path=config/optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml \
+  --param-file-path=$PARAM_FILE_PATH --model-key=6 --framework=mpi --export --export_dynamics_light \
   --export-file-path=${EXPORT_FILE_PATH_BASE}_dynamics.hdf5 --allow_fail=False
 

@@ -1,5 +1,5 @@
 # python -m nested.analyze --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --disp --framework=serial --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
-
+#mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --framework=mpi --export --export-file-path=test.hdf5 --param-file-path=config/20211116_model_params.yaml --model-key=0 --allow_fail=False
 
 optimization_title: dentate_optimization_0
 

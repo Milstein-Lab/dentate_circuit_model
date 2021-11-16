@@ -1486,6 +1486,11 @@ def config_worker():
     elif isinstance(context.export_dynamics, str):
         context.export_dynamics = bool(strtobool(context.export_dynamics))
 
+    if 'export_dynamics_light' not in context():
+        context.export_dynamics_light = False
+    elif isinstance(context.export_dynamics_light, str):
+        context.export_dynamics_light = bool(strtobool(context.export_dynamics_light))
+
     if 'allow_fail' not in context():
         context.allow_fail = True
     elif isinstance(context.allow_fail, str):
