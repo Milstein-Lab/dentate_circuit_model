@@ -1067,8 +1067,9 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
     :param plot: bool
     :return: nested dict: {post_pop: {pre_pop: ndarray of float} }
     """
+    local_random = np.random.RandomState()
     if seed is not None:
-        np.random.seed(seed)
+        local_random.seed(seed)
 
     weight_dict = {}
     for post_pop in weight_config_dict:
@@ -1083,17 +1084,17 @@ def get_weight_dict(num_units_dict, weight_config_dict, seed=None, description=N
                     np.ones((num_units_dict[pre_pop], num_units_dict[post_pop])) * mean_weight
             elif dist_type == 'uniform':
                 weight_dict[post_pop][pre_pop] = \
-                    np.random.uniform(0, mean_weight * 2., (num_units_dict[pre_pop], num_units_dict[post_pop]))
+                    local_random.uniform(0, mean_weight * 2., (num_units_dict[pre_pop], num_units_dict[post_pop]))
             elif dist_type == 'normal':
                 # A normal distribution has a "full width" of 6 standard deviations.
                 # This sample will span from zero to 2 * mean_weight.
                 weight_dict[post_pop][pre_pop] = \
-                    np.random.normal(mean_weight, mean_weight / 3., (num_units_dict[pre_pop], num_units_dict[post_pop]))
+                    local_random.normal(mean_weight, mean_weight / 3., (num_units_dict[pre_pop], num_units_dict[post_pop]))
                 # enforce that normal weights are either all positive or all negative
                 weight_dict[post_pop][pre_pop] = np.maximum(0., weight_dict[post_pop][pre_pop])
             elif dist_type == 'log-normal':
                 weight_dict[post_pop][pre_pop] = \
-                    np.random.lognormal(size=(num_units_dict[pre_pop], num_units_dict[post_pop]))
+                    local_random.lognormal(size=(num_units_dict[pre_pop], num_units_dict[post_pop]))
                 # re-scale the weights to match the target mean weight:
                 weight_dict[post_pop][pre_pop] = \
                     mean_weight * weight_dict[post_pop][pre_pop] / np.mean(weight_dict[post_pop][pre_pop])
@@ -1531,8 +1532,13 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
 
     sparsity_errors = (context.target_val['sparsity'] -
                        orig_features_dict['sparsity_array'])/context.target_range['sparsity']
+
+    # penalize discriminability of silent patterns
+    bad_indexes = np.where(np.isnan(orig_features_dict['similarity_array']))
+    orig_features_dict['similarity_array'][bad_indexes] = 1.
     discriminability_errors = (context.target_val['similarity'] -
                                orig_features_dict['similarity_array'])/context.target_range['similarity']
+
     selectivity_errors = (context.target_val['selectivity'] -
                           orig_features_dict['selectivity_array'])/context.target_range['selectivity']
     fraction_active_patterns_error = (context.target_val['fraction_active_patterns'] -

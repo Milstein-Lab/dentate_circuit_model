@@ -1,0 +1,140 @@
+# python -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=2 --pop_size=3 --disp --framework=serial --interactive
+# mpirun -n 4 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh.yaml --path_length=1 --max_iter=1 --pop_size=3 --disp --framework=mpi
+# mpirun -n 6 python -m mpi4py.futures -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh_multiple_seeds.yaml --framework=mpi --export --debug
+# python -m nested.analyze --config_file_path=config/optimize_config_2_FF_Inh_multiple_seeds.yaml --export --export-file-path=data/20211104_000741_dentate_optimization_2_exported_output.hdf5
+
+optimization_title: dentate_optimization_2_no_sel_loss
+
+param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
+    - mean_weight;Output;Input
+    - mean_weight;FF_Inh;Input
+    - mean_weight;Output;FF_Inh
+
+bounds:
+    mean_weight;Output;Input: !!python/tuple
+        - 0.01
+        - 1.
+    mean_weight;FF_Inh;Input: !!python/tuple
+        - 0.01
+        - 1.
+    mean_weight;Output;FF_Inh: !!python/tuple
+        - 0.01
+        - 1.
+
+feature_names:
+    - sparsity
+    - similarity
+    - selectivity
+    - fraction_active_patterns
+    - fraction_active_units
+
+get_features_stages:
+    - source: optimize_dynamic_model
+      get_args_static: get_weight_seeds
+      compute_features: compute_features_multiple_instances
+      filter_features: filter_features_multiple_instances
+
+objective_names: #loss/error values to minimize
+    - sparsity_loss
+    - discriminability_loss
+    # - selectivity_loss
+    - fraction_active_patterns_loss
+    # - fraction_active_units_loss
+
+get_objectives:
+    optimize_dynamic_model: get_objectives_multiple_instances
+
+target_val:
+    sparsity: 1. # number of nonzero units for each pattern
+    similarity: 0. # target cosine similarity for each pair of patterns
+    selectivity: 1. # number of nonzero patters for each unit
+    fraction_active_patterns: 1. # fraction of patterns with any nonzero output activity
+    fraction_active_units: 1. # fraction of output units with any nonzero activity
+
+target_range: #scaling factor to determine sensitivity of each objective
+    sparsity: 0.1
+    similarity: 0.1
+    selectivity: 0.1
+    fraction_active_patterns: 0.001
+    fraction_active_units: 0.001
+
+x0: #initial parameters
+    mean_weight;Output;Input: 0.5
+    mean_weight;FF_Inh;Input: 0.5
+    mean_weight;Output;FF_Inh: 0.5
+
+param_gen: PopulationAnnealing
+
+kwargs: # All these will become attributes of Context() once nested.optimize is called
+    description: FF_Inh_no_sel_loss
+    init_weight_seed: 1234
+    num_instances: 5
+    duration: 0.35 #sec
+    dt: 0.001 #sec
+    time_point: !!python/tuple
+        - 0.15
+        - 0.35
+    plot_patterns: False
+    fraction_active_patterns_threshold:
+        Output: 0.9
+        default: 0.6
+    fraction_active_units_threshold:
+        Output: 0.
+        default: 0.8
+
+    num_units_dict:
+        Input: 7
+        Output: 128
+        FF_Inh: 7
+
+    activation_function_dict:
+        Output:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+        FF_Inh:
+            Name: piecewise_linear_activation
+            Arguments:
+                peak_output: 1.
+                peak_input: 60.
+                threshold: 10.
+
+    weight_config_dict:
+        Output:
+            Input:
+                dist_type: log-normal
+                mean_magnitude: 0.5
+                connection_type: exc
+            FF_Inh:
+                dist_type: uniform
+                mean_magnitude: 0.5
+                connection_type: inh
+        FF_Inh:
+            Input:
+                dist_type: uniform
+                mean_magnitude: 0.2
+                connection_type: exc
+
+    cell_tau_dict:
+        Output: 0.05
+        FF_Inh: 0.02
+
+    synapse_tau_dict:
+        Output:
+            Input:
+                rise: 0.001
+                decay: 0.01
+            FF_Inh:
+                rise: 0.001
+                decay: 0.02
+        FF_Inh:
+            Input:
+                rise: 0.001
+                decay: 0.01
+
+
+    synaptic_reversal_dict:
+        exc: 60.
+        inh: -10.
