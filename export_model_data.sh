@@ -9,6 +9,7 @@ export EXPORT_FILE_PATH_BASE=$2
 declare -a config_file_names=(optimize_config_0_input_output_multiple_seeds.yaml
   optimize_config_1_input_output_multiple_seeds.yaml
   optimize_config_2_FF_Inh_multiple_seeds.yaml
+  optimize_config_2_FF_Inh_multiple_seeds_no_sel_loss.yaml
   optimize_config_3_FB_Inh_multiple_seeds.yaml
   optimize_config_4_FF+FB_Inh_multiple_seeds.yaml
   optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml
