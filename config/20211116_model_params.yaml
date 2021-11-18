@@ -12,6 +12,10 @@
   mean_weight;FF_Inh;Input: 1.336012E-01
   mean_weight;Output;FF_Inh: 9.996123E-01
   mean_weight;Output;Input: 1.905018E-01
+2_no_sel_loss:
+  mean_weight;FF_Inh;Input: 2.319305E-01
+  mean_weight;Output;FF_Inh: 7.684236E-01
+  mean_weight;Output;Input: 1.026603E-01
 3:
   mean_weight;FB_Inh;Output: 9.963785E-01
   mean_weight;Output;FB_Inh: 1.003959E-02
