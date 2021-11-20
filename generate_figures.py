@@ -484,7 +484,7 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
                     color=color_dict['Input-Output-uniform'])
     x = [0, 0]
     y = [0, np.max(hist*bin_width)] #set ideal line to same height as other distributions, rounded up
-    ax.plot(x,y,'--', color='red', label='Ideal')
+    ax.plot(x, y, '--', color=color_dict['Ideal'], label=label_dict['Ideal'])
     ax.set_xticks(np.arange(0, 1.25, 1 / 4))
     ax.set_xlabel('Cosine similarity')
     ax.set_ylabel('Probability')
@@ -509,6 +509,7 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
     input_discriminability = 1 - input_similarity
     cumulative_input_discriminability = [np.quantile(input_discriminability, pi) for pi in cdf_prob_bins]
     ax.plot(cumulative_input_discriminability, cdf_prob_bins, label=description, color=color_dict['Input'])
+    ax.plot([1,1],[0,1],'--', color=color_dict['Ideal'], label=label_dict['Ideal'])
     ax.set_xlim([0,1])
     ax.set_ylim([0,1])
     ax.set_xlabel('Discriminability')
@@ -521,22 +522,32 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
     return
 
 
-def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
-    fig3 = plt.figure(figsize=(180 * mm, 180 * mm))
+    fig = plt.figure(figsize=(180 * mm, 180 * mm))
     axes = gs.GridSpec(nrows=4, ncols=6,
                        left=0.08,right=0.95,
                        top = 0.96, bottom = 0.08,
                        wspace=2, hspace=0.8)
 
-    # Output activity for FF, FB, FF+FB
     description_list = ['FF_Inh','FF_Inh_no_sel_loss']
 
+    # Weights bar plot
+    ax = fig.add_subplot(axes[1, 0:2])
+    x = [1,3]
+    x2= [1.5,3.5]
+    height = [3,4]
+    height2 = [5,6]
+    width = 0.5
+    ax.bar(x, height, width,color='b')
+    ax.bar(x2, height2, width,color='r')
+
+    # Output activity for FF, FB, FF+FB
     num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
     for i,description in enumerate(description_list):
-        ax = fig3.add_subplot(axes[i, 2:4])
+        ax = fig.add_subplot(axes[i, 2:4])
         output_activity = network_activity_history_dict[description][model_seed]['Output']
         argmax_indices = np.argmax(output_activity, axis=0)
         sorted_indices = np.argsort(argmax_indices)
@@ -552,7 +563,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     #Similarity matrix
     num_patterns = 2**num_units_history_dict['FF_Inh'][model_seed]['Input']
     for i,description in enumerate(description_list):
-        ax = fig3.add_subplot(axes[i, 4:6])
+        ax = fig.add_subplot(axes[i, 4:6])
         similarity_matrix = similarity_matrix_history_dict[description][model_seed]['Output']
         im = ax.imshow(similarity_matrix, aspect='auto', cmap='viridis',vmin=0, vmax=1)
         ax.set_xticks(np.arange(0, num_patterns+1, num_patterns/4))
@@ -566,7 +577,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     description_list = ['FF_Inh','FF_Inh_no_sel_loss','Input-Output-lognormal']
     label_dict['Input-Output-lognormal'] = 'No inhibition'
 
-    ax = fig3.add_subplot(axes[2, 0:2])
+    ax = fig.add_subplot(axes[2, 0:2])
     for description in description_list:
         mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
@@ -577,7 +588,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative probability')
 
     #Cumulative distribution for selectivity
-    ax = fig3.add_subplot(axes[2, 2:4])
+    ax = fig.add_subplot(axes[2, 2:4])
     for description in description_list:
         mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
             selectivity_history_dict[description])
@@ -590,7 +601,7 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.legend(loc='best',frameon=False)
 
     #Cumulative distribution for discriminability
-    ax = fig3.add_subplot(axes[2, 4:6])
+    ax = fig.add_subplot(axes[2, 4:6])
     for description in description_list:
         mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
         ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
@@ -601,8 +612,8 @@ def plot_figure3(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative probability')
 
     sns.despine()
-    fig3.savefig('figures/Figure3.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
-    fig3.savefig('figures/Figure3.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig.savefig('figures/Figure3.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig.savefig('figures/Figure3.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
 
 
 def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
@@ -770,8 +781,8 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     ax.legend(loc='best',frameon=False)
 
     sns.despine()
-    fig.savefig('figures/Figure4.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure4.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig.savefig('figures/Figure5.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig.savefig('figures/Figure5.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
 
 
 def plot_figure6(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
@@ -878,8 +889,8 @@ def plot_figure6(num_units_history_dict,network_activity_history_dict, selectivi
     ax.legend(loc='best',frameon=False)
 
     sns.despine()
-    fig5.savefig('figures/Figure5.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
-    fig5.savefig('figures/Figure5.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig5.savefig('figures/Figure6.svg', edgecolor='white', dpi=600, facecolor='white', transparent=True)
+    fig5.savefig('figures/Figure6.png', edgecolor='white', dpi=600, facecolor='white', transparent=True)
 
 
 def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -1079,17 +1090,29 @@ def main(data_file_path, dynamics_file_path, model_seed, plot):
     colorbrewer_list = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c',
                         '#fdbf6f','#ff7f00','#cab2d6']
 
-    color_dict = {'Ideal':'red',
-                  'Input': 'magenta',
-                  'Input-Output-uniform': colorbrewer_list[0],
-                  'Input-Output-lognormal': colorbrewer_list[1],
-                  'FF_Inh': colorbrewer_list[2],
-                  'FF_Inh_no_sel_loss': colorbrewer_list[8],
-                  'FB_Inh': colorbrewer_list[3],
-                  'FF_Inh+FB_Inh': colorbrewer_list[4],
-                  'FF_Inh+indirect_FB_Inh': colorbrewer_list[5],
-                  'FF_Inh+indirect_FB_Inh_c': colorbrewer_list[6],
-                  'FF_Inh+indirect_FB_Inh+FB_Exc': colorbrewer_list[7]}
+    # color_dict = {'Ideal':'red',
+    #               'Input': 'magenta',
+    #               'Input-Output-uniform': colorbrewer_list[0],
+    #               'Input-Output-lognormal': colorbrewer_list[1],
+    #               'FF_Inh': colorbrewer_list[2],
+    #               'FF_Inh_no_sel_loss': colorbrewer_list[8],
+    #               'FB_Inh': colorbrewer_list[3],
+    #               'FF_Inh+FB_Inh': colorbrewer_list[4],
+    #               'FF_Inh+indirect_FB_Inh': colorbrewer_list[5],
+    #               'FF_Inh+indirect_FB_Inh_c': colorbrewer_list[6],
+    #               'FF_Inh+indirect_FB_Inh+FB_Exc': colorbrewer_list[7]}
+
+    color_dict = {'Ideal': 'purple',
+                  'Input': 'r',
+                  'Input-Output-uniform': 'grey',
+                  'Input-Output-lognormal': 'k',
+                  'FF_Inh': 'cyan',
+                  'FF_Inh_no_sel_loss': 'green',
+                  'FB_Inh': 'orange',
+                  'FF_Inh+FB_Inh': 'sienna',
+                  'FF_Inh+indirect_FB_Inh': 'lime',
+                  'FF_Inh+indirect_FB_Inh_c': 'magenta',
+                  'FF_Inh+indirect_FB_Inh+FB_Exc': 'b'}
 
     label_dict = {'Ideal':'Ideal output',
                   'Input': 'Input',
@@ -1110,7 +1133,7 @@ def main(data_file_path, dynamics_file_path, model_seed, plot):
 
     plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
 
-    plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    plot_figure5(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed)
 
     plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed)
@@ -1118,7 +1141,7 @@ def main(data_file_path, dynamics_file_path, model_seed, plot):
     plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed)
 
-    plot_figure3(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
+    plot_figure3(num_units_history_dict, weight_history_dict, network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed)
 
     plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed)

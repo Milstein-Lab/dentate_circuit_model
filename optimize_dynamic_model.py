@@ -26,6 +26,7 @@ from copy import deepcopy
 from scipy.integrate import solve_ivp
 from nested.utils import read_from_yaml, Context, param_array_to_dict
 from distutils.util import strtobool
+from tqdm import tqdm
 import os, time
 
 import warnings
@@ -572,7 +573,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         cell_voltage_dynamics_dict[post_population] = \
             np.empty((len(input_patterns), num_units_dict[post_population], len(t)))
 
-    for pattern_index in range(len(input_patterns)):
+    for pattern_index in tqdm(range(len(input_patterns))):
         this_input_pattern = input_patterns[pattern_index]
         this_channel_conductance_dynamics_dict, this_net_current_dynamics_dict, this_cell_voltage_dynamics_dict, \
         this_network_activity_dynamics_dict = \
@@ -810,9 +811,6 @@ def analyze_median_dynamics(network_activity_dynamics_dict):
            mean_selectivity_dynamics_dict, fraction_nonzero_response_dynamics_dict
 
 
-# def plot_model_summary_single():
-    # copy of plot model summary but makes only 1 figure for each population
-
 def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description=None):
     """
     Generate a panel of plots summarizing the activity of each layer.
@@ -829,14 +827,17 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
     """
     num_of_populations = len(network_activity_dict)
 
-    fig, axes = plt.subplots(5, num_of_populations, figsize=(3 * num_of_populations, 8))
+    fig1, axes = plt.subplots(3, num_of_populations, figsize=(3 * num_of_populations, 8))
     for i, population in enumerate(network_activity_dict):
         # Show activity heatmap of units for all patterns
-        im1 = axes[0, i].imshow(network_activity_dict[population], aspect='auto')
+        argmax_indices = np.argmax(network_activity_dict[population], axis=0)
+        sorted_indices = np.argsort(argmax_indices)
+        im1 = axes[0, i].imshow(network_activity_dict[population][:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+        # im1 = axes[0, i].imshow(network_activity_dict[population], aspect='auto')
         cbar = plt.colorbar(im1, ax=axes[0, i])
         cbar.ax.set_ylabel('Unit activity', rotation=270, labelpad=20)
-        axes[0, i].set_xlabel('Unit ID')
-        axes[0, i].set_ylabel('Input pattern ID')
+        axes[0, i].set_ylabel('Unit ID')
+        axes[0, i].set_xlabel('Input pattern ID')
         axes[0, i].set_title('Activity\n%s population' % population)
 
         # Plot sparsity over patterns
@@ -854,26 +855,31 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
         axes[2, i].set_title('Similarity\n%s population' % population)
         plt.colorbar(im2, ax=axes[2, i])
 
+
+    fig2, axes = plt.subplots(2, num_of_populations, figsize=(3 * num_of_populations, 5))
+    for i, population in enumerate(network_activity_dict):
         # Plot discriminability distribution
+        row = 0
         bin_width = 0.05
         num_valid_patterns = len(np.where(sparsity_dict[population] > 0.)[0])
         invalid_indexes = np.isnan(similarity_matrix_dict[population])
         if len(invalid_indexes) < similarity_matrix_dict[population].size:
             hist, edges = np.histogram(similarity_matrix_dict[population][~invalid_indexes],
                                        bins=np.arange(-bin_width / 2., 1 + bin_width, bin_width), density=True)
-            axes[3, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+            axes[row, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
                             label='%.0f inactive pattern' %
                                   (len(sparsity_dict[population]) - num_valid_patterns))
-            axes[3, i].set_xlabel('Cosine similarity')
-            axes[3, i].set_ylabel('Probability')
-            axes[3, i].set_title('Pairwise similarity distribution\n%s population' % population)
-            axes[3, i].legend(loc='best', frameon=False)
-            axes[3, i].spines["top"].set_visible(False)
-            axes[3, i].spines["right"].set_visible(False)
+            axes[row, i].set_xlabel('Cosine similarity')
+            axes[row, i].set_ylabel('Probability')
+            axes[row, i].set_title('Pairwise similarity distribution\n%s population' % population)
+            axes[row, i].legend(loc='best', frameon=False)
+            axes[row, i].spines["top"].set_visible(False)
+            axes[row, i].spines["right"].set_visible(False)
 
-        #Plot selectivity distribution
+        # Plot selectivity distribution
+        row = 1
         num_nonzero_units = np.count_nonzero(selectivity_dict[population])
-        active_units_idx = np.where(selectivity_dict[population]>0)
+        active_units_idx = np.where(selectivity_dict[population] > 0)
         if num_nonzero_units > 0:
             max_response = np.max(selectivity_dict[population])
         else:
@@ -881,21 +887,26 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
         bin_width = max_response / 20
         hist, edges = np.histogram(selectivity_dict[population][active_units_idx],
                                    bins=np.arange(-bin_width / 2., max_response + bin_width, bin_width), density=True)
-        axes[4, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
+        axes[row, i].plot(edges[:-1] + bin_width / 2., hist * bin_width,
                         label='%.0f inactive units' %
                               (len(selectivity_dict[population]) - num_nonzero_units))
-        axes[4, i].set_xlabel('Selectivity (# patterns w/ activity)')
-        axes[4, i].set_ylabel('Probability')
-        axes[4, i].set_title('Selectivity distribution\n%s population' % population)
-        axes[4, i].legend(loc='best', frameon=False)
-        axes[4, i].spines["top"].set_visible(False)
-        axes[4, i].spines["right"].set_visible(False)
+        axes[row, i].set_xlabel('Selectivity (# patterns w/ activity)')
+        axes[row, i].set_ylabel('Probability')
+        axes[row, i].set_title('Selectivity distribution\n%s population' % population)
+        axes[row, i].legend(loc='best', frameon=False)
+        axes[row, i].spines["top"].set_visible(False)
+        axes[row, i].spines["right"].set_visible(False)
 
 
     if description is not None:
-        fig.suptitle(description)
-    fig.tight_layout(w_pad=3, h_pad=3, rect=(0., 0., 1., 0.98))
-    fig.show()
+        fig1.suptitle(description)
+        fig2.suptitle(description)
+
+    fig1.tight_layout(w_pad=3, h_pad=2, rect=(0., 0., 1., 0.98))
+    fig1.show()
+
+    fig2.tight_layout(w_pad=3, h_pad=2, rect=(0., 0., 1., 0.98))
+    fig2.show()
 
 
 def plot_compare_model_sparsity_and_similarity(sparsity_history_dict, similarity_matrix_history_dict):
@@ -969,7 +980,7 @@ def plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_d
     for i, population in enumerate(median_sparsity_dynamics_dict):
         axes[0, i].plot(t, median_sparsity_dynamics_dict[population])
         axes[0, i].set_xlabel('Time (s)')
-        axes[0, i].set_ylabel('Sparsity')
+        axes[0, i].set_ylabel('sparsity')
         axes[0, i].set_title('Median sparsity\n%s population' % population)
         axes[0, i].spines["top"].set_visible(False)
         axes[0, i].spines["right"].set_visible(False)
@@ -978,6 +989,7 @@ def plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_d
         axes[1, i].set_xlabel('Time (s)')
         axes[1, i].set_ylabel('Nonzero responses\n(% of patterns)')
         axes[1, i].set_title('Nonzero responses\n%s population' % population)
+        axes[1, i].set_ylim([0,100])
         axes[1, i].spines["top"].set_visible(False)
         axes[1, i].spines["right"].set_visible(False)
 
