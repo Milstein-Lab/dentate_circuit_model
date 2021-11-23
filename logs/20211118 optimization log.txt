@@ -1,0 +1,287 @@
+dentate_circuit_model
+20211116
+
+0:
+params:
+{'mean_weight;Output;Input': 0.11352538207918526}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 104.303125,
+ 'similarity': 0.7462088129177005,
+ 'sparsity': 104.303125}
+objectives:
+{'discriminability_loss': 500287.6640241557,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 139201040.0,
+ 'sparsity_loss': 150163320.0}
+
+1:
+params:
+{'mean_weight;Output;Input': 0.06807313364575658}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.95625,
+ 'selectivity': 56.30625,
+ 'similarity': 0.5516763203493038,
+ 'sparsity': 56.30625}
+objectives:
+{'discriminability_loss': 295342.8498685329,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 2099.609375,
+ 'selectivity_loss': 51273680.0,
+ 'sparsity_loss': 51004960.0}
+ 
+2:
+ params:
+{'mean_weight;FF_Inh;Input': 0.13360117659334364,
+ 'mean_weight;Output;FF_Inh': 0.9996123011457946,
+ 'mean_weight;Output;Input': 0.19050176881947783}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.9375,
+ 'selectivity': 49.5578125,
+ 'similarity': 0.5753394297486006,
+ 'sparsity': 49.5578125}
+objectives:
+{'discriminability_loss': 305668.35127168556,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 4272.4609375,
+ 'selectivity_loss': 47790740.0,
+ 'sparsity_loss': 31899380.0}
+
+2_no_sel_loss:
+params:
+{'mean_weight;FF_Inh;Input': 0.23193053521913395,
+ 'mean_weight;Output;FF_Inh': 0.7684236010310075,
+ 'mean_weight;Output;Input': 0.10266025276556662}
+features:
+{'fraction_active_patterns': 0.990625,
+ 'fraction_active_units': 0.35625,
+ 'selectivity': 5.3921875,
+ 'similarity': 0.4093752081250755,
+ 'sparsity': 5.3921875}
+objectives:
+{'discriminability_loss': 238135.04587856773,
+ 'fraction_active_patterns_loss': 97.65625,
+ 'sparsity_loss': 364340.0} 
+
+3:
+ params:
+{'mean_weight;FB_Inh;Output': 0.9963784661606077,
+ 'mean_weight;Output;FB_Inh': 0.010039593630934231,
+ 'mean_weight;Output;Input': 0.07022656403523576}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.9328125,
+ 'selectivity': 51.7859375,
+ 'similarity': 0.542870110114689,
+ 'sparsity': 51.7859375}
+objectives:
+{'discriminability_loss': 287786.72814150003,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 4724.12109375,
+ 'selectivity_loss': 45845580.0,
+ 'sparsity_loss': 43279420.0}
+ 
+4:
+ params:
+{'mean_weight;FB_Inh;Output': 0.9920388571395331,
+ 'mean_weight;FF_Inh;Input': 0.9183690807094687,
+ 'mean_weight;Output;FB_Inh': 0.010062111386905595,
+ 'mean_weight;Output;FF_Inh': 0.012592644846100055,
+ 'mean_weight;Output;Input': 0.07753735502789316}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.928125,
+ 'selectivity': 51.890625,
+ 'similarity': 0.5452500551963635,
+ 'sparsity': 51.890625}
+objectives:
+{'discriminability_loss': 289444.0871610431,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 5493.1640625,
+ 'selectivity_loss': 46163680.0,
+ 'sparsity_loss': 43067040.0}
+ 
+5:
+ {'mean_weight;FB_Exc;FB_Exc': 0.7891834963627602,
+ 'mean_weight;FB_Exc;Output': 0.016771504798415677,
+ 'mean_weight;FB_Inh;FB_Exc': 0.858340342913739,
+ 'mean_weight;FF_Inh;Input': 0.16404083598484998,
+ 'mean_weight;Output;FB_Inh': 0.9994808288307564,
+ 'mean_weight;Output;FF_Inh': 0.3011067041800945,
+ 'mean_weight;Output;Input': 0.3891419395182729}
+features:
+{'fraction_active_patterns': 0.990625,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 20.24375,
+ 'similarity': 0.4535616794278208,
+ 'sparsity': 20.24375}
+objectives:
+{'discriminability_loss': 230121.6302529498,
+ 'fraction_active_patterns_loss': 97.65625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 13072920.0,
+ 'sparsity_loss': 7720680.0}
+ 
+5c:
+ {'mean_weight;FB_Exc;Output': 0.027768236107448628,
+ 'mean_weight;FB_Inh;FB_Exc': 1.3921991205180364,
+ 'mean_weight;FF_Inh;Input': 0.22227077198707362,
+ 'mean_weight;Output;FB_Inh': 1.8860578797609338,
+ 'mean_weight;Output;FF_Inh': 0.6444543381158532,
+ 'mean_weight;Output;Input': 0.6517969684226278}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 79.3125,
+ 'similarity': 0.652505887161495,
+ 'sparsity': 79.3125}
+objectives:
+{'discriminability_loss': 373164.1538951141,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 94748680.0,
+ 'sparsity_loss': 80070000.0}
+ 
+6:
+ {'mean_weight;FB_Exc;FB_Exc': 0.9333823305283068,
+ 'mean_weight;FB_Exc;Output': 0.015898631347317553,
+ 'mean_weight;FB_Inh;FB_Exc': 0.7726986920737516,
+ 'mean_weight;FF_Inh;Input': 0.4825204334287525,
+ 'mean_weight;Output;FB_Exc': 0.04237102775102058,
+ 'mean_weight;Output;FB_Inh': 0.9983056464267979,
+ 'mean_weight;Output;FF_Inh': 0.011060755284844192,
+ 'mean_weight;Output;Input': 0.20904539423738192}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 22.3765625,
+ 'similarity': 0.37528640295537763,
+ 'sparsity': 22.3765625}
+objectives:
+{'discriminability_loss': 187028.2063342652,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 9523300.0,
+ 'sparsity_loss': 17337020.0}
+ 
+6b:
+{'mean_weight;FB_Exc;FB_Exc': 0.0681268540533296,
+ 'mean_weight;FB_Exc;FB_Inh': 0.603365426991978,
+ 'mean_weight;FB_Exc;Output': 0.20150997972389706,
+ 'mean_weight;FB_Inh;FB_Exc': 0.9789131329149487,
+ 'mean_weight;FF_Inh;Input': 0.9651421863598344,
+ 'mean_weight;Output;FB_Exc': 0.26409246822714016,
+ 'mean_weight;Output;FB_Inh': 0.01595327062599548,
+ 'mean_weight;Output;FF_Inh': 0.1395173694936878,
+ 'mean_weight;Output;Input': 0.0868673900303449}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.996875,
+ 'selectivity': 41.721875,
+ 'similarity': 0.44986314922225656,
+ 'sparsity': 41.721875}
+objectives:
+{'discriminability_loss': 219240.49910076492,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 24.4140625,
+ 'selectivity_loss': 27745440.0,
+ 'sparsity_loss': 41755600.0}
+ 
+ 
+ 
+ 
+Tuning each seed independently:
+2:
+
+1234:
+params:
+{'mean_weight;FF_Inh;Input': 0.13330907519966276,
+ 'mean_weight;Output;FF_Inh': 0.9993219333409148,
+ 'mean_weight;Output;Input': 0.1840184256249929}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.90625,
+ 'selectivity': 43.6171875,
+ 'similarity': 0.5876672470531145,
+ 'sparsity': 43.6171875}
+objectives:
+{'discriminability_loss': 316788.78149634495,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 8789.0625,
+ 'selectivity_loss': 39856900.0,
+ 'sparsity_loss': 24108500.0}
+ 
+1235:
+{'mean_weight;FF_Inh;Input': 0.17489250378490492,
+ 'mean_weight;Output;FF_Inh': 0.9999972784636548,
+ 'mean_weight;Output;Input': 0.18333316105732017}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 0.90625,
+ 'selectivity': 37.578125,
+ 'similarity': 0.5391440953304875,
+ 'sparsity': 37.578125}
+objectives:
+{'discriminability_loss': 282487.0704590123,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 8789.0625,
+ 'selectivity_loss': 32689800.0,
+ 'sparsity_loss': 18562600.0}
+
+1236:
+params:
+{'mean_weight;FF_Inh;Input': 0.05193352748448008,
+ 'mean_weight;Output;FF_Inh': 0.015033827362931169,
+ 'mean_weight;Output;Input': 0.09181411467437102}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 75.6953125,
+ 'similarity': 0.5743174903122797,
+ 'sparsity': 75.6953125}
+objectives:
+{'discriminability_loss': 316807.44710942666,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 80033300.0,
+ 'sparsity_loss': 86063900.0}
+ 
+1237:
+params:
+{'mean_weight;FF_Inh;Input': 0.05073721576819899,
+ 'mean_weight;Output;FF_Inh': 0.011262366942987599,
+ 'mean_weight;Output;Input': 0.08438448516394928}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 69.6484375,
+ 'similarity': 0.6080769683679004,
+ 'sparsity': 69.6484375}
+objectives:
+{'discriminability_loss': 340602.22962673026,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 70071500.0,
+ 'sparsity_loss': 73383700.0}
+ 
+1238:
+params:
+{'mean_weight;FF_Inh;Input': 0.04951083543726237,
+ 'mean_weight;Output;FF_Inh': 0.010749694748264128,
+ 'mean_weight;Output;Input': 0.10322522874452392}
+features:
+{'fraction_active_patterns': 0.9921875,
+ 'fraction_active_units': 1.0,
+ 'selectivity': 82.6953125,
+ 'similarity': 0.6439147630716046,
+ 'sparsity': 82.6953125}
+objectives:
+{'discriminability_loss': 376500.45700502384,
+ 'fraction_active_patterns_loss': 61.03515625,
+ 'fraction_active_units_loss': 0.0,
+ 'selectivity_loss': 94037300.0,
+ 'sparsity_loss': 98566500.0}
