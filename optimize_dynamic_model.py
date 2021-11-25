@@ -26,7 +26,6 @@ from copy import deepcopy
 from scipy.integrate import solve_ivp
 from nested.utils import read_from_yaml, Context, param_array_to_dict
 from distutils.util import strtobool
-from tqdm import tqdm
 import os, time
 
 import warnings
@@ -573,7 +572,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         cell_voltage_dynamics_dict[post_population] = \
             np.empty((len(input_patterns), num_units_dict[post_population], len(t)))
 
-    for pattern_index in tqdm(range(len(input_patterns))):
+    for pattern_index in range(len(input_patterns)):
         this_input_pattern = input_patterns[pattern_index]
         this_channel_conductance_dynamics_dict, this_net_current_dynamics_dict, this_cell_voltage_dynamics_dict, \
         this_network_activity_dynamics_dict = \
