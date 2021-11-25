@@ -3,15 +3,15 @@
 
 import click
 import numpy as np
+from scipy import stats
 from math import ceil
 import h5py
 from copy import deepcopy
-import matplotlib.pyplot as plt
 from optimize_dynamic_model import analyze_slice, get_binary_input_patterns
+import os
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
-
 import seaborn as sns
 sns.set_style(style='ticks')
 
@@ -164,7 +164,7 @@ def plot_cumulative_discriminability(similarity_matrix_history_dict):
     SD = np.std(cumulative_discriminability, axis=0)
     SEM = SD / np.sqrt(cumulative_discriminability.shape[0])
 
-    return mean_discriminability, cdf_prob_bins, SD
+    return cumulative_discriminability.flatten(), mean_discriminability, cdf_prob_bins, SD
 
 
 def plot_cumulative_selectivity(selectivity_history_dict):
@@ -189,7 +189,7 @@ def plot_cumulative_selectivity(selectivity_history_dict):
     SD = np.std(cumulative_selectivity, axis=0)
     SEM = SD / np.sqrt(cumulative_selectivity.shape[0])
 
-    return mean_selectivity, cdf_prob_bins, SD
+    return cumulative_selectivity.flatten(), mean_selectivity, cdf_prob_bins, SD
 
 
 def plot_cumulative_sparsity(sparsity_history_dict):
@@ -215,14 +215,14 @@ def plot_cumulative_sparsity(sparsity_history_dict):
     SD = np.std(cumulative_sparsity, axis=0)
     SEM = SD / np.sqrt(cumulative_sparsity.shape[0])
 
-    return  mean_sparsity, cdf_prob_bins, SD
+    return  cumulative_sparsity.flatten(), mean_sparsity, cdf_prob_bins, SD
 
 
 def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  weight_history_dict, network_activity_history_dict, color_dict, label_dict, model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters in inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
@@ -344,8 +344,10 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     ax = fig.add_subplot(axes[1, 3])
 
     description_list = ['Input-Output-uniform','Input-Output-lognormal']
+    cumulative_sparsity_dict = {}
     for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity, mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity_dict[description] = cumulative_sparsity
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_sparsity - SD
         error_max = mean_sparsity + SD
@@ -354,6 +356,21 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     sparsity_input = 1 - sparsity_history_dict['Input-Output-lognormal'][model_seed]['Input'] / num_input_units
     sparsity_input = np.sort(sparsity_input[:])
     cumulative_sparsity_input = [np.quantile(sparsity_input, pi) for pi in cdf_prob_bins]
+    cumulative_sparsity_dict['Input'] = cumulative_sparsity_input
+
+    s, p1 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-uniform'],
+                          cumulative_sparsity_dict['Input-Output-lognormal'])
+    s, p2 = stats.ks_2samp(cumulative_sparsity_dict['Input'],
+                          cumulative_sparsity_dict['Input-Output-uniform'])
+    s, p3 = stats.ks_2samp(cumulative_sparsity_dict['Input'],
+                          cumulative_sparsity_dict['Input-Output-lognormal'])
+    path_to_file = 'ks_tests.txt'
+    mode = 'a' if os.path.exists(path_to_file) else 'w'
+    with open(path_to_file, mode) as f:
+        f.write(f"\nFig1 Sparsity Stats:"
+                f"\nUniform Vs Lognormal: p = {p1}"
+                f"\nInput Vs Uniform: p = {p2}"
+                f"\nInput Vs Lognormal: p = {p3}")
 
     ax.plot(cumulative_sparsity_input, cdf_prob_bins, label=label_dict['Input'], color=color_dict['Input'])
     ax.plot([1,1],[0,1],'--',color=color_dict['Ideal'],label=label_dict['Ideal'])
@@ -398,9 +415,10 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     # Cumulative selectivity
     ax = fig.add_subplot(axes[1, 4])
+    cumulative_selectivity_dict = {}
     for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
+        cumulative_selectivity, mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict[description])
+        cumulative_selectivity_dict[description] = cumulative_selectivity
         ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
@@ -409,6 +427,20 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     selectivity_input = 1 - selectivity_history_dict['Input-Output-lognormal'][model_seed]['Input'] / 2**num_input_units
     selectivity_input = np.sort(selectivity_input[:])
     cumulative_selectivity_input = [np.quantile(selectivity_input, pi) for pi in cdf_prob_bins]
+    cumulative_selectivity_dict['Input'] = cumulative_selectivity_input
+
+    s, p1 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-uniform'],
+                          cumulative_selectivity_dict['Input-Output-lognormal'])
+    s, p2 = stats.ks_2samp(cumulative_selectivity_dict['Input'],
+                          cumulative_selectivity_dict['Input-Output-uniform'])
+    s, p3 = stats.ks_2samp(cumulative_selectivity_dict['Input'],
+                          cumulative_selectivity_dict['Input-Output-lognormal'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig1 Selectivity Stats:"
+                f"\nUniform Vs Lognormal: p = {p1}"
+                f"\nInput Vs Uniform: p = {p2}"
+                f"\nInput Vs Lognormal: p = {p3}\n")
+
     ax.plot(cumulative_selectivity_input, cdf_prob_bins, label=label_dict['Input'], color=color_dict['Input'])
     ax.plot([1,1],[0,1],'--',color=color_dict['Ideal'],label=label_dict['Ideal'])
 
@@ -422,18 +454,17 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
 
     sns.despine()
     fig.savefig('figures/Figure1.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure1.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/Figure1.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters in inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
                        wspace=0.8, hspace=1.2)
-
 
     fontsize = 8
 
@@ -493,6 +524,7 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
                     color=color_dict['Input-Output-lognormal'])
 
     ax.set_xticks([0,1])
+    ax.set_xlim([0,1])
     ax.tick_params(labelsize=fontsize)
     ax.set_xlabel('Cosine similarity', fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Probability', fontsize=fontsize,labelpad=0)
@@ -502,8 +534,10 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
     ax = fig.add_subplot(axes[0,4])
 
     description_list = ['Input-Output-uniform','Input-Output-lognormal']
+    cumulative_discriminability_dict = {}
     for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability, mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability_dict[description] = cumulative_discriminability
         ax.plot(mean_discriminability, cdf_prob_bins, label=description,color=color_dict[description])
         error_min = mean_discriminability - SD
         error_max = mean_discriminability + SD
@@ -516,8 +550,25 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
     input_similarity = np.sort(input_similarity[~invalid_idx])
     input_discriminability = 1 - input_similarity
     cumulative_input_discriminability = [np.quantile(input_discriminability, pi) for pi in cdf_prob_bins]
+    cumulative_discriminability_dict['Input'] = cumulative_input_discriminability
+
+    s, p1 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-uniform'],
+                          cumulative_discriminability_dict['Input-Output-lognormal'])
+    s, p2 = stats.ks_2samp(cumulative_discriminability_dict['Input'],
+                          cumulative_discriminability_dict['Input-Output-uniform'])
+    s, p3 = stats.ks_2samp(cumulative_discriminability_dict['Input'],
+                          cumulative_discriminability_dict['Input-Output-lognormal'])
+    path_to_file = 'ks_tests.txt'
+    mode = 'a' if os.path.exists(path_to_file) else 'w'
+    with open(path_to_file, mode) as f:
+        f.write(f"\nFig2 Discriminability Stats:"
+                f"\nUniform Vs Lognormal: p = {p1}"
+                f"\nInput Vs Uniform: p = {p2}"
+                f"\nInput Vs Lognormal: p = {p3}\n")
+
     ax.plot(cumulative_input_discriminability, cdf_prob_bins, label=description, color=color_dict['Input'])
     ax.plot([1,1],[0,1],'--', color=color_dict['Ideal'], label=label_dict['Ideal'])
+
     ax.set_xlim([0,1])
     ax.set_ylim([0,1])
     ax.set_xticks([0,1])
@@ -528,14 +579,14 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
 
     sns.despine()
     fig.savefig('figures/Figure2.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure2.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/Figure2.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
@@ -588,8 +639,10 @@ def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_h
     label_dict['Input-Output-lognormal'] = 'No inhibition'
 
     ax = fig.add_subplot(axes[0, 3])
+    cumulative_sparsity_dict = {}
     for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity, mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity_dict[description] = cumulative_sparsity
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_sparsity - SD
         error_max = mean_sparsity + SD
@@ -602,11 +655,26 @@ def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_h
     ax.set_xlabel('Sparsity',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize,labelpad=0)
 
+    s, p1 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-lognormal'],
+                          cumulative_sparsity_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-lognormal'],
+                          cumulative_sparsity_dict['FF_Inh_no_sel_loss'])
+    s, p3 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh'],
+                          cumulative_sparsity_dict['FF_Inh_no_sel_loss'])
+    path_to_file = 'ks_tests.txt'
+    mode = 'a' if os.path.exists(path_to_file) else 'w'
+    with open(path_to_file, mode) as f:
+        f.write("\nFig3 Sparsity Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FF No selectivity: p = {p2}"
+                f"\nFF Inh Vs FF No selectivity: p = {p3}")
+
     #Cumulative distribution for selectivity
     ax = fig.add_subplot(axes[0, 4])
+    cumulative_selectivity_dict = {}
     for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
+        cumulative_selectivity, mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict[description])
+        cumulative_selectivity_dict[description] = cumulative_selectivity
         ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
@@ -620,10 +688,24 @@ def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_h
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize,labelpad=0)
     ax.legend(loc='best',frameon=False,fontsize=fontsize,handlelength=1)
 
+    s, p1 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-lognormal'],
+                          cumulative_selectivity_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-lognormal'],
+                          cumulative_selectivity_dict['FF_Inh_no_sel_loss'])
+    s, p3 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh'],
+                          cumulative_selectivity_dict['FF_Inh_no_sel_loss'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig3 Selectivity Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FF No selectivity: p = {p2}"
+                f"\nFF Inh Vs FF No selectivity: p = {p3}")
+
     #Cumulative distribution for discriminability
     ax = fig.add_subplot(axes[1, 3])
+    cumulative_discriminability_dict = {}
     for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability, mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability_dict[description] = cumulative_discriminability
         ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_discriminability - SD
         error_max = mean_discriminability + SD
@@ -636,16 +718,31 @@ def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_h
     ax.set_xlabel('Discriminability',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize,labelpad=0)
 
+
+    s, p1 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-lognormal'],
+                          cumulative_discriminability_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-lognormal'],
+                          cumulative_discriminability_dict['FF_Inh_no_sel_loss'])
+    s, p3 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh'],
+                          cumulative_discriminability_dict['FF_Inh_no_sel_loss'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig3 Discriminability Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FF No selectivity: p = {p2}"
+                f"\nFF Inh Vs FF No selectivity: p = {p3}\n")
+
+
+
     sns.despine()
     fig.savefig('figures/Figure3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/Figure3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
@@ -700,8 +797,10 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
     label_dict['Input-Output-lognormal'] = 'No inhibition'
 
     ax = fig.add_subplot(axes[0, 3])
+    cumulative_sparsity_dict = {}
     for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity, mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity_dict[description] = cumulative_sparsity
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_sparsity - SD
         error_max = mean_sparsity + SD
@@ -714,11 +813,35 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_xlabel('Sparsity',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize,labelpad=0)
 
+    s, p1 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-lognormal'],
+                          cumulative_sparsity_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-lognormal'],
+                          cumulative_sparsity_dict['FB_Inh'])
+    s, p3 = stats.ks_2samp(cumulative_sparsity_dict['Input-Output-lognormal'],
+                          cumulative_sparsity_dict['FF_Inh+FB_Inh'])
+    s, p4 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh'],
+                          cumulative_sparsity_dict['FB_Inh'])
+    s, p5 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh'],
+                          cumulative_sparsity_dict['FF_Inh+FB_Inh'])
+    s, p6 = stats.ks_2samp(cumulative_sparsity_dict['FB_Inh'],
+                          cumulative_sparsity_dict['FF_Inh+FB_Inh'])
+    path_to_file = 'ks_tests.txt'
+    mode = 'a' if os.path.exists(path_to_file) else 'w'
+    with open(path_to_file, mode) as f:
+        f.write("\nFig4 Sparsity Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FB Inh: p = {p2}"
+                f"\nLognormal Vs FF+FB Inh: p = {p3}"
+                f"\nFF Inh Vs FB Inh: p = {p4}"
+                f"\nFF Inh Vs FF+FB Inh: p = {p5}"
+                f"\nFB Inh Vs FF+FB Inh: p = {p6}")
+
     #Cumulative distribution for selectivity
     ax = fig.add_subplot(axes[0, 4])
+    cumulative_selectivity_dict = {}
     for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
+        cumulative_selectivity, mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict[description])
+        cumulative_selectivity_dict[description] = cumulative_selectivity
         ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
@@ -732,10 +855,33 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize)
     ax.legend(loc='best',frameon=False,fontsize=fontsize,handlelength=1)
 
+    s, p1 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-lognormal'],
+                           cumulative_selectivity_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-lognormal'],
+                           cumulative_selectivity_dict['FB_Inh'])
+    s, p3 = stats.ks_2samp(cumulative_selectivity_dict['Input-Output-lognormal'],
+                           cumulative_selectivity_dict['FF_Inh+FB_Inh'])
+    s, p4 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh'],
+                           cumulative_selectivity_dict['FB_Inh'])
+    s, p5 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh'],
+                           cumulative_selectivity_dict['FF_Inh+FB_Inh'])
+    s, p6 = stats.ks_2samp(cumulative_selectivity_dict['FB_Inh'],
+                           cumulative_selectivity_dict['FF_Inh+FB_Inh'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig4 Selectivity Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FB Inh: p = {p2}"
+                f"\nLognormal Vs FF+FB Inh: p = {p3}"
+                f"\nFF Inh Vs FB Inh: p = {p4}"
+                f"\nFF Inh Vs FF+FB Inh: p = {p5}"
+                f"\nFB Inh Vs FF+FB Inh: p = {p6}")
+
     #Cumulative distribution for discriminability
     ax = fig.add_subplot(axes[1, 3])
+    cumulative_discriminability_dict = {}
     for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability, mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability_dict[description] = cumulative_discriminability
         ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_discriminability - SD
         error_max = mean_discriminability + SD
@@ -748,20 +894,42 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_xlabel('Discriminability',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize)
 
+    s, p1 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-lognormal'],
+                           cumulative_discriminability_dict['FF_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-lognormal'],
+                           cumulative_discriminability_dict['FB_Inh'])
+    s, p3 = stats.ks_2samp(cumulative_discriminability_dict['Input-Output-lognormal'],
+                           cumulative_discriminability_dict['FF_Inh+FB_Inh'])
+    s, p4 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh'],
+                           cumulative_discriminability_dict['FB_Inh'])
+    s, p5 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+FB_Inh'])
+    s, p6 = stats.ks_2samp(cumulative_discriminability_dict['FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+FB_Inh'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig4 Discriminability Stats:"
+                f"\nLognormal Vs FF Inh: p = {p1}"
+                f"\nLognormal Vs FB Inh: p = {p2}"
+                f"\nLognormal Vs FF+FB Inh: p = {p3}"
+                f"\nFF Inh Vs FB Inh: p = {p4}"
+                f"\nFF Inh Vs FF+FB Inh: p = {p5}"
+                f"\nFB Inh Vs FF+FB Inh: p = {p6}\n")
+
+
     sns.despine()
     fig.savefig('figures/Figure4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/Figure4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivity_history_dict, similarity_matrix_history_dict,
                  sparsity_history_dict,color_dict,label_dict,model_seed='1234'):
 
     mm = 1 / 25.4  # millimeters to inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
-                       wspace=1.2, hspace=1.2)
+                       wspace=0.8, hspace=1.2)
     fontsize = 8
     description_list = ['FF_Inh+indirect_FB_Inh','FF_Inh+indirect_FB_Inh_c','FF_Inh+indirect_FB_Inh+FB_Exc']
     num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
@@ -809,8 +977,10 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     label_dict['FF_Inh+FB_Inh'] = 'Inhibition: FF + direct FB'
 
     ax = fig.add_subplot(axes[0, 3])
+    cumulative_sparsity_dict = {}
     for description in description_list:
-        mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity, mean_sparsity, cdf_prob_bins, SD = plot_cumulative_sparsity(sparsity_history_dict[description])
+        cumulative_sparsity_dict[description] = cumulative_sparsity
         ax.plot(mean_sparsity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_sparsity - SD
         error_max = mean_sparsity + SD
@@ -823,11 +993,32 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_xlabel('Sparsity',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize)
 
+    s, p1 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+FB_Inh'],
+                           cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+FB_Inh'],
+                           cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p3 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+FB_Inh'],
+                           cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    s, p4 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh'],
+                           cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p5 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh'],
+                           cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    path_to_file = 'ks_tests.txt'
+    mode = 'a' if os.path.exists(path_to_file) else 'w'
+    with open(path_to_file, mode) as f:
+        f.write("\nFig5 Sparsity Stats:"
+                f"\ndirect FB Vs indirect FB: p = {p1}"
+                f"\ndirect FB Vs (-)recurrent: p = {p2}"
+                f"\ndirect FB Vs (+)FB Exc: p = {p3}"
+                f"\nindirect FB Vs (-)recurrent: p = {p4}"
+                f"\nindirect FB Vs (+)FB Exc: p = {p5}")
+
     #Cumulative distribution for selectivity
     ax = fig.add_subplot(axes[1, 3])
+    cumulative_selectivity_dict = {}
     for description in description_list:
-        mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(
-            selectivity_history_dict[description])
+        cumulative_selectivity, mean_selectivity, cdf_prob_bins, SD = plot_cumulative_selectivity(selectivity_history_dict[description])
+        cumulative_selectivity_dict[description] = cumulative_selectivity
         ax.plot(mean_selectivity, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_selectivity - SD
         error_max = mean_selectivity + SD
@@ -840,10 +1031,26 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_xlabel('Selectivity',fontsize=fontsize,labelpad=0)
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize)
 
+    s, p1 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh+FB_Inh'],cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh+FB_Inh'],cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p3 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh+FB_Inh'],cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    s, p4 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh'],cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p5 = stats.ks_2samp(cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh'],cumulative_selectivity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig5 Selectivity Stats:"
+                f"\ndirect FB Vs indirect FB: p = {p1}"
+                f"\ndirect FB Vs (-)recurrent: p = {p2}"
+                f"\ndirect FB Vs (+)FB Exc: p = {p3}"
+                f"\nindirect FB Vs (-)recurrent: p = {p4}"
+                f"\nindirect FB Vs (+)FB Exc: p = {p5}")
+
+
     #Cumulative distribution for discriminability
     ax = fig.add_subplot(axes[2, 3])
+    cumulative_discriminability_dict = {}
     for description in description_list:
-        mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability, mean_discriminability, cdf_prob_bins, SD = plot_cumulative_discriminability(similarity_matrix_history_dict[description])
+        cumulative_discriminability_dict[description] = cumulative_discriminability
         ax.plot(mean_discriminability, cdf_prob_bins, label=label_dict[description],color=color_dict[description])
         error_min = mean_discriminability - SD
         error_max = mean_discriminability + SD
@@ -857,20 +1064,39 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
     ax.set_ylabel('Cumulative \nprobability',fontsize=fontsize)
     ax.legend(loc='best',frameon=False,fontsize=fontsize,handlelength=1)
 
+    s, p1 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh+FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh'])
+    s, p2 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh+FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p3 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh+FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    s, p4 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh_c'])
+    s, p5 = stats.ks_2samp(cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh'],
+                           cumulative_discriminability_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    with open(path_to_file, 'a') as f:
+        f.write("\nFig5 Discriminability Stats:"
+                f"\ndirect FB Vs indirect FB: p = {p1}"
+                f"\ndirect FB Vs (-)recurrent: p = {p2}"
+                f"\ndirect FB Vs (+)FB Exc: p = {p3}"
+                f"\nindirect FB Vs (-)recurrent: p = {p4}"
+                f"\nindirect FB Vs (+)FB Exc: p = {p5}\n")
+
     sns.despine()
     fig.savefig('figures/Figure5.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/Figure5.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/Figure5.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
     'S1, related to Figure 3'
 
     mm = 1 / 25.4  # millimeters to inches
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
-                       wspace=1.2, hspace=1.2)
+                       wspace=0.8, hspace=1.2)
+
 
     fontsize = 8
     num_output_units = num_units_history_dict['FF_Inh'][model_seed]['Output']
@@ -941,7 +1167,7 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
     sns.despine()
     fig.savefig('figures/S1_F3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/S1_F3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S1_F3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -953,11 +1179,11 @@ def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,labe
     #                    left=0.08,right=0.94,
     #                    top = 0.9, bottom = 0.06,
     #                    wspace=1, hspace=2)
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.05,right=0.98,
                        top = 0.95, bottom = 0.2,
-                       wspace=1.2, hspace=1.2)
+                       wspace=0.8, hspace=1.2)
     fontsize = 8
 
     description_list = ['FF_Inh+indirect_FB_Inh', 'FF_Inh+indirect_FB_Inh_c','FF_Inh+indirect_FB_Inh+FB_Exc']
@@ -993,7 +1219,7 @@ def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
     sns.despine()
     fig.savefig('figures/S2_F4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/S2_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S2_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S3(network_activity_dynamics_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -1004,11 +1230,12 @@ def plot_S3(network_activity_dynamics_history_dict,color_dict,label_dict,model_s
     #                    left=0.08,right=0.98,
     #                    top = 0.9, bottom = 0.2,
     #                    wspace=1, hspace=1.2)
-    fig = plt.figure(figsize=(180 * mm, 100 * mm))
+    fig = plt.figure(figsize=(180 * mm, 120 * mm))
     axes = gs.GridSpec(nrows=3, ncols=5,
                        left=0.1,right=0.98,
                        top = 0.95, bottom = 0.2,
                        wspace=0.5, hspace=1.2)
+
     fontsize = 8
 
     population_list = ['Output','FF_Inh','FB_Inh','FB_Exc']
@@ -1039,7 +1266,7 @@ def plot_S3(network_activity_dynamics_history_dict,color_dict,label_dict,model_s
         ax.spines["right"].set_visible(False)
 
     fig.savefig('figures/S3_F4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    fig.savefig('figures/S3_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S3_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 #############################################################################
 
@@ -1074,11 +1301,11 @@ def main(data_file_path, dynamics_file_path, model_seed, plot):
                   'Input': 'Input',
                   'Input-Output-uniform': 'Uniform weights',
                   'Input-Output-lognormal': 'Log-normal weights',
-                  'FF_Inh': 'Inhibition: FF',
+                  'FF_Inh': 'FF Inhibition',
                   'FF_Inh_no_sel_loss': 'No selectivity constraint',
-                  'FB_Inh': 'Inhibition: FB',
-                  'FF_Inh+FB_Inh': 'Inhibition: FF + FB',
-                  'FF_Inh+indirect_FB_Inh': 'Inhibition: FF + indirect FB',
+                  'FB_Inh': 'FB Inhibition',
+                  'FF_Inh+FB_Inh': 'FF + FB Inhibition',
+                  'FF_Inh+indirect_FB_Inh': 'FF + indirect FB Inhibition',
                   'FF_Inh+indirect_FB_Inh_b': 'FF_Inh+indirect_FB_Inh_b',
                   'FF_Inh+indirect_FB_Inh_c': '(-) FB Exc -> FB Exc',
                   'FF_Inh+indirect_FB_Inh+FB_Exc': '(+) FB Exc -> Output',

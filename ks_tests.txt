@@ -1,0 +1,68 @@
+
+Fig5 Sparsity Stats:
+direct FB Vs indirect FB: p = 1.8918368451867277e-91
+direct FB Vs (-)recurrent: p = 2.4210056023936605e-103
+direct FB Vs (+)FB Exc: p = 2.7107414318065633e-101
+indirect FB Vs (-)recurrent: p = 5.6253445441632374e-241
+indirect FB Vs (+)FB Exc: p = 3.540799487123526e-31
+Fig5 Selectivity Stats:
+direct FB Vs indirect FB: p = 2.7196103694281876e-69
+direct FB Vs (-)recurrent: p = 8.571698063428211e-21
+direct FB Vs (+)FB Exc: p = 3.123485114377292e-108
+indirect FB Vs (-)recurrent: p = 1.0050049129378646e-92
+indirect FB Vs (+)FB Exc: p = 1.0598594020352044e-67
+Fig5 Discriminability Stats:
+direct FB Vs indirect FB: p = 1.0005427918861649e-05
+direct FB Vs (-)recurrent: p = 1.0697285962248264e-09
+direct FB Vs (+)FB Exc: p = 2.130629403993496e-25
+indirect FB Vs (-)recurrent: p = 6.129850706861684e-27
+indirect FB Vs (+)FB Exc: p = 8.2169644411341e-08
+
+Fig4 Sparsity Stats:
+Lognormal Vs FF Inh: p = 3.0103212604837886e-33
+Lognormal Vs FB Inh: p = 7.2923844244552955e-06
+Lognormal Vs FF+FB Inh: p = 5.293265246027034e-06
+FF Inh Vs FB Inh: p = 1.0910338284004184e-13
+FF Inh Vs FF+FB Inh: p = 1.0910338284004184e-13
+FB Inh Vs FF+FB Inh: p = 0.9999669534921386
+Fig4 Selectivity Stats:
+Lognormal Vs FF Inh: p = 4.575187652931717e-05
+Lognormal Vs FB Inh: p = 0.5089169658042532
+Lognormal Vs FF+FB Inh: p = 0.6659218712646571
+FF Inh Vs FB Inh: p = 0.0007045191903924169
+FF Inh Vs FF+FB Inh: p = 0.0001434246303518553
+FB Inh Vs FF+FB Inh: p = 0.999998021140463
+Fig4 Discriminability Stats:
+Lognormal Vs FF Inh: p = 0.2919248807417811
+Lognormal Vs FB Inh: p = 0.9997401855816054
+Lognormal Vs FF+FB Inh: p = 0.999998021140463
+FF Inh Vs FB Inh: p = 0.19804212658711798
+FF Inh Vs FF+FB Inh: p = 0.22634729051389657
+FB Inh Vs FF+FB Inh: p = 0.9999999999999999
+
+Fig3 Sparsity Stats:
+Lognormal Vs FF Inh: p = 3.0103212604837886e-33
+Lognormal Vs FF No selectivity: p = 1.7123567919180945e-229
+FF Inh Vs FF No selectivity: p = 6.104809607211501e-287
+Fig3 Selectivity Stats:
+Lognormal Vs FF Inh: p = 4.575187652931717e-05
+Lognormal Vs FF No selectivity: p = 7.479972840258292e-86
+FF Inh Vs FF No selectivity: p = 6.804681572412947e-80
+Fig3 Discriminability Stats:
+Lognormal Vs FF Inh: p = 0.2919248807417811
+Lognormal Vs FF No selectivity: p = 2.0292852709147298e-18
+FF Inh Vs FF No selectivity: p = 2.130629403993496e-25
+
+Fig2 Discriminability Stats:
+Uniform Vs Lognormal: p = 9.551961346261782e-39
+Input Vs Uniform: p = 0.0
+Input Vs Lognormal: p = 0.016604826009144258
+
+Fig1 Sparsity Stats:
+Uniform Vs Lognormal: p = 1.7518468624260033e-118
+Input Vs Uniform: p = 0.0
+Input Vs Lognormal: p = 8.143907119784188e-06
+Fig1 Selectivity Stats:
+Uniform Vs Lognormal: p = 3.0636758509562734e-119
+Input Vs Uniform: p = 0.0
+Input Vs Lognormal: p = 0.0
