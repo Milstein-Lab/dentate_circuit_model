@@ -35,12 +35,12 @@
   mean_weight;Output;FF_Inh: 3.011067E-01
   mean_weight;Output;Input: 3.891419E-01
 5c:
-  mean_weight;FB_Exc;Output: 2.776824E-02
-  mean_weight;FB_Inh;FB_Exc: 1.392199E+00
-  mean_weight;FF_Inh;Input: 2.222708E-01
-  mean_weight;Output;FB_Inh: 1.886058E+00
-  mean_weight;Output;FF_Inh: 6.444543E-01
-  mean_weight;Output;Input: 6.517970E-01
+  mean_weight;FB_Exc;Output: 9.216419E-01
+  mean_weight;FB_Inh;FB_Exc: 9.366049E-01
+  mean_weight;FF_Inh;Input: 9.754463E-01
+  mean_weight;Output;FB_Inh: 1.110981E-02
+  mean_weight;Output;FF_Inh: 1.096557E-02
+  mean_weight;Output;Input: 7.633194E-02
 6:
   mean_weight;FB_Exc;FB_Exc: 9.333823E-01
   mean_weight;FB_Exc;Output: 1.589863E-02
