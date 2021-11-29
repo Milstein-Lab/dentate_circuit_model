@@ -364,10 +364,14 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
                           cumulative_sparsity_dict['Input-Output-uniform'])
     s, p3 = stats.ks_2samp(cumulative_sparsity_dict['Input'],
                           cumulative_sparsity_dict['Input-Output-lognormal'])
+    median_input = np.median(cumulative_sparsity_dict['Input'])
+    median_uniform = np.median(cumulative_sparsity_dict['Input-Output-uniform'])
+    median_lognormal = np.median(cumulative_sparsity_dict['Input-Output-lognormal'])
     path_to_file = 'ks_tests.txt'
     mode = 'a' if os.path.exists(path_to_file) else 'w'
     with open(path_to_file, mode) as f:
         f.write(f"\nFig1 Sparsity Stats:"
+                f"\nMedian - input:{median_input}; uniform:{median_uniform}; lognormal:{median_lognormal}"
                 f"\nUniform Vs Lognormal: p = {p1}"
                 f"\nInput Vs Uniform: p = {p2}"
                 f"\nInput Vs Lognormal: p = {p3}")
@@ -558,10 +562,14 @@ def plot_figure2(similarity_matrix_history_dict,num_units_history_dict,color_dic
                           cumulative_discriminability_dict['Input-Output-uniform'])
     s, p3 = stats.ks_2samp(cumulative_discriminability_dict['Input'],
                           cumulative_discriminability_dict['Input-Output-lognormal'])
+    median_input = np.median(cumulative_discriminability_dict['Input'])
+    median_uniform = np.median(cumulative_discriminability_dict['Input-Output-uniform'])
+    median_lognormal = np.median(cumulative_discriminability_dict['Input-Output-lognormal'])
     path_to_file = 'ks_tests.txt'
     mode = 'a' if os.path.exists(path_to_file) else 'w'
     with open(path_to_file, mode) as f:
         f.write(f"\nFig2 Discriminability Stats:"
+                f"\nMedian - input:{median_input}; uniform:{median_uniform}; lognormal:{median_lognormal}"
                 f"\nUniform Vs Lognormal: p = {p1}"
                 f"\nInput Vs Uniform: p = {p2}"
                 f"\nInput Vs Lognormal: p = {p3}\n")
@@ -661,10 +669,14 @@ def plot_figure3(num_units_history_dict, weight_history_dict, network_activity_h
                           cumulative_sparsity_dict['FF_Inh_no_sel_loss'])
     s, p3 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh'],
                           cumulative_sparsity_dict['FF_Inh_no_sel_loss'])
+    median_lognormal = np.median(cumulative_sparsity_dict['Input-Output-lognormal'])
+    median_FFinh = np.median(cumulative_sparsity_dict['FF_Inh'])
+    median_FFinh_NoSel = np.median(cumulative_sparsity_dict['FF_Inh_no_sel_loss'])
     path_to_file = 'ks_tests.txt'
     mode = 'a' if os.path.exists(path_to_file) else 'w'
     with open(path_to_file, mode) as f:
         f.write("\nFig3 Sparsity Stats:"
+                f"\nMedian - lognormal{median_lognormal}; FF Inh: {median_FFinh}; No selectivity:{median_FFinh_NoSel}"
                 f"\nLognormal Vs FF Inh: p = {p1}"
                 f"\nLognormal Vs FF No selectivity: p = {p2}"
                 f"\nFF Inh Vs FF No selectivity: p = {p3}")
@@ -825,10 +837,15 @@ def plot_figure4(num_units_history_dict,network_activity_history_dict, selectivi
                           cumulative_sparsity_dict['FF_Inh+FB_Inh'])
     s, p6 = stats.ks_2samp(cumulative_sparsity_dict['FB_Inh'],
                           cumulative_sparsity_dict['FF_Inh+FB_Inh'])
+    median_lognormal = np.median(cumulative_sparsity_dict['Input-Output-lognormal'])
+    median_FFinh = np.median(cumulative_sparsity_dict['FF_Inh'])
+    median_FBinh = np.median(cumulative_sparsity_dict['FB_Inh'])
+    median_FF_FBinh = np.median(cumulative_sparsity_dict['FF_Inh+FB_Inh'])
     path_to_file = 'ks_tests.txt'
     mode = 'a' if os.path.exists(path_to_file) else 'w'
     with open(path_to_file, mode) as f:
         f.write("\nFig4 Sparsity Stats:"
+                f"\nMedian - lognormal:{median_lognormal}; FF Inh:{median_FFinh}; FB Inh:{median_FBinh}; FF+FB Inh:{median_FF_FBinh}"
                 f"\nLognormal Vs FF Inh: p = {p1}"
                 f"\nLognormal Vs FB Inh: p = {p2}"
                 f"\nLognormal Vs FF+FB Inh: p = {p3}"
@@ -1003,10 +1020,15 @@ def plot_figure5(num_units_history_dict,network_activity_history_dict, selectivi
                            cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh_c'])
     s, p5 = stats.ks_2samp(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh'],
                            cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
+    median_FF_FBinh = np.median(cumulative_sparsity_dict['FF_Inh+FB_Inh'])
+    median_indirectFB = np.median(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh'])
+    median_no_recurrent = np.median(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh_c'])
+    median_FBexc = np.median(cumulative_sparsity_dict['FF_Inh+indirect_FB_Inh+FB_Exc'])
     path_to_file = 'ks_tests.txt'
     mode = 'a' if os.path.exists(path_to_file) else 'w'
     with open(path_to_file, mode) as f:
         f.write("\nFig5 Sparsity Stats:"
+                f"\nMedian - FF+FB Inh:{median_FF_FBinh}; indirect FB:{median_indirectFB}; No recurrent:{median_no_recurrent}; FB Exc:{median_FBexc}"
                 f"\ndirect FB Vs indirect FB: p = {p1}"
                 f"\ndirect FB Vs (-)recurrent: p = {p2}"
                 f"\ndirect FB Vs (+)FB Exc: p = {p3}"
@@ -1166,8 +1188,8 @@ def plot_S1(num_units_history_dict,network_activity_history_dict,color_dict,labe
 
 
     sns.despine()
-    fig.savefig('figures/S1_F3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    # fig.savefig('figures/S1_F3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig.savefig('figures/S1.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S1.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -1218,8 +1240,8 @@ def plot_S2(num_units_history_dict,network_activity_history_dict,color_dict,labe
             cbar.ax.tick_params(labelsize=fontsize)
 
     sns.despine()
-    fig.savefig('figures/S2_F4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    # fig.savefig('figures/S2_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig.savefig('figures/S2.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S2.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 
 def plot_S3(network_activity_dynamics_history_dict,color_dict,label_dict,model_seed='1234'):
@@ -1265,8 +1287,8 @@ def plot_S3(network_activity_dynamics_history_dict,color_dict,label_dict,model_s
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    fig.savefig('figures/S3_F4.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
-    # fig.savefig('figures/S3_F4.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    fig.savefig('figures/S3.svg', edgecolor='white', dpi=300, facecolor='white', transparent=True)
+    # fig.savefig('figures/S3.png', edgecolor='white', dpi=300, facecolor='white', transparent=True)
 
 #############################################################################
 

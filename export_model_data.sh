@@ -7,17 +7,16 @@ export PARAM_FILE_PATH=$1
 export EXPORT_FILE_PATH_BASE=$2
 
 declare -a config_file_names=(optimize_config_0_input_output_multiple_seeds.yaml
-  optimize_config_1_input_output_multiple_seeds.yaml
-  optimize_config_2_FF_Inh_multiple_seeds.yaml
-  optimize_config_2_FF_Inh_multiple_seeds_no_sel_loss.yaml
-  optimize_config_3_FB_Inh_multiple_seeds.yaml
-  optimize_config_4_FF+FB_Inh_multiple_seeds.yaml
-  optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml
-  optimize_config_5c_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml
-  optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml
-  optimize_config_6b_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml)
+                              optimize_config_1_input_output_multiple_seeds.yaml
+                              optimize_config_2_FF_Inh_multiple_seeds.yaml
+                              optimize_config_2_FF_Inh_multiple_seeds_no_sel_loss.yaml
+                              optimize_config_3_FB_Inh_multiple_seeds.yaml
+                              optimize_config_4_FF+FB_Inh_multiple_seeds.yaml
+                              optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml
+                              optimize_config_5c_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml
+                              optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml)
 
-declare -a model_keys=(0 1 2 3 4 5 5c 6)
+declare -a model_keys=(0 1 2 2_no_sel_loss 3 4 5 5c 6)
 
 arraylength=${#config_file_names[@]}
 
