@@ -1,0 +1,45 @@
+description: Input-Output-uniform
+weight_seed: 1234
+duration: 0.35 #sec
+dt: 0.001 #sec
+time_point: !!python/tuple #time window for evaluating performance metrics
+    - 0.15
+    - 0.35
+fraction_active_patterns_threshold:
+    Output: 0.9
+    default: 0.6
+fraction_active_units_threshold:
+    Output: 0.9
+    default: 0.8
+
+num_units_dict:
+    Input: 7
+    Output: 128
+
+activation_function_dict:
+    Output:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+
+weight_config_dict:
+    Output:
+        Input:
+            dist_type: uniform
+            mean_magnitude: 1.135254E-01
+            connection_type: exc
+
+cell_tau_dict:
+    Output: 0.05
+
+synapse_tau_dict:
+    Output:
+        Input:
+            rise: 0.001
+            decay: 0.01
+
+synaptic_reversal_dict:
+    exc: 60.
+    inh: -10.
