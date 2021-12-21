@@ -80,8 +80,7 @@ In addition to the requirements above, running simulations with parallelization 
 * [MPI for Python](https://mpi4py.readthedocs.io/en/stable/install.html)
 * The [nested](https://github.com/neurosutras/nested) parallel computing package:
 
-
-      $ git clone https://github.com/neurosutras/nested.git
+        $ git clone https://github.com/neurosutras/nested.git
 
 After cloning [nested](https://github.com/neurosutras/nested), add its directory to the PYTHONPATH on your machine
 
@@ -97,43 +96,43 @@ To optimize parameters for a single model configuration, execute one of the foll
 **Models in Figure 1 & 2:**
 * Input-Output with uniform weights:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_0_input_output_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 * Input-Output with log-normal weights:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_1_input_output_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_1_input_output_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 
 **Models in Figure 3:**
 * FF Inhibition:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 * FF Inhibition, optimized without selectivity constraint:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh_multiple_seeds_no_sel_loss.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_2_FF_Inh_multiple_seeds_no_sel_loss.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 
 **Models in Figure 4:**
 * FB Inhibition:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_3_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 * FF + FB Inhibition:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_4_FF+FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 
 **Models in Figure 5:**
 * FF Inhibition + indirect FB Inhibition (via excitatory interneurons):
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 * (-) recurrent connections among the excitatory interneurons:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_5c_FF_Inh+indirect_FB_Inh_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
 * (+) direct FB exitation from Mossy cells:
 
-            $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
+        $ mpirun -n 6 python -m mpi4py.futures -m nested.optimize --config-file-path=config/optimize_config_6_FF_Inh+indirect_FB_Inh+FB_Exc_multiple_seeds.yaml --path_length=3 --max_iter=50 --pop_size=200 --disp --framework=mpi
 
