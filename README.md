@@ -1,6 +1,8 @@
 Neural circuit regulation of sparsity and pattern separation in the dentate gyrus
 ========
 
+This repository contains the code from [Galloni, A.R., Samadzelkava, A., Hiremath, K., Oumnov, R., Milstein A.D. (2022). **Recurrent Excitatory Feedback From Mossy Cells Enhances Sparsity and Pattern Separation in the Dentate Gyrus via Indirect Feedback Inhibition.** Front. in Comp. Neuro., doi:10.3389/fncom.2022.826278](https://www.frontiersin.org/articles/10.3389/fncom.2022.826278/full)
+
 In this project, we construct a series of simple models of the dentate gyrus to explore how different cell types and the
 distributions of connectivity between them influence population coding and information processing in the network. These
 are quantified in terms of sparsity, selectivity, and discriminability at the population level within each cell type. 
