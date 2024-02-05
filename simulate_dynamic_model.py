@@ -503,7 +503,6 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
         network_activity_dynamics_dict
 
-
 def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
                                weight_config_dict,
                                activation_function_dict, synaptic_reversal_dict):
@@ -578,6 +577,85 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
            network_activity_dynamics_dict
 
+def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
+                               weight_config_dict,
+                               activation_function_dict, synaptic_reversal_dict, time_point):
+    """
+    Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
+    input patterns.
+    static input pattern.
+    :param t: array of float
+    :param input_patterns: 2D array of float (num input patterns, num units in Input population)
+    :param num_units_dict: dict: {'population': int (number of units in each population)}
+    :param synapse_tau_dict: dict of dicts:
+        {'postsynaptic population label':
+            {'presynaptic population label': float (synaptic time constant for each connection)}}
+    :param cell_tau_dict: dict: {'population label': float (voltage time constant for each population)}
+    :param weight_dict: nested dict:
+        {'postsynaptic population label':
+            {'presynaptic population label': 2d array of float
+                (number of presynaptic units, number of postsynaptic units)
+            }
+        }
+    :param activation_function_dict: dict:
+        {'population': callable (function to call to convert weighted input to output activity for this population)}
+        }
+    :param synaptic_reversal_dict:
+    :param time_point: tuple of float
+    :return: tuple of nested dict
+    """
+
+    # Initialize nested dictionaries to contain network intermediates in response to a set of input patterns across
+    # all time steps
+    channel_conductance_dynamics_dict = {}
+    net_current_dynamics_dict = {}
+    cell_voltage_dynamics_dict = {}
+    network_activity_dynamics_dict = {}
+    mean_network_activity_dict = {}
+
+    for population in num_units_dict:
+        network_activity_dynamics_dict[population] = np.empty((len(input_patterns), num_units_dict[population], len(t)))
+        mean_network_activity_dict[population] = np.empty((len(input_patterns), num_units_dict[population]))
+
+    for post_population in weight_dict:
+        channel_conductance_dynamics_dict[post_population] = {}
+        for pre_population in weight_dict[post_population]:
+            channel_conductance_dynamics_dict[post_population][pre_population] = \
+                np.empty((len(input_patterns), num_units_dict[pre_population], num_units_dict[post_population], len(t)))
+
+        net_current_dynamics_dict[post_population] = \
+            np.empty((len(input_patterns), num_units_dict[post_population], len(t)))
+
+
+        cell_voltage_dynamics_dict[post_population] = \
+            np.empty((len(input_patterns), num_units_dict[post_population], len(t)))
+
+    for pattern_index in range(len(input_patterns)):
+        this_input_pattern = input_patterns[pattern_index]
+        this_channel_conductance_dynamics_dict, this_net_current_dynamics_dict, this_cell_voltage_dynamics_dict, \
+        this_network_activity_dynamics_dict = \
+            compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                                              weight_dict, weight_config_dict, activation_function_dict,
+                                              synaptic_reversal_dict)
+        this_mean_network_activity_dict = slice_network_activity_dynamics_single_input_pattern_dict(
+            this_network_activity_dynamics_dict, t, time_point)
+
+        for population in this_network_activity_dynamics_dict:
+            network_activity_dynamics_dict[population][pattern_index, :, :] = \
+                this_network_activity_dynamics_dict[population]
+            mean_network_activity_dict[population][pattern_index, :] = this_mean_network_activity_dict[population]
+
+        for post_population in this_channel_conductance_dynamics_dict:
+            for pre_population in this_channel_conductance_dynamics_dict[post_population]:
+                channel_conductance_dynamics_dict[post_population][pre_population][pattern_index, :, :, :] = \
+                    this_channel_conductance_dynamics_dict[post_population][pre_population]
+            net_current_dynamics_dict[post_population][pattern_index, :, :] = \
+                this_net_current_dynamics_dict[post_population]
+            cell_voltage_dynamics_dict[post_population][pattern_index, :, :] = \
+                this_cell_voltage_dynamics_dict[post_population]
+
+    return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+           network_activity_dynamics_dict, mean_network_activity_dict
 
 def slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t, time_point):
     """
@@ -612,6 +690,31 @@ def slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t, time
 
     return network_activity_dict
 
+def slice_network_activity_dynamics_single_input_pattern_dict(network_activity_dynamics_dict, t, time_point):
+    """
+    Given network activity dynamics for a single input pattern over all time points, return network activity at the time point specified.
+    :param network_activity_dynamics_dict: dict of 2d array of float;
+        {'population label':
+            2d array of float (number of units in this population, number of time points)
+        }
+    :param t: array of float
+    :param time_point: list or tuple of float
+    :return: dict of 1d array of float;
+        {'population label':
+            1d array of float (number of units in this population)
+        }
+    """
+    mean_network_activity_dict = {}
+
+#     if isinstance(time_point, (tuple, list)) and len(time_point) == 2:
+    t_start_index = np.where(t >= time_point[0])[0][0]
+    t_end_index = np.where(t >= time_point[1])[0][0]
+    for population in network_activity_dynamics_dict:
+        mean_network_activity_dict[population] = \
+            np.mean(network_activity_dynamics_dict[population][:, t_start_index:t_end_index], axis=1)
+
+
+    return mean_network_activity_dict
 
 def gini_coefficient(x):
     x = np.asarray(x) + 0.0001
@@ -1504,16 +1607,12 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
     # Simulate network dynamics
     t = np.arange(0., duration + dt / 2., dt)
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    network_activity_dynamics_dict = \
-        get_network_dynamics_dicts(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict)
-
-    # Analyze the average network dynamics in a time window
-    network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, t,
-                                                                 time_point=time_point)
+    network_activity_dynamics_dict, mean_network_activity_dict = \
+        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
 
     sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
-    fraction_active_units_dict = analyze_slice(network_activity_dict)
+    fraction_active_units_dict = analyze_slice(mean_network_activity_dict)
 
     sparsity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
     fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
@@ -1544,7 +1643,7 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
         plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict,
                       fraction_nonzero_response_dynamics_dict, description)
 
-        plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description)
+        plot_model_summary(mean_network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description)
 
     print('Simulation took %.1f s' % (time.time() - start_time))
 
