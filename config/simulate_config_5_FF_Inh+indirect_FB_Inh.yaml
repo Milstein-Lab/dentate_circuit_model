@@ -2,6 +2,8 @@ description: FF_Inh+indirect_FB_Inh
 weight_seed: 1234
 duration: 0.35 #sec
 dt: 0.001 #sec
+train_epochs: 1
+train_seed: 0
 time_point: !!python/tuple #time window for evaluating performance metrics
     - 0.15
     - 0.35
@@ -51,6 +53,9 @@ weight_config_dict:
             dist_type: log-normal
             mean_magnitude: 3.891419E-01
             connection_type: exc
+            learning_rule: plain_Hebb
+            learning_rule_params:
+                learning_rate: 0.001
         FF_Inh:
             dist_type: uniform
             mean_magnitude: 3.011067E-01
