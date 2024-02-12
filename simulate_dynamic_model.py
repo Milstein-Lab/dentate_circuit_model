@@ -581,6 +581,13 @@ def plain_Hebb(weights, post_activity, pre_activity, learning_rate):
     delta_weights = learning_rate * np.outer(pre_activity, post_activity)
     weights = weights + delta_weights
     return weights
+
+def Hebb_weight_norm(weights, post_activity, pre_activity, learning_rate):
+    delta_weights = learning_rate * np.outer(pre_activity, post_activity)
+    weight_scale = np.sum(weights, axis=0)
+    weights = weights + delta_weights
+    weights = weights / np.sum(weights, axis=0) * weight_scale
+    return weights
 def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
                                weight_config_dict,
                                activation_function_dict, synaptic_reversal_dict, time_point):
@@ -760,6 +767,11 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
                         if learning_rule=='plain_Hebb':
                             weight_dict[post_population][pre_population] = \
                                 plain_Hebb(weight_dict[post_population][pre_population], this_mean_network_activity_dict[post_population],
+                                           this_mean_network_activity_dict[pre_population], **learning_rule_params)
+                        elif learning_rule=='Hebb_weight_norm':
+                            weight_dict[post_population][pre_population] = \
+                                Hebb_weight_norm(weight_dict[post_population][pre_population],
+                                           this_mean_network_activity_dict[post_population],
                                            this_mean_network_activity_dict[pre_population], **learning_rule_params)
 
             for post_population in weight_dict:
@@ -1105,6 +1117,36 @@ def plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_d
     fig2.tight_layout(w_pad=3, h_pad=2, rect=(0., 0., 1., 0.98))
     fig2.show()
 
+
+def plot_activity_summary(network_activity_dict, description=None):
+    """
+    Generate a panel of plots summarizing the activity of each layer.
+    :param network_activity_dict: dict:
+        {'population label': 2d array of float (number of input patterns, number of units in this population)
+        }
+    :param description: str
+    """
+    num_of_populations = len(network_activity_dict)
+
+    fig1, axes = plt.subplots(1, num_of_populations, figsize=(3 * num_of_populations, 3))
+    for i, population in enumerate(network_activity_dict):
+        # Show activity heatmap of units for all patterns
+        argmax_indices = np.argmax(network_activity_dict[population], axis=0)
+        sorted_indices = np.argsort(argmax_indices)
+        im1 = axes[i].imshow(network_activity_dict[population][:, sorted_indices].transpose(), aspect='auto', cmap='binary')
+        # im1 = axes[i].imshow(network_activity_dict[population], aspect='auto')
+        cbar = plt.colorbar(im1, ax=axes[i])
+        cbar.ax.set_ylabel('Unit activity', rotation=270, labelpad=20)
+        axes[i].set_ylabel('Unit ID')
+        axes[i].set_xlabel('Input pattern ID')
+        axes[i].set_title('Activity\n%s population' % population)
+
+
+    if description is not None:
+        fig1.suptitle(description)
+
+    fig1.tight_layout(w_pad=3, h_pad=2, rect=(0., 0., 1., 0.98))
+    fig1.show()
 
 def plot_compare_model_sparsity_and_similarity(sparsity_history_dict, similarity_matrix_history_dict):
     """
@@ -1721,30 +1763,30 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
 
     # Simulate network dynamics
     t = np.arange(0., duration + dt / 2., dt) # initial test
-    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    network_activity_dynamics_dict, mean_network_activity_dict = \
-        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
-    initial_activity_dict = deepcopy(mean_network_activity_dict)
-    initial_weight_dict = deepcopy(weight_dict)
-    print('Inital test took %.1f s' % (time.time() - start_time))
-    current_time = time.time()
-
-    # train step
-    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
-        train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                     weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed)
-    print('Train took %.1f s' % (time.time() - current_time))
-    current_time = time.time()
-
-    # final test
-    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    network_activity_dynamics_dict, mean_network_activity_dict = \
-        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
-    final_activity_dict = deepcopy(mean_network_activity_dict)
-    print('Final test took %.1f s' % (time.time() - current_time))
+    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    # network_activity_dynamics_dict, mean_network_activity_dict = \
+    #     test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+    #                                weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
+    # initial_activity_dict = deepcopy(mean_network_activity_dict)
+    # initial_weight_dict = deepcopy(weight_dict)
+    # print('Inital test took %.1f s' % (time.time() - start_time))
+    # current_time = time.time()
+    #
+    # # train step
+    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    # network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
+    #     train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+    #                  weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed)
+    # print('Train took %.1f s' % (time.time() - current_time))
+    # current_time = time.time()
+    #
+    # # final test
+    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    # network_activity_dynamics_dict, mean_network_activity_dict = \
+    #     test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+    #                                weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
+    # final_activity_dict = deepcopy(mean_network_activity_dict)
+    # print('Final test took %.1f s' % (time.time() - current_time))
 
     #
     # sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \

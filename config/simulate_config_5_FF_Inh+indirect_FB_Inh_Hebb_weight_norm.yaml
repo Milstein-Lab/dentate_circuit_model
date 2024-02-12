@@ -53,7 +53,7 @@ weight_config_dict:
             dist_type: log-normal
             mean_magnitude: 3.891419E-01
             connection_type: exc
-            learning_rule: plain_Hebb
+            learning_rule: Hebb_weight_norm
             learning_rule_params:
                 learning_rate: 0.1
         FF_Inh:
