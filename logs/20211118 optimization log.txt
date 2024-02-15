@@ -127,24 +127,25 @@ objectives:
  'sparsity_loss': 7720680.0}
  
 5c:
- {'mean_weight;FB_Exc;Output': 0.027768236107448628,
- 'mean_weight;FB_Inh;FB_Exc': 1.3921991205180364,
- 'mean_weight;FF_Inh;Input': 0.22227077198707362,
- 'mean_weight;Output;FB_Inh': 1.8860578797609338,
- 'mean_weight;Output;FF_Inh': 0.6444543381158532,
- 'mean_weight;Output;Input': 0.6517969684226278}
+params:
+{'mean_weight;FB_Exc;Output': 0.9216418955991655,
+ 'mean_weight;FB_Inh;FB_Exc': 0.9366048544061935,
+ 'mean_weight;FF_Inh;Input': 0.9754463154020664,
+ 'mean_weight;Output;FB_Inh': 0.011109806913906601,
+ 'mean_weight;Output;FF_Inh': 0.010965567084388566,
+ 'mean_weight;Output;Input': 0.0763319429326916}
 features:
 {'fraction_active_patterns': 0.9921875,
- 'fraction_active_units': 1.0,
- 'selectivity': 79.3125,
- 'similarity': 0.652505887161495,
- 'sparsity': 79.3125}
+ 'fraction_active_units': 0.928125,
+ 'selectivity': 50.93125,
+ 'similarity': 0.5407927228795631,
+ 'sparsity': 50.93125}
 objectives:
-{'discriminability_loss': 373164.1538951141,
+{'discriminability_loss': 286141.73447964096,
  'fraction_active_patterns_loss': 61.03515625,
- 'fraction_active_units_loss': 0.0,
- 'selectivity_loss': 94748680.0,
- 'sparsity_loss': 80070000.0}
+ 'fraction_active_units_loss': 5493.1640625,
+ 'selectivity_loss': 44756640.0,
+ 'sparsity_loss': 41980280.0}
  
 6:
  {'mean_weight;FB_Exc;FB_Exc': 0.9333823305283068,

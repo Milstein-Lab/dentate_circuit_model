@@ -236,7 +236,7 @@ def plot_figure1(num_units_history_dict, sparsity_history_dict, selectivity_hist
     # Input patterns
     ax = fig.add_subplot(axes[1,0])
     sorted_input_patterns = (get_binary_input_patterns(num_input_units, sort=True)).transpose()
-    im = ax.imshow(sorted_input_patterns, aspect='auto',cmap='binary',interpolation="nearest")
+    im = ax.imshow(sorted_input_patterns, aspect='auto',cmap='binary', interpolation="nearest")
     ax.set_xticks([0, num_patterns])
     ax.set_yticks([-0.5, num_input_units - 0.5])
     ax.set_yticklabels([0, num_input_units])
