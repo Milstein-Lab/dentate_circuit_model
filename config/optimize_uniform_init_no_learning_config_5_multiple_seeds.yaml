@@ -19,25 +19,25 @@ param_names: # params to optimize, format as: parameter;postsynaptic;presynaptic
 bounds:
     mean_weight;Output;Input: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     mean_weight;FF_Inh;Input: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     mean_weight;Output;FF_Inh: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     mean_weight;FB_Exc;Output: !!python/tuple
-        - 0.01
-        - 1.
+        - 0.001
+        - 2.
     mean_weight;FB_Exc;FB_Exc: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     mean_weight;FB_Inh;FB_Exc: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     mean_weight;Output;FB_Inh: !!python/tuple
         - 0.01
-        - 1.
+        - 2.
     learning_rate;Output;Input:
         - 0.001
         - 0.1
@@ -95,7 +95,7 @@ kwargs: #All these will become will become dictionaries in Context() once nested
     num_instances: 5
     duration: 0.35 #sec
     dt: 0.01 #sec
-    train_epochs: 1 # 10
+    train_epochs: 0 # 10
     train_seed: 0
     time_point: !!python/tuple
         - 0.15
