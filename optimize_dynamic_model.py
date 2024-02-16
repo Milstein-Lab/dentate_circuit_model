@@ -9,9 +9,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from collections.abc import Iterable
 from copy import deepcopy
 from scipy.integrate import solve_ivp
-from nested.utils import read_from_yaml, Context, param_array_to_dict
+from nested.utils import read_from_yaml, Context, param_array_to_dict, str_to_bool
 from distutils.util import strtobool
 import os, time
+from simulate_dynamic_model import train_network, Hebb_weight_norm, plain_Hebb
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -1470,13 +1471,22 @@ def config_worker():
     context.duration = float(context.duration)
 
     t = np.arange(0., context.duration + context.dt / 2., context.dt)
-
+    
+    context.train_epochs = int(context.train_epochs)
+    context.train_seed = int(context.train_seed)
+    context.num_instances = int(context.num_instances)
+    
     if 'plot' not in context():
         context.plot = False
 
     if 'debug' not in context():
         context.debug = False
-
+    
+    if 'verbose' not in context():
+        context.verbose = False
+    else:
+        context.verbose = str_to_bool(context.verbose)
+    
     if 'export_dynamics' not in context():
         context.export_dynamics = False
     elif isinstance(context.export_dynamics, str):
@@ -1502,17 +1512,20 @@ def modify_network(param_dict):
             post_pop_name = parsed_param_name[1]
             pre_pop_name = parsed_param_name[2]
             context.weight_config_dict[post_pop_name][pre_pop_name]['mean_magnitude'] = param_val
+        elif parsed_param_name[0] == 'learning_rate':
+            post_pop_name = parsed_param_name[1]
+            pre_pop_name = parsed_param_name[2]
+            context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params']['learning_rate'] = param_val
 
 
-def compute_features(param_array, model_id=None, export=False):
+def compute_features(param_array, model_id=None, export=False, plot=False):
     """
 
     :param x: array of float
-    :param model_id: int
+    :param model_id: str
     :param export: bool
     :return: dict
     """
-
     return compute_features_multiple_instances(param_array, context.weight_seed, model_id, export)
 
 
@@ -1520,7 +1533,7 @@ def get_objectives(orig_features_dict, model_id=None, export=False):
     """
     Compute loss function.
     :param features_dict: dict
-    :param model_id: int
+    :param model_id: str
     :param export: bool
     :return: tuple of dict
     """
@@ -1565,12 +1578,12 @@ def get_weight_seeds():
     return [weight_seed_list]
 
 
-def compute_features_multiple_instances(param_array, weight_seed, model_id=None, export=False):
+def compute_features_multiple_instances(param_array, weight_seed, model_id=None, export=False, plot=False):
     """
 
     :param param_array: array of float
     :param weight_seed: int
-    :param model_id: int
+    :param model_id: str
     :param export: bool
     :return: dict
     """
@@ -1583,14 +1596,30 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
 
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, weight_seed,
                                   description=context.description, plot=context.plot)
-
+    
+    if context.train_epochs > 0:
+        # train
+        current_time = time.time()
+        channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+            network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
+            train_network(context.t, context.sorted_input_patterns, context.num_units_dict, context.synapse_tau_dict,
+                          context.cell_tau_dict, weight_dict, context.weight_config_dict,
+                          context.activation_function_dict, context.synaptic_reversal_dict, context.time_point,
+                          context.train_epochs, context.train_seed)
+        if context.verbose:
+            print('Model_id: %s; Training took %.1f s' % (model_id, time.time() - current_time))
+    
+    # test after train
+    current_time = time.time()
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict = \
         get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
                                    context.synapse_tau_dict, context.cell_tau_dict,
                                    weight_dict, context.weight_config_dict, context.activation_function_dict,
                                    context.synaptic_reversal_dict)
-
+    if context.verbose:
+        print('Model id: %s; Test took %.1f s' % (model_id, time.time() - current_time))
+    
     network_activity_dict = slice_network_activity_dynamics_dict(network_activity_dynamics_dict, context.t,
                                                                  time_point=context.time_point)
 
@@ -1626,7 +1655,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
                                     weight_dict, context.num_units_dict, context.activation_function_dict,
                                     context.weight_config_dict, network_activity_dict)
 
-    if context.plot:
+    if plot:
         plot_model_summary(network_activity_dict, sparsity_dict, similarity_matrix_dict,
                            selectivity_dict, context.description)
 
@@ -1653,7 +1682,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
             else:
                 this_fraction_active_patterns_threshold = context.fraction_active_patterns_threshold['default']
             if fraction_active_patterns_dict[pop_name] < this_fraction_active_patterns_threshold:
-                print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                print('pid: %i; model_id: %s failed; description: %s, weight_seed: %i; population: %s did not meet'
                       ' fraction_active_patterns_threshold: %.2f' %
                       (os.getpid(), model_id, context.description, weight_seed, pop_name,
                        this_fraction_active_patterns_threshold))
@@ -1665,7 +1694,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
             else:
                 this_fraction_active_units_threshold = context.fraction_active_units_threshold['default']
             if fraction_active_units_dict[pop_name] < this_fraction_active_units_threshold:
-                print('pid: %i; model_id: %i failed; description: %s, weight_seed: %i; population: %s did not meet'
+                print('pid: %i; model_id: %s failed; description: %s, weight_seed: %i; population: %s did not meet'
                       ' fraction_active_units_threshold: %.2f'  %
                       (os.getpid(), model_id, context.description, weight_seed, pop_name,
                        this_fraction_active_units_threshold))
@@ -1679,7 +1708,7 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
     """
 
     :param features_dict_list:
-    :param model_id:
+    :param model_id: str
     :param export:
     :return: dict
     """
@@ -1737,7 +1766,7 @@ def get_objectives_multiple_instances(final_features_dict, model_id=None, export
     """
     Compute loss function.
     :param features_dict: dict
-    :param model_id: int
+    :param model_id: str
     :param export: bool
     :return: tuple of dict
     """

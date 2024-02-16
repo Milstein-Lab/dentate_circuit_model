@@ -668,9 +668,8 @@ def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_d
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
            network_activity_dynamics_dict, mean_network_activity_dict
 
-def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                               weight_config_dict,
-                               activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed):
+def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
+                  activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
