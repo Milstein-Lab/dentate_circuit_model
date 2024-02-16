@@ -20,7 +20,7 @@ set -x
 
 cd $WORK2/dentate_circuit_model
 
-ibrun -n 1001 python3 -m nested.optimize --config-file-path=$CONFIG_FILE_PATH \
+ibrun -n 1001 python3 -m mpi4py.futures -m nested.optimize --config-file-path=$CONFIG_FILE_PATH \
   --output-dir=$SCRATCH/data/optimize_dentate_circuit_model --pop_size=200 --max_iter=1 --path_length=1 --disp \
-  --label=$LABEL --opt_rand_seed=$SEED --framework=pc
+  --label=$LABEL --opt_rand_seed=$SEED --framework=mpi
 EOT
