@@ -1595,7 +1595,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
     weight_seed = int(weight_seed)
 
     weight_dict = get_weight_dict(context.num_units_dict, context.weight_config_dict, weight_seed,
-                                  description=context.description, plot=context.plot)
+                                  description=context.description, plot=plot)
     
     if context.train_epochs > 0:
         # train
@@ -1704,12 +1704,14 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
     return orig_features_dict
 
 
-def filter_features_multiple_instances(features_dict_list, current_features, model_id=None, export=False):
+def filter_features_multiple_instances(features_dict_list, current_features, model_id=None, export=False, plot=False):
     """
 
-    :param features_dict_list:
+    :param features_dict_list: dict
+    :param current_features: dict
     :param model_id: str
     :param export:
+    :param plot: bool
     :return: dict
     """
 
