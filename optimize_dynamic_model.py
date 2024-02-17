@@ -1529,12 +1529,13 @@ def compute_features(param_array, model_id=None, export=False, plot=False):
     return compute_features_multiple_instances(param_array, context.weight_seed, model_id, export)
 
 
-def get_objectives(orig_features_dict, model_id=None, export=False):
+def get_objectives(orig_features_dict, model_id=None, export=False, plot=False):
     """
     Compute loss function.
-    :param features_dict: dict
+    :param org_features_dict: dict
     :param model_id: str
     :param export: bool
+    :param plot: bool
     :return: tuple of dict
     """
 
@@ -1764,12 +1765,13 @@ def filter_features_multiple_instances(features_dict_list, current_features, mod
     return final_features_dict
 
 
-def get_objectives_multiple_instances(final_features_dict, model_id=None, export=False):
+def get_objectives_multiple_instances(final_features_dict, model_id=None, export=False, plot=False):
     """
     Compute loss function.
-    :param features_dict: dict
+    :param final_features_dict: dict
     :param model_id: str
     :param export: bool
+    :param plot: bool
     :return: tuple of dict
     """
     objectives_dict = {}
