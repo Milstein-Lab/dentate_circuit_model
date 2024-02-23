@@ -18,11 +18,9 @@ sbatch <<EOT
 
 set -x
 
-conda activate py310
-
 cd $WORK2/dentate_circuit_model
 
-ibrun -n 1008 ipython -m mpi4py.futures -- -m nested.optimize --config-file-path=$CONFIG_FILE_PATH \
+ibrun -n 1008 python -m mpi4py.futures -m nested.optimize --config-file-path=$CONFIG_FILE_PATH \
   --output-dir=$SCRATCH/data/optimize_dentate_circuit_model --pop_size=200 --max_iter=50 --path_length=3 --disp \
   --label=$LABEL --opt_rand_seed=$SEED --framework=mpi
 EOT
