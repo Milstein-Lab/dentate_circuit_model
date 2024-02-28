@@ -1,0 +1,96 @@
+# fraction_active_patterns_threshold = 0.6 for all populations, 0.9 for Output
+# fraction_active_units_threshold = 0.8 for all populations, 0.9 for Output
+# Sim duration = 0.35 s, activity computed as mean in range 0.15 - 0.35 s
+# Weight bounds 0.001/0.01 - 2.
+# Penalized silent patterns by setting pairwise similarity values to 1.
+# Separate objective for fraction_active_units (Output population)
+uniform_init_no_learning:
+    #    features:
+    #    sparsity: 29.8703125
+    #    similarity: 0.4583637369813034
+    #    selectivity: 29.8703125
+    #    fraction_active_patterns: 0.9890625
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.49328929859799603
+    mean_weight;FF_Inh;Input: 0.39559969316664223
+    mean_weight;Output;FF_Inh: 0.2717906871545044
+    mean_weight;FB_Exc;Output: 0.010563660791450066
+    mean_weight;FB_Exc;FB_Exc: 0.9689434878107854
+    mean_weight;FB_Inh;FB_Exc: 0.9845444087012446
+    mean_weight;Output;FB_Inh: 1.0415472856562087
+    learning_rate;Output;Input: 0.036752699708545014
+uniform_init_plain_Hebb:
+    #    features:
+    #    sparsity: 33.4875
+    #    similarity: 0.4928547163014517
+    #    selectivity: 33.4875
+    #    fraction_active_patterns: 0.990625
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.42087087680481144
+    mean_weight;FF_Inh;Input: 1.78003219336945
+    mean_weight;Output;FF_Inh: 0.10658901166885794
+    mean_weight;FB_Exc;Output: 0.008569871466584177
+    mean_weight;FB_Exc;FB_Exc: 1.196595780695089
+    mean_weight;FB_Inh;FB_Exc: 1.521539909842174
+    mean_weight;Output;FB_Inh: 0.9862841130011132
+    learning_rate;Output;Input: 0.0012780144511036536
+uniform_init_Hebb_weight_norm:
+    #    features:
+    #    sparsity: 34.8796875
+    #    similarity: 0.5152812510729174
+    #    selectivity: 34.8796875
+    #    fraction_active_patterns: 0.990625
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.7897345107995063
+    mean_weight;FF_Inh;Input: 0.3332573763826619
+    mean_weight;Output;FF_Inh: 0.7095534669394213
+    mean_weight;FB_Exc;Output: 0.010281637228862672
+    mean_weight;FB_Exc;FB_Exc: 0.9545262598622734
+    mean_weight;FB_Inh;FB_Exc: 0.44028705008896624
+    mean_weight;Output;FB_Inh: 1.7502455088578976
+    learning_rate;Output;Input: 0.007589480405751899
+log_normal_init_no_learning:
+    #    features:
+    #    sparsity: 12.415625
+    #    similarity: 0.4163812591236581
+    #    selectivity: 12.415625
+    #    fraction_active_patterns: 0.9859375
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.3864902192159319
+    mean_weight;FF_Inh;Input: 0.09027141352634073
+    mean_weight;Output;FF_Inh: 0.17228611855887238
+    mean_weight;FB_Exc;Output: 0.011815941874498723
+    mean_weight;FB_Exc;FB_Exc: 0.7116161181706049
+    mean_weight;FB_Inh;FB_Exc: 1.54326766537239
+    mean_weight;Output;FB_Inh: 1.291029356154288
+    learning_rate;Output;Input: 0.03768986339285962
+log_normal_init_plain_Hebb:
+    #    features:
+    #    sparsity: 13.7125
+    #    similarity: 0.44477368476297363
+    #    selectivity: 13.7125
+    #    fraction_active_patterns: 0.9859375
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.6031300285404805
+    mean_weight;FF_Inh;Input: 0.7211859546851582
+    mean_weight;Output;FF_Inh: 0.16426863703644656
+    mean_weight;FB_Exc;Output: 0.010558017260564274
+    mean_weight;FB_Exc;FB_Exc: 0.8251118132817546
+    mean_weight;FB_Inh;FB_Exc: 1.8010632913630948
+    mean_weight;Output;FB_Inh: 1.8122334345254758
+    learning_rate;Output;Input: 0.002135803612166785
+log_normal_init_Hebb_weight_norm:
+    #    features:
+    #    sparsity: 12.5078125
+    #    similarity: 0.424094015908726
+    #    selectivity: 12.5078125
+    #    fraction_active_patterns: 0.9859375
+    #    fraction_active_units: 1.0
+    mean_weight;Output;Input: 0.4929249329773807
+    mean_weight;FF_Inh;Input: 0.2506839414343677
+    mean_weight;Output;FF_Inh: 0.5630345217987159
+    mean_weight;FB_Exc;Output: 0.016057539284135072
+    mean_weight;FB_Exc;FB_Exc: 0.6967514505204512
+    mean_weight;FB_Inh;FB_Exc: 1.0513536694215224
+    mean_weight;Output;FB_Inh: 1.5652405177282258
+    learning_rate;Output;Input: 0.003253988849294509
