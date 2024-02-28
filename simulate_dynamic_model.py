@@ -1418,7 +1418,8 @@ def export_model_slice_data(export_file_path, description, weight_seed, model_co
                 post_group.create_dataset(pre_pop, data=weight_dict[post_pop][pre_pop])
                 # save the meta data for the weight configuration of this projection
                 for key, value in weight_config_dict[post_pop][pre_pop].items():
-                    post_group[pre_pop].attrs[key] = value
+                    if key != 'learning_rule_params':
+                        post_group[pre_pop].attrs[key] = value
 
         group = model_seed_group.create_group('activity')
         for post_pop in network_activity_dict:
@@ -1542,7 +1543,8 @@ def export_dynamic_model_data(export_file_path, description, weight_seed, model_
                 post_group.create_dataset(pre_pop, data=weight_dict[post_pop][pre_pop])
                 # save the meta data for the weight configuration of this projection
                 for key, value in weight_config_dict[post_pop][pre_pop].items():
-                    post_group[pre_pop].attrs[key] = value
+                    if key != 'learning_rule_params':
+                        post_group[pre_pop].attrs[key] = value
 
         group = model_seed_group.create_group('channel_conductances')
         for post_pop in channel_conductance_dynamics_dict:
@@ -1763,69 +1765,71 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
 
     # Simulate network dynamics
     t = np.arange(0., duration + dt / 2., dt) # initial test
-    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    # network_activity_dynamics_dict, mean_network_activity_dict = \
-    #     test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-    #                                weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
-    # initial_activity_dict = deepcopy(mean_network_activity_dict)
-    # initial_weight_dict = deepcopy(weight_dict)
-    # print('Inital test took %.1f s' % (time.time() - start_time))
-    # current_time = time.time()
-    #
-    # # train step
-    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    # network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
-    #     train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-    #                  weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed)
-    # print('Train took %.1f s' % (time.time() - current_time))
-    # current_time = time.time()
-    #
-    # # final test
-    # channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-    # network_activity_dynamics_dict, mean_network_activity_dict = \
-    #     test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-    #                                weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
-    # final_activity_dict = deepcopy(mean_network_activity_dict)
-    # print('Final test took %.1f s' % (time.time() - current_time))
+    channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+    network_activity_dynamics_dict, mean_network_activity_dict = \
+        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
+    initial_activity_dict = deepcopy(mean_network_activity_dict)
+    initial_weight_dict = deepcopy(weight_dict)
+    print('Inital test took %.1f s' % (time.time() - start_time))
+    current_time = time.time()
 
-    #
-    # sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
-    # fraction_active_units_dict = analyze_slice(mean_network_activity_dict)
-    #
-    # sparsity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
-    # fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
-    #
-    # median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
-    # fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
-    #
-    # if export:
-    #     if export_file_name is None:
-    #         export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
-    #     export_file_path = '%s/%s' % (data_dir, export_file_name)
-    #
-    #     model_config_dict = {'duration': duration,
-    #                          'dt': dt
-    #                          }
-    #
-    #     export_model_slice_data(export_file_path, description, weight_seed, model_config_dict,
-    #                             weight_dict, num_units_dict, activation_function_dict,
-    #                             weight_config_dict, network_activity_dict)
-    #
-    #     export_file_path = export_file_path[:-5] + '_dynamics.hdf5'
-    #     export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
-    #                               activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
-    #                               synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
-    #                               cell_voltage_dynamics_dict, network_activity_dynamics_dict)
-    #
-    # if plot:
-    #     plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict,
-    #                   fraction_nonzero_response_dynamics_dict, description)
-    #
-    #     plot_model_summary(mean_network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description)
-    #
-    # print('Simulation took %.1f s' % (time.time() - start_time))
-    #
-    # plt.show()  # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
+    # train step
+    if train_epochs > 0:
+
+        channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+        network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
+            train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                         weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed)
+        print('Train took %.1f s' % (time.time() - current_time))
+        current_time = time.time()
+
+        # final test
+        channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
+        network_activity_dynamics_dict, mean_network_activity_dict = \
+            test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                                       weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
+        final_activity_dict = deepcopy(mean_network_activity_dict)
+        print('Final test took %.1f s' % (time.time() - current_time))
+
+
+    sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
+    fraction_active_units_dict = analyze_slice(mean_network_activity_dict)
+
+    sparsity_dynamics_dict, similarity_dynamics_dict, selectivity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_dynamics(network_activity_dynamics_dict)
+
+    median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict, \
+    fraction_nonzero_response_dynamics_dict = analyze_median_dynamics(network_activity_dynamics_dict)
+
+    if export:
+        if export_file_name is None:
+            export_file_name = '%s_exported_model_data.hdf5' % datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
+        export_file_path = '%s/%s' % (data_dir, export_file_name)
+
+        model_config_dict = {'duration': duration,
+                             'dt': dt
+                             }
+
+        export_model_slice_data(export_file_path, description, weight_seed, model_config_dict,
+                                weight_dict, num_units_dict, activation_function_dict,
+                                weight_config_dict, mean_network_activity_dict)
+
+        export_file_path = export_file_path[:-5] + '_dynamics.hdf5'
+        export_dynamic_model_data(export_file_path, description, weight_seed, model_config_dict, num_units_dict,
+                                  activation_function_dict, weight_config_dict, weight_dict, cell_tau_dict,
+                                  synapse_tau_dict, channel_conductance_dynamics_dict, net_current_dynamics_dict,
+                                  cell_voltage_dynamics_dict, network_activity_dynamics_dict)
+
+    if plot:
+        plot_dynamics(t, median_sparsity_dynamics_dict, median_similarity_dynamics_dict, mean_selectivity_dynamics_dict,
+                      fraction_nonzero_response_dynamics_dict, description)
+
+        plot_model_summary(mean_network_activity_dict, sparsity_dict, similarity_matrix_dict, selectivity_dict, description)
+
+    print('Simulation took %.1f s' % (time.time() - start_time))
+
+    plt.show()  # this forces all plots generated with fig.show() to wait for the user to close them before exiting python
 
     globals().update(locals())
 
