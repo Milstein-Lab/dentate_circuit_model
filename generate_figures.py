@@ -7,7 +7,7 @@ from scipy import stats
 from math import ceil
 import h5py
 from copy import deepcopy
-from optimize_dynamic_model import analyze_slice, get_binary_input_patterns
+from utils import analyze_slice, get_binary_input_patterns
 import os
 
 import matplotlib.pyplot as plt
