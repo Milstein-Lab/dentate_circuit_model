@@ -117,6 +117,21 @@ def piecewise_linear_activation(weighted_input, peak_output=3., peak_input=7., t
 
     return output
 
+def rectified_linear_activation(weighted_input, slope=0.02, threshold=0.):
+    """
+    Output is zero below a threshold, then increases linearly for inputs up to the specified maximum values for inputs
+    and output.
+    :param weighted_input: array of float
+    :param slope: float
+    :param threshold: float
+    :return: array of float
+    """
+
+    input_above_threshold = np.maximum(0., weighted_input-threshold)
+    output = slope * input_above_threshold
+
+    return output
+
 
 def get_callable_from_str(func_name):
     """
@@ -667,7 +682,7 @@ def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_d
            network_activity_dynamics_dict, mean_network_activity_dict
 
 def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
-                  activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed):
+                  activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed, disp=False):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
@@ -692,6 +707,7 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
     :param time_point: tuple of float
     :param train_epochs: int (number of times to repeat input patterns)
     :param train_seed: int
+    :param disp: bool
     :return: tuple of nested dict
     """
 
@@ -728,8 +744,9 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
     local_random = np.random.RandomState()
     local_random.seed(train_seed)
     train_step = 0
-
+    
     for epoch in range(train_epochs):
+        current_time = time.time()
         pattern_indexes = np.arange(len(input_patterns))
         local_random.shuffle(pattern_indexes)
         for pattern_index in pattern_indexes:
@@ -775,6 +792,8 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
                 for pre_population in weight_dict[post_population]:
                     weight_history_dict[post_population][pre_population][train_step, :, :] = weight_dict[post_population][pre_population]
             train_step += 1
+        if disp:
+            print('Epoch: %i took %.1f sec' % (epoch, time.time() - current_time))
 
     return channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
            network_activity_dynamics_dict, mean_network_activity_dict, weight_history_dict

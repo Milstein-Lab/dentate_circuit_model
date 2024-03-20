@@ -20,35 +20,37 @@ uniform_init_no_learning:
     mean_weight;Output;FB_Inh: 1.0415472856562087
     learning_rate;Output;Input: 0.036752699708545014
 uniform_init_plain_Hebb:
+    # need to re-export 20240229
     #    features:
-    #    sparsity: 33.4875
-    #    similarity: 0.4928547163014517
-    #    selectivity: 33.4875
+    #    sparsity: 24.3078125
+    #    similarity: 0.5500260129464035
+    #    selectivity: 24.3078125
     #    fraction_active_patterns: 0.990625
     #    fraction_active_units: 1.0
-    mean_weight;Output;Input: 0.42087087680481144
-    mean_weight;FF_Inh;Input: 1.78003219336945
-    mean_weight;Output;FF_Inh: 0.10658901166885794
-    mean_weight;FB_Exc;Output: 0.008569871466584177
-    mean_weight;FB_Exc;FB_Exc: 1.196595780695089
-    mean_weight;FB_Inh;FB_Exc: 1.521539909842174
-    mean_weight;Output;FB_Inh: 0.9862841130011132
-    learning_rate;Output;Input: 0.0012780144511036536
+    mean_weight;Output;Input: 0.41307478536704995
+    mean_weight;FF_Inh;Input: 0.12783508801810664
+    mean_weight;Output;FF_Inh: 0.22197298925688225
+    mean_weight;FB_Exc;Output: 0.009096177645739008
+    mean_weight;FB_Exc;FB_Exc: 1.0507651563653517
+    mean_weight;FB_Inh;FB_Exc: 1.5180902086790928
+    mean_weight;Output;FB_Inh: 0.8638592656507915
+    learning_rate;Output;Input: 0.0010030448593866107
 uniform_init_Hebb_weight_norm:
+    # need to re-export 20240229
     #    features:
-    #    sparsity: 34.8796875
-    #    similarity: 0.5152812510729174
-    #    selectivity: 34.8796875
-    #    fraction_active_patterns: 0.990625
+    #    sparsity: 29.853125
+    #    similarity: 0.4806198393864031
+    #    selectivity: 29.853125
+    #    fraction_active_patterns: 0.9890625
     #    fraction_active_units: 1.0
-    mean_weight;Output;Input: 0.7897345107995063
-    mean_weight;FF_Inh;Input: 0.3332573763826619
-    mean_weight;Output;FF_Inh: 0.7095534669394213
-    mean_weight;FB_Exc;Output: 0.010281637228862672
-    mean_weight;FB_Exc;FB_Exc: 0.9545262598622734
-    mean_weight;FB_Inh;FB_Exc: 0.44028705008896624
-    mean_weight;Output;FB_Inh: 1.7502455088578976
-    learning_rate;Output;Input: 0.007589480405751899
+    mean_weight;Output;Input: 0.751567106382192
+    mean_weight;FF_Inh;Input: 0.29520412771209653
+    mean_weight;Output;FF_Inh: 0.7070627706122581
+    mean_weight;FB_Exc;Output: 0.010268929787958484
+    mean_weight;FB_Exc;FB_Exc: 0.9511366548658848
+    mean_weight;FB_Inh;FB_Exc: 0.45312560804167823
+    mean_weight;Output;FB_Inh: 1.754199725505635
+    learning_rate;Output;Input: 0.00417957519442156
 log_normal_init_no_learning:
     #    features:
     #    sparsity: 12.415625
@@ -65,32 +67,34 @@ log_normal_init_no_learning:
     mean_weight;Output;FB_Inh: 1.291029356154288
     learning_rate;Output;Input: 0.03768986339285962
 log_normal_init_plain_Hebb:
+    # need to re-export 20240229
     #    features:
-    #    sparsity: 13.7125
-    #    similarity: 0.44477368476297363
-    #    selectivity: 13.7125
+    #    sparsity: 13.696875
+    #    similarity: 0.43371841443699743
+    #    selectivity: 13.696875
     #    fraction_active_patterns: 0.9859375
     #    fraction_active_units: 1.0
-    mean_weight;Output;Input: 0.6031300285404805
-    mean_weight;FF_Inh;Input: 0.7211859546851582
-    mean_weight;Output;FF_Inh: 0.16426863703644656
-    mean_weight;FB_Exc;Output: 0.010558017260564274
-    mean_weight;FB_Exc;FB_Exc: 0.8251118132817546
-    mean_weight;FB_Inh;FB_Exc: 1.8010632913630948
-    mean_weight;Output;FB_Inh: 1.8122334345254758
-    learning_rate;Output;Input: 0.002135803612166785
+    mean_weight;Output;Input: 0.6043336278173709
+    mean_weight;FF_Inh;Input: 0.7292787673042171
+    mean_weight;Output;FF_Inh: 0.1591749166578993
+    mean_weight;FB_Exc;Output: 0.010699532597424958
+    mean_weight;FB_Exc;FB_Exc: 0.8071242537148623
+    mean_weight;FB_Inh;FB_Exc: 1.7899329701817155
+    mean_weight;Output;FB_Inh: 1.7944585011142717
+    learning_rate;Output;Input: 0.0011194405349760359
 log_normal_init_Hebb_weight_norm:
+    # need to re-export 20240229
     #    features:
-    #    sparsity: 12.5078125
-    #    similarity: 0.424094015908726
-    #    selectivity: 12.5078125
+    #    sparsity: 11.9046875
+    #    similarity: 0.4209013441925357
+    #    selectivity: 11.9046875
     #    fraction_active_patterns: 0.9859375
     #    fraction_active_units: 1.0
-    mean_weight;Output;Input: 0.4929249329773807
-    mean_weight;FF_Inh;Input: 0.2506839414343677
-    mean_weight;Output;FF_Inh: 0.5630345217987159
-    mean_weight;FB_Exc;Output: 0.016057539284135072
-    mean_weight;FB_Exc;FB_Exc: 0.6967514505204512
-    mean_weight;FB_Inh;FB_Exc: 1.0513536694215224
-    mean_weight;Output;FB_Inh: 1.5652405177282258
-    learning_rate;Output;Input: 0.003253988849294509
+    mean_weight;Output;Input: 0.47505384640581827
+    mean_weight;FF_Inh;Input: 0.2496283351961201
+    mean_weight;Output;FF_Inh: 0.5192539618097884
+    mean_weight;FB_Exc;Output: 0.016869824127259937
+    mean_weight;FB_Exc;FB_Exc: 0.6720853682836645
+    mean_weight;FB_Inh;FB_Exc: 1.0055371025973854
+    mean_weight;Output;FB_Inh: 1.5684222744330798
+    learning_rate;Output;Input: 0.0016425165406771642

@@ -67,9 +67,20 @@ def modify_network(param_dict):
             pre_pop_name = parsed_param_name[2]
             context.weight_config_dict[post_pop_name][pre_pop_name]['mean_magnitude'] = param_val
         elif parsed_param_name[0] == 'learning_rate':
-            post_pop_name = parsed_param_name[1]
-            pre_pop_name = parsed_param_name[2]
-            context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params']['learning_rate'] = param_val
+            if len(parsed_param_name) > 1:
+                post_pop_name = parsed_param_name[1]
+                pre_pop_name = parsed_param_name[2]
+                context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params'][
+                    'learning_rate'] = param_val
+            else:
+                for post_pop_name in context.weight_config_dict:
+                    for pre_pop_name in context.weight_config_dict[post_pop_name]:
+                        if ('learning_rule_parms' in
+                                context.weight_config_dict[post_pop_name][pre_pop_name] and
+                                'learning_rate' in
+                                context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params']):
+                            context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params'][
+                                'learning_rate'] = param_val
 
 
 def compute_features(param_array, model_id=None, export=False, plot=False):
@@ -160,7 +171,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
             train_network(context.t, context.sorted_input_patterns, context.num_units_dict, context.synapse_tau_dict,
                           context.cell_tau_dict, weight_dict, context.weight_config_dict,
                           context.activation_function_dict, context.synaptic_reversal_dict, context.time_point,
-                          context.train_epochs, context.train_seed)
+                          context.train_epochs, context.train_seed, context.verbose)
         if context.verbose:
             print('Model_id: %s; Training took %.1f s' % (model_id, time.time() - current_time))
     else:

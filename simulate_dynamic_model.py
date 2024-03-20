@@ -75,7 +75,7 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
         network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
             train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
                           weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point,
-                          train_epochs, train_seed)
+                          train_epochs, train_seed, disp=True)
         print('Train took %.1f s' % (time.time() - current_time))
     else:
         weight_history_dict = None

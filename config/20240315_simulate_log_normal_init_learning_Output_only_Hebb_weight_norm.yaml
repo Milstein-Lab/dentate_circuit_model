@@ -1,0 +1,122 @@
+description: FF_Inh+indirect_FB_Inh
+weight_seed: 1234
+duration: 0.35 #sec
+dt: 0.010 #sec
+train_epochs: 10
+train_seed: 0
+time_point: !!python/tuple #time window for evaluating performance metrics
+    - 0.15
+    - 0.35
+fraction_active_patterns_threshold:
+    Output: 0.9
+    default: 0.6
+fraction_active_units_threshold:
+    Output: 0.9
+    default: 0.8
+
+num_units_dict:
+    Input: 7
+    Output: 128
+    FF_Inh: 7
+    FB_Inh: 7
+    FB_Exc: 7
+
+activation_function_dict:
+    Output:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+    FF_Inh:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+    FB_Inh:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+    FB_Exc:
+        Name: piecewise_linear_activation
+        Arguments:
+            peak_output: 1.
+            peak_input: 60.
+            threshold: 10.
+
+weight_config_dict:
+    Output:
+        Input:
+            dist_type: log-normal
+            mean_magnitude: 0.47505384640581827
+            connection_type: exc
+            learning_rule: Hebb_weight_norm
+            learning_rule_params:
+                learning_rate: 0.01
+        FF_Inh:
+            dist_type: uniform
+            mean_magnitude: 0.5192539618097884
+            connection_type: inh
+        FB_Inh:
+            dist_type: uniform
+            mean_magnitude: 1.5684222744330798
+            connection_type: inh
+    FF_Inh:
+        Input:
+            dist_type: uniform
+            mean_magnitude: 0.2496283351961201
+            connection_type: exc
+    FB_Exc:
+        Output:
+            dist_type: log-normal
+            mean_magnitude: 0.016869824127259937
+            connection_type: exc
+        FB_Exc:
+            dist_type: log-normal
+            mean_magnitude: 0.6720853682836645
+            connection_type: exc
+    FB_Inh:
+        FB_Exc:
+            dist_type: uniform
+            mean_magnitude: 1.0055371025973854
+            connection_type: exc
+
+cell_tau_dict:
+    Output: 0.05
+    FF_Inh: 0.02
+    FB_Inh: 0.02
+    FB_Exc: 0.05
+
+synapse_tau_dict:
+    Output:
+        Input:
+            rise: 0.001
+            decay: 0.01
+        FF_Inh:
+            rise: 0.001
+            decay: 0.02
+        FB_Inh:
+            rise: 0.001
+            decay: 0.02
+    FF_Inh:
+        Input:
+            rise: 0.001
+            decay: 0.01
+    FB_Exc:
+        Output:
+            rise: 0.001
+            decay: 0.01
+        FB_Exc:
+            rise: 0.001
+            decay: 0.01
+    FB_Inh:
+        FB_Exc:
+            rise: 0.001
+            decay: 0.01
+
+synaptic_reversal_dict:
+    exc: 60.
+    inh: -10.
