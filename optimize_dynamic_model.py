@@ -55,7 +55,17 @@ def config_worker():
         context.allow_fail = True
     elif isinstance(context.allow_fail, str):
         context.allow_fail = bool(strtobool(context.allow_fail))
-
+    
+    if 'fast' not in context():
+        context.fast = True
+    elif isinstance(context.fast, str):
+        context.fast = bool(strtobool(context.fast))
+    
+    if 'store_history' not in context():
+        context.store_history = False
+    elif isinstance(context.store_history, str):
+        context.store_history = bool(strtobool(context.store_history))
+    
     context.update(locals())
 
 
@@ -75,7 +85,7 @@ def modify_network(param_dict):
             else:
                 for post_pop_name in context.weight_config_dict:
                     for pre_pop_name in context.weight_config_dict[post_pop_name]:
-                        if ('learning_rule_parms' in
+                        if ('learning_rule_params' in
                                 context.weight_config_dict[post_pop_name][pre_pop_name] and
                                 'learning_rate' in
                                 context.weight_config_dict[post_pop_name][pre_pop_name]['learning_rule_params']):
@@ -171,11 +181,11 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
             train_network(context.t, context.sorted_input_patterns, context.num_units_dict, context.synapse_tau_dict,
                           context.cell_tau_dict, weight_dict, context.weight_config_dict,
                           context.activation_function_dict, context.synaptic_reversal_dict, context.time_point,
-                          context.train_epochs, context.train_seed, context.verbose)
+                          context.train_epochs, context.train_seed, context.verbose, fast=context.fast,
+                          store_history=context.store_history)
         if context.verbose:
             print('Model_id: %s; Training took %.1f s' % (model_id, time.time() - current_time))
-    else:
-        weight_history_dict = None
+    
     
     # test after train
     current_time = time.time()
@@ -184,7 +194,7 @@ def compute_features_multiple_instances(param_array, weight_seed, model_id=None,
         get_network_dynamics_dicts(context.t, context.sorted_input_patterns, context.num_units_dict,
                                    context.synapse_tau_dict, context.cell_tau_dict,
                                    weight_dict, context.weight_config_dict, context.activation_function_dict,
-                                   context.synaptic_reversal_dict)
+                                   context.synaptic_reversal_dict, fast=context.fast)
     if context.verbose:
         print('Model id: %s; Test took %.1f s' % (model_id, time.time() - current_time))
     

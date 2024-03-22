@@ -2,7 +2,7 @@ description: add_I_I_learn_All_Hebb_weight_norm
 weight_seed: 1234
 duration: 0.35 #sec
 dt: 0.010 #sec
-train_epochs: 10
+train_epochs: 1
 train_seed: 0
 time_point: !!python/tuple #time window for evaluating performance metrics
     - 0.15

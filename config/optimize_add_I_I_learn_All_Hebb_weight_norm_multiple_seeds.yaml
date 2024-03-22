@@ -94,7 +94,7 @@ x0: #initial parameters
     mean_weight;FB_Inh;FB_Exc: 0.5
     mean_weight;FB_Inh;FB_Inh: 0.5
     mean_weight;Output;FB_Inh: 0.5
-    learning_rate: 0.01
+    learning_rate: 0.02
 
 param_gen: PopulationAnnealing
 

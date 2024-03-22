@@ -20,7 +20,8 @@ python optimize_dynamic_model.py --config_file_path=config/simulate_config_2_FF_
 @click.option("--data_dir", type=click.Path(exists=True, file_okay=False, dir_okay=True), default='data')
 @click.option("--plot", is_flag=True)
 @click.option("--export", is_flag=True)
-def main(config_file_path, export_file_name, data_dir, plot, export):
+@click.option("--fast", type=bool, default=False)
+def main(config_file_path, export_file_name, data_dir, plot, export, fast):
     """
     Given model configuration parameters, build a network, run a simulation and analyze the output.
     Optionally can generate summary plots and/or export data to an hdf5 file.
@@ -29,6 +30,7 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
     :param data_dir: str (path); directory to export data
     :param plot: bool; whether to generate plots
     :param export: bool; whether to export data to hdf5
+    :param fast: bool; whether to sacrifice accuracy for speed
     """
     start_time = time.time()
     parameter_dict = read_from_yaml(config_file_path)
@@ -60,22 +62,13 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
     # Simulate network dynamics
     t = np.arange(0., duration + dt / 2., dt) # initial test
     if train_epochs > 0:
-        current_time = time.time()
-        channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
-        network_activity_dynamics_dict, mean_network_activity_dict = \
-            test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                         weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point)
-        initial_activity_dict = deepcopy(mean_network_activity_dict)
-        initial_weight_dict = deepcopy(weight_dict)
-        print('Inital test took %.1f s' % (time.time() - current_time))
-
         # train step
         current_time = time.time()
         channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
         network_activity_dynamics_dict, train_network_activity_history_dict, weight_history_dict = \
             train_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
                           weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point,
-                          train_epochs, train_seed, disp=True)
+                          train_epochs, train_seed, disp=True, fast=fast)
         print('Train took %.1f s' % (time.time() - current_time))
     else:
         weight_history_dict = None
@@ -84,11 +77,10 @@ def main(config_file_path, export_file_name, data_dir, plot, export):
     current_time = time.time()
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict, mean_network_activity_dict = \
-        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                                   weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict,
-                     time_point)
+        test_network(t, sorted_input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
+                     weight_config_dict, activation_function_dict, synaptic_reversal_dict, time_point, fast=fast)
     final_activity_dict = deepcopy(mean_network_activity_dict)
-    print('Final test took %.1f s' % (time.time() - current_time))
+    print('Test took %.1f s' % (time.time() - current_time))
 
     sparsity_dict, similarity_matrix_dict, selectivity_dict, fraction_active_patterns_dict, \
     fraction_active_units_dict = analyze_slice(mean_network_activity_dict)

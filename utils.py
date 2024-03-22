@@ -458,8 +458,7 @@ def state_dynamics_to_nested_dicts(state_dynamics, legend, input_pattern, num_un
 
 
 def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                                      weight_config_dict,
-                                      activation_function_dict, synaptic_reversal_dict):
+                                      weight_config_dict, activation_function_dict, synaptic_reversal_dict, fast=False):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a single,
     static input pattern.
@@ -480,6 +479,7 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
         {'population': callable (function to call to convert weighted input to output activity for this population)}
         }
     :param synaptic_reversal_dict:
+    :param fast: bool
     :return: tuple of nested dict
     """
 
@@ -501,11 +501,21 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
         network_activity_dict[post_population] = np.zeros(num_units_dict[post_population])
 
     initial_state_list, legend = nested_dicts_to_flat_state_list(channel_conductance_dict, cell_voltage_dict)
-
-    sol = solve_ivp(simulate_network_dynamics, t_span=(t[0], t[-1]), y0=initial_state_list, t_eval=t,
-                    args=(legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
-                          weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict))
-
+    
+    if fast:
+        sol = solve_ivp(simulate_network_dynamics, t_span=(t[0], t[-1]), y0=initial_state_list, t_eval=t,
+                        args=(legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                              weight_dict, weight_config_dict, activation_function_dict, synaptic_reversal_dict),
+                        rtol=1e-2, atol=1e-2)
+    else:
+        sol = solve_ivp(simulate_network_dynamics, t_span=(t[0], t[-1]), y0=initial_state_list, t_eval=t,
+                        args=(legend, input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
+                              weight_dict, weight_config_dict, activation_function_dict,
+                              synaptic_reversal_dict))
+    
+    if np.any(np.isnan(sol.y)):
+        raise Exception('compute_network_activity_dynamics: solve_ivp returned nan')
+    
     channel_conductance_dynamics_dict, net_current_dynamics_dict, cell_voltage_dynamics_dict, \
     network_activity_dynamics_dict = state_dynamics_to_nested_dicts(sol.y, legend, input_pattern, num_units_dict,
                                                                     activation_function_dict, weight_dict,
@@ -517,8 +527,7 @@ def compute_network_activity_dynamics(t, input_pattern, num_units_dict, synapse_
 
 
 def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                               weight_config_dict,
-                               activation_function_dict, synaptic_reversal_dict):
+                               weight_config_dict, activation_function_dict, synaptic_reversal_dict, fast=False):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
@@ -540,6 +549,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         {'population': callable (function to call to convert weighted input to output activity for this population)}
         }
     :param synaptic_reversal_dict:
+    :param fast: bool
     :return: tuple of nested dict
     """
 
@@ -572,7 +582,7 @@ def get_network_dynamics_dicts(t, input_patterns, num_units_dict, synapse_tau_di
         this_network_activity_dynamics_dict = \
             compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
                                               weight_dict, weight_config_dict, activation_function_dict,
-                                              synaptic_reversal_dict)
+                                              synaptic_reversal_dict, fast=fast)
 
         for population in this_network_activity_dynamics_dict:
             network_activity_dynamics_dict[population][pattern_index, :, :] = \
@@ -595,15 +605,17 @@ def plain_Hebb(weights, post_activity, pre_activity, learning_rate):
     weights = weights + delta_weights
     return weights
 
+
 def Hebb_weight_norm(weights, post_activity, pre_activity, learning_rate):
     delta_weights = learning_rate * np.outer(pre_activity, post_activity)
     weight_scale = np.sum(weights, axis=0)
     weights = weights + delta_weights
     weights = weights / np.sum(weights, axis=0) * weight_scale
     return weights
-def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict,
-                               weight_config_dict,
-                               activation_function_dict, synaptic_reversal_dict, time_point):
+
+
+def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
+                 activation_function_dict, synaptic_reversal_dict, time_point, fast=False):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
@@ -626,6 +638,7 @@ def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_d
         }
     :param synaptic_reversal_dict:
     :param time_point: tuple of float
+    :param fast: bool
     :return: tuple of nested dict
     """
 
@@ -660,7 +673,7 @@ def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_d
         this_network_activity_dynamics_dict = \
             compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
                                               weight_dict, weight_config_dict, activation_function_dict,
-                                              synaptic_reversal_dict)
+                                              synaptic_reversal_dict, fast=fast)
         this_mean_network_activity_dict = slice_network_activity_dynamics_single_input_pattern_dict(
             this_network_activity_dynamics_dict, t, time_point)
 
@@ -682,7 +695,8 @@ def test_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_d
            network_activity_dynamics_dict, mean_network_activity_dict
 
 def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_dict, weight_dict, weight_config_dict,
-                  activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed, disp=False):
+                  activation_function_dict, synaptic_reversal_dict, time_point, train_epochs, train_seed, disp=False,
+                  fast=False, store_history=False):
     """
     Use scipy.integrate.solve_ivp to calculate network intermediates and activites over time, in response to a set of
     input patterns.
@@ -708,6 +722,8 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
     :param train_epochs: int (number of times to repeat input patterns)
     :param train_seed: int
     :param disp: bool
+    :param fast: bool
+    :param store_history: bool
     :return: tuple of nested dict
     """
 
@@ -720,26 +736,27 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
     mean_network_activity_dict = {}
     weight_history_dict = {}
     train_steps = len(input_patterns) * train_epochs
-
-    for population in num_units_dict:
-        network_activity_dynamics_dict[population] = np.empty((train_steps, num_units_dict[population], len(t)))
-        mean_network_activity_dict[population] = np.empty((train_steps, num_units_dict[population]))
-
-    for post_population in weight_dict:
-        channel_conductance_dynamics_dict[post_population] = {}
-        weight_history_dict[post_population] = {}
-        for pre_population in weight_dict[post_population]:
-            channel_conductance_dynamics_dict[post_population][pre_population] = \
-                np.empty((train_steps, num_units_dict[pre_population], num_units_dict[post_population], len(t)))
-            weight_history_dict[post_population][pre_population] = \
-                np.empty((train_steps, num_units_dict[pre_population], num_units_dict[post_population]))
-
-        net_current_dynamics_dict[post_population] = \
-            np.empty((train_steps, num_units_dict[post_population], len(t)))
-
-
-        cell_voltage_dynamics_dict[post_population] = \
-            np.empty((train_steps, num_units_dict[post_population], len(t)))
+    
+    if store_history:
+        for population in num_units_dict:
+            network_activity_dynamics_dict[population] = np.empty((train_steps, num_units_dict[population], len(t)))
+            mean_network_activity_dict[population] = np.empty((train_steps, num_units_dict[population]))
+    
+        for post_population in weight_dict:
+            channel_conductance_dynamics_dict[post_population] = {}
+            weight_history_dict[post_population] = {}
+            for pre_population in weight_dict[post_population]:
+                channel_conductance_dynamics_dict[post_population][pre_population] = \
+                    np.empty((train_steps, num_units_dict[pre_population], num_units_dict[post_population], len(t)))
+                weight_history_dict[post_population][pre_population] = \
+                    np.empty((train_steps, num_units_dict[pre_population], num_units_dict[post_population]))
+    
+            net_current_dynamics_dict[post_population] = \
+                np.empty((train_steps, num_units_dict[post_population], len(t)))
+    
+    
+            cell_voltage_dynamics_dict[post_population] = \
+                np.empty((train_steps, num_units_dict[post_population], len(t)))
 
     local_random = np.random.RandomState()
     local_random.seed(train_seed)
@@ -755,24 +772,10 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
             this_network_activity_dynamics_dict = \
                 compute_network_activity_dynamics(t, this_input_pattern, num_units_dict, synapse_tau_dict, cell_tau_dict,
                                                   weight_dict, weight_config_dict, activation_function_dict,
-                                                  synaptic_reversal_dict)
+                                                  synaptic_reversal_dict, fast=fast)
             this_mean_network_activity_dict = slice_network_activity_dynamics_single_input_pattern_dict(
                 this_network_activity_dynamics_dict, t, time_point)
-
-            for population in this_network_activity_dynamics_dict:
-                network_activity_dynamics_dict[population][train_step, :, :] = \
-                    this_network_activity_dynamics_dict[population]
-                mean_network_activity_dict[population][train_step, :] = this_mean_network_activity_dict[population]
-
-            for post_population in this_channel_conductance_dynamics_dict:
-                for pre_population in this_channel_conductance_dynamics_dict[post_population]:
-                    channel_conductance_dynamics_dict[post_population][pre_population][train_step, :, :, :] = \
-                        this_channel_conductance_dynamics_dict[post_population][pre_population]
-                net_current_dynamics_dict[post_population][train_step, :, :] = \
-                    this_net_current_dynamics_dict[post_population]
-                cell_voltage_dynamics_dict[post_population][train_step, :, :] = \
-                    this_cell_voltage_dynamics_dict[post_population]
-
+            
             for post_population in weight_config_dict:
                 for pre_population in weight_config_dict[post_population]:
                     if 'learning_rule' in weight_config_dict[post_population][pre_population]:
@@ -787,10 +790,25 @@ def train_network(t, input_patterns, num_units_dict, synapse_tau_dict, cell_tau_
                                 Hebb_weight_norm(weight_dict[post_population][pre_population],
                                            this_mean_network_activity_dict[post_population],
                                            this_mean_network_activity_dict[pre_population], **learning_rule_params)
-
-            for post_population in weight_dict:
-                for pre_population in weight_dict[post_population]:
-                    weight_history_dict[post_population][pre_population][train_step, :, :] = weight_dict[post_population][pre_population]
+            if store_history:
+                for population in this_network_activity_dynamics_dict:
+                    network_activity_dynamics_dict[population][train_step, :, :] = \
+                        this_network_activity_dynamics_dict[population]
+                    mean_network_activity_dict[population][train_step, :] = this_mean_network_activity_dict[population]
+                
+                for post_population in this_channel_conductance_dynamics_dict:
+                    for pre_population in this_channel_conductance_dynamics_dict[post_population]:
+                        channel_conductance_dynamics_dict[post_population][pre_population][train_step, :, :, :] = \
+                            this_channel_conductance_dynamics_dict[post_population][pre_population]
+                    net_current_dynamics_dict[post_population][train_step, :, :] = \
+                        this_net_current_dynamics_dict[post_population]
+                    cell_voltage_dynamics_dict[post_population][train_step, :, :] = \
+                        this_cell_voltage_dynamics_dict[post_population]
+                
+                for post_population in weight_dict:
+                    for pre_population in weight_dict[post_population]:
+                        weight_history_dict[post_population][pre_population][train_step, :, :] = (
+                            weight_dict)[post_population][pre_population]
             train_step += 1
         if disp:
             print('Epoch: %i took %.1f sec' % (epoch, time.time() - current_time))
